@@ -478,7 +478,7 @@ export default function BudgetPage() {
                   className="bg-white border border-black/10 rounded-xl p-5 flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                       <span className="text-xs font-bold text-[#0032a0] tabular-nums">
                         Contract ID: {proj.id} · {proj.projectDate}
                       </span>

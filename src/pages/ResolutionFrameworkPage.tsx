@@ -73,38 +73,56 @@ export default function ResolutionFrameworkPage() {
             />
           </div>
 
-          <div className="space-y-4">
-            {filtered.map((res) => (
-              <article
-                key={res.resolutionNo}
-                className="bg-white border border-black/10 rounded-xl p-5"
+          {filtered.length === 0 ? (
+            <div className="bg-white border border-black/10 rounded-xl p-8 text-center">
+              <p className="text-sm font-semibold text-slate-900 mb-1">
+                No resolutions match "{query}".
+              </p>
+              <p className="text-xs text-slate-600 mb-4">
+                Try clearing the search query to view all tracked resolutions.
+              </p>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setQuery('')}
               >
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                  <span className="text-sm font-bold text-[#0032a0] tabular-nums">
-                    {res.resolutionNo} · {res.approvalDate}
-                  </span>
-                  <VerificationBadge status={res.citation.verificationStatus} />
-                </div>
-                <h2 className="text-lg font-bold text-slate-900 mb-2">{res.title}</h2>
-                <p className="text-sm text-slate-600 mb-3">{res.summary}</p>
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 pt-3 border-t border-black/5">
-                  <span>
-                    <strong>Issuing Body:</strong> {res.issuingBody}
-                  </span>
-                  {res.documentUrl && (
-                    <a
-                      href={res.documentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-semibold text-[#0032a0]"
-                    >
-                      View Source Portal <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
-                    </a>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
+                Show All Resolutions
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filtered.map((res) => (
+                <article
+                  key={res.resolutionNo}
+                  className="bg-white border border-black/10 rounded-xl p-5"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span className="text-sm font-bold text-[#0032a0] tabular-nums">
+                      {res.resolutionNo} · {res.approvalDate}
+                    </span>
+                    <VerificationBadge status={res.citation.verificationStatus} />
+                  </div>
+                  <h2 className="text-lg font-bold text-slate-900 mb-2">{res.title}</h2>
+                  <p className="text-sm text-slate-600 mb-3">{res.summary}</p>
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 pt-3 border-t border-black/5">
+                    <span>
+                      <strong>Issuing Body:</strong> {res.issuingBody}
+                    </span>
+                    {res.documentUrl && (
+                      <a
+                        href={res.documentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-[#0032a0]"
+                      >
+                        View Source Portal <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
+                      </a>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </Layout>

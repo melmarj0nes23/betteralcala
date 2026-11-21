@@ -1235,7 +1235,7 @@ export default function AdminPage() {
                               <button
                                 type="button"
                                 onClick={() => deletePublishedRecord(rec)}
-                                className="btn btn-outline btn-sm text-red-700 border-red-200"
+                                className="btn btn-danger-outline btn-sm"
                               >
                                 Delete
                               </button>

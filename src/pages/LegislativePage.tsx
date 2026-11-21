@@ -115,8 +115,10 @@ export default function LegislativePage() {
             {(activeTab === 'ordinances' ? ORDINANCE_STEPS : RESOLUTION_STEPS).map((step) => (
               <div key={step.num} className="leg-flow-card">
                 <div className="leg-flow-number">{step.num}</div>
-                <h4>{step.title}</h4>
-                <p>{step.desc}</p>
+                <div className="leg-flow-card-content">
+                  <h4>{step.title}</h4>
+                  <p>{step.desc}</p>
+                </div>
               </div>
             ))}
           </div>

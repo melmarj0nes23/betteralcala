@@ -222,7 +222,7 @@ export default function ServiceDetailPage() {
               {service.downloadableForms.length > 0 ? (
                 <ul className="req-list">
                   {service.downloadableForms.map((f) => (
-                    <li key={f.label} className="justify-between items-center">
+                    <li key={f.label} className="flex-wrap gap-2 justify-between items-center">
                       <div>
                         <span className="font-medium text-slate-900">{f.label}</span>
                         {f.note && <div className="text-xs text-slate-500">{f.note}</div>}
@@ -252,7 +252,7 @@ export default function ServiceDetailPage() {
                 </span>
                 <Link
                   to={`/contact?topic=${encodeURIComponent("Citizen's Charter Inquiry")}&service=${encodeURIComponent(service.title)}#feedback`}
-                  className="btn btn-outline btn-sm whitespace-nowrap"
+                  className="btn btn-outline btn-sm sm:whitespace-nowrap"
                 >
                   {t('service-help-verify')}
                 </Link>
@@ -260,7 +260,7 @@ export default function ServiceDetailPage() {
             </div>
           )}
 
-          <div className="mt-6 flex flex-wrap gap-3 no-print">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 no-print">
             <Link to="/services" className="btn btn-outline btn-sm">
               ← {t('services-back')}
             </Link>

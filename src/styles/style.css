@@ -180,10 +180,14 @@
 }
 
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 12px 24px;
   border-radius: var(--border-radius);
   font-weight: 600;
+  line-height: 1.25;
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.2s ease;
@@ -212,6 +216,18 @@
 
 .btn-secondary:hover {
   background-color: var(--color-bg-alt);
+  text-decoration: none;
+}
+
+.btn-outline {
+  background-color: var(--color-white);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-outline:hover {
+  background-color: rgba(0, 50, 160, 0.06);
+  color: var(--color-primary-dark);
   text-decoration: none;
 }
 
@@ -6521,19 +6537,15 @@ cklist with Icons - Proper Indentation */
   color: var(--color-primary);
 }
 
-.btn-outline {
+.home-hero-v2-actions .btn-outline,
+.page-header .btn-outline {
   background: transparent;
   border: 2px solid white;
   color: white;
-  padding: 12px 24px;
-  border-radius: var(--border-radius);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
 }
 
-.btn-outline:hover {
+.home-hero-v2-actions .btn-outline:hover,
+.page-header .btn-outline:hover {
   background: rgba(255, 255, 255, 0.15);
   color: white;
   text-decoration: none;

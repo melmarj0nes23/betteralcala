@@ -857,7 +857,18 @@ body {
   border-color: #ffffff;
 }
 
-/* High Contrast support for Tailwind-styled cards */
+/* Balanced centered layout for Citizen's Charter overview banner */
+.appointment-cta-content {
+  max-width: 780px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.appointment-cta-actions {
+  justify-content: center;
+}
+
+/* High Contrast support for Tailwind-styled cards, custom sections & tabs */
 body.high-contrast .bg-white,
 body.high-contrast .bg-slate-50,
 body.high-contrast .stat-card,
@@ -865,10 +876,46 @@ body.high-contrast .process-card,
 body.high-contrast .req-box,
 body.high-contrast .source-citation-box,
 body.high-contrast .civic-notice-banner,
-body.high-contrast .search-autocomplete-list {
+body.high-contrast .search-autocomplete-list,
+body.high-contrast .home-service-card,
+body.high-contrast .home-stat-card,
+body.high-contrast .home-leader-card,
+body.high-contrast .home-contact-v2-card,
+body.high-contrast .weather-widget,
+body.high-contrast .map-card,
+body.high-contrast .timeline-content,
+body.high-contrast .executive-card,
+body.high-contrast .councilor-card,
+body.high-contrast .barangay-card,
+body.high-contrast .sre-metric-card,
+body.high-contrast .sre-period-toggle,
+body.high-contrast .leg-category-card,
+body.high-contrast .leg-flow-card,
+body.high-contrast .data-table tbody tr,
+body.high-contrast .filter-tab-btn,
+body.high-contrast .leg-tab-btn,
+body.high-contrast .mobile-filter-select,
+body.high-contrast .appointment-cta-btn--outline {
   background-color: #111111 !important;
   color: #ffffff !important;
   border-color: #ffffff !important;
+}
+
+body.high-contrast .filter-tab-btn.active,
+body.high-contrast .leg-tab-btn.active,
+body.high-contrast .sre-period-btn.active,
+body.high-contrast .data-table th {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #ffff00 !important;
+}
+
+body.high-contrast .leg-tab-btn.active i,
+body.high-contrast .leg-tab-btn.active span,
+body.high-contrast .leg-tab-btn.active small,
+body.high-contrast .sre-period-btn.active .sre-period-q,
+body.high-contrast .sre-period-btn.active .sre-period-range {
+  color: #000000 !important;
 }
 
 body.high-contrast .text-slate-900,
@@ -877,6 +924,19 @@ body.high-contrast .text-slate-700,
 body.high-contrast .text-slate-600,
 body.high-contrast .text-slate-500 {
   color: #f3f4f6 !important;
+}
+
+.btn-danger-outline {
+  background-color: #ffffff;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.btn-danger-outline:hover {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-color: #f87171;
+  text-decoration: none;
 }
 
 /* Clean Print Layout for Service Checklists & Public Records */

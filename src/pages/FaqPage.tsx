@@ -65,44 +65,62 @@ export default function FaqPage() {
             />
           </div>
 
-          {categories.map((cat) => {
-            const items = filtered.filter((i) => i.category === cat);
-            if (items.length === 0) return null;
-            return (
-              <div key={cat} className="mb-8">
-                <h2 className="text-lg font-bold text-[#0032a0] mb-3">{cat}</h2>
-                <div className="space-y-3">
-                  {items.map((item) => {
-                    const isOpen = openId === item.id;
-                    return (
-                      <div
-                        key={item.id}
-                        className="bg-white border border-black/10 rounded-xl overflow-hidden"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => setOpenId(isOpen ? null : item.id)}
-                          aria-expanded={isOpen}
-                          className="w-full text-left px-5 py-4 flex items-center justify-between gap-4 font-semibold text-slate-900 hover:bg-slate-50"
+          {filtered.length === 0 ? (
+            <div className="bg-white border border-black/10 rounded-xl p-8 text-center">
+              <p className="text-sm font-semibold text-slate-900 mb-1">
+                No questions matched "{query}".
+              </p>
+              <p className="text-xs text-slate-600 mb-4">
+                Try a different keyword or clear the search box to browse all topics.
+              </p>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setQuery('')}
+              >
+                Clear Search
+              </button>
+            </div>
+          ) : (
+            categories.map((cat) => {
+              const items = filtered.filter((i) => i.category === cat);
+              if (items.length === 0) return null;
+              return (
+                <div key={cat} className="mb-8">
+                  <h2 className="text-lg font-bold text-[#0032a0] mb-3">{cat}</h2>
+                  <div className="space-y-3">
+                    {items.map((item) => {
+                      const isOpen = openId === item.id;
+                      return (
+                        <div
+                          key={item.id}
+                          className="bg-white border border-black/10 rounded-xl overflow-hidden"
                         >
-                          <span>{item.question}</span>
-                          <i
-                            className={`bi ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'} text-[#0032a0]`}
-                            aria-hidden="true"
-                          />
-                        </button>
-                        {isOpen && (
-                          <div className="px-5 pb-4 pt-1 text-sm text-slate-700 leading-relaxed border-t border-black/5">
-                            {item.answer}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          <button
+                            type="button"
+                            onClick={() => setOpenId(isOpen ? null : item.id)}
+                            aria-expanded={isOpen}
+                            className="w-full text-left px-5 py-4 flex items-center justify-between gap-4 font-semibold text-slate-900 hover:bg-slate-50"
+                          >
+                            <span>{item.question}</span>
+                            <i
+                              className={`bi ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'} text-[#0032a0]`}
+                              aria-hidden="true"
+                            />
+                          </button>
+                          {isOpen && (
+                            <div className="px-5 pb-4 pt-1 text-sm text-slate-700 leading-relaxed border-t border-black/5">
+                              {item.answer}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </section>
     </Layout>
