@@ -1,0 +1,204 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default deny everything
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'melmarjvelasco@gmail.com'
+        || exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isHttpsUrl(url) {
+      return url is string && url.size() >= 10 && url.size() <= 600 && url.matches('^https://.*');
+    }
+
+    // Boot connectivity probe document
+    match /test/{docId} {
+      allow get: if docId == 'connection';
+    }
+
+    // Admin role markers (strictly admin-only, zero PII)
+    function isValidAdminUser(data) {
+      return data.keys().hasAll(['role', 'grantedByUid', 'createdAt'])
+        && data.keys().hasOnly(['role', 'grantedByUid', 'createdAt'])
+        && data.role == 'admin'
+        && data.grantedByUid is string && data.grantedByUid.size() <= 128
+        && data.grantedByUid == request.auth.uid
+        && data.createdAt is timestamp;
+    }
+
+    match /admins/{adminUid} {
+      allow get: if isValidId(adminUid) && (isAdmin() || (isVerifiedUser() && request.auth.uid == adminUid));
+      allow list: if isAdmin();
+      allow create: if isValidId(adminUid)
+        && isAdmin()
+        && isValidAdminUser(incoming())
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isValidId(adminUid) && isAdmin() && adminUid != request.auth.uid;
+    }
+
+    // Admin-published civic records
+    function isValidCivicRecord(data) {
+      return data.keys().hasAll([
+          'id',
+          'datasetType',
+          'title',
+          'summary',
+          'category',
+          'publishedDate',
+          'sourceTitle',
+          'sourceUrl',
+          'issuingAgency',
+          'verificationStatus',
+          'published',
+          'publishedByUid',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'datasetType',
+          'title',
+          'summary',
+          'details',
+          'category',
+          'originType',
+          'publishedDate',
+          'referenceNo',
+          'spResolutionRef',
+          'issuingBody',
+          'fiscalYear',
+          'approvedBudget',
+          'ntaShareNote',
+          'developmentFundNote',
+          'sourceTitle',
+          'sourceUrl',
+          'issuingAgency',
+          'verificationStatus',
+          'notes',
+          'published',
+          'publishedByUid',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.id)
+        && data.datasetType in ['ordinances', 'resolutions', 'news', 'fiscal_years']
+        && data.title is string && data.title.size() >= 3 && data.title.size() <= 400
+        && data.summary is string && data.summary.size() >= 3 && data.summary.size() <= 2000
+        && (!('details' in data) || (data.details is string && data.details.size() <= 4000))
+        && data.category is string && data.category.size() >= 2 && data.category.size() <= 120
+        && (!('originType' in data) || data.originType in ['Official Government Source', 'Independently Compiled Civic Summary'])
+        && data.publishedDate is string && data.publishedDate.size() >= 4 && data.publishedDate.size() <= 64
+        && (!('referenceNo' in data) || (data.referenceNo is string && data.referenceNo.size() <= 120))
+        && (!('spResolutionRef' in data) || (data.spResolutionRef is string && data.spResolutionRef.size() <= 200))
+        && (!('issuingBody' in data) || (data.issuingBody is string && data.issuingBody.size() <= 240))
+        && (!('fiscalYear' in data) || (data.fiscalYear is int && data.fiscalYear >= 2000 && data.fiscalYear <= 2100))
+        && (!('approvedBudget' in data) || (data.approvedBudget is number && data.approvedBudget > 0))
+        && (!('ntaShareNote' in data) || (data.ntaShareNote is string && data.ntaShareNote.size() <= 600))
+        && (!('developmentFundNote' in data) || (data.developmentFundNote is string && data.developmentFundNote.size() <= 400))
+        && data.sourceTitle is string && data.sourceTitle.size() >= 3 && data.sourceTitle.size() <= 300
+        && isHttpsUrl(data.sourceUrl)
+        && data.issuingAgency is string && data.issuingAgency.size() >= 2 && data.issuingAgency.size() <= 200
+        && data.verificationStatus in ['Verified', 'Needs Review', 'Outdated', 'Unavailable']
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000))
+        && data.published is bool
+        && data.publishedByUid is string && data.publishedByUid.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /civicRecords/{recordId} {
+      allow get: if isValidId(recordId) && (existing().published == true || isAdmin());
+      allow list: if existing().published == true || isAdmin();
+      allow create: if isValidId(recordId)
+        && isAdmin()
+        && isValidCivicRecord(incoming())
+        && incoming().id == recordId
+        && incoming().publishedByUid == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(recordId)
+        && isAdmin()
+        && isValidCivicRecord(incoming())
+        && incoming().id == existing().id
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title',
+          'summary',
+          'details',
+          'category',
+          'originType',
+          'publishedDate',
+          'referenceNo',
+          'spResolutionRef',
+          'issuingBody',
+          'fiscalYear',
+          'approvedBudget',
+          'ntaShareNote',
+          'developmentFundNote',
+          'sourceTitle',
+          'sourceUrl',
+          'issuingAgency',
+          'verificationStatus',
+          'notes',
+          'published',
+          'publishedByUid',
+          'updatedAt'
+        ]);
+      allow delete: if isValidId(recordId) && isAdmin();
+    }
+
+    // Sync run audit logs (strictly admin-only)
+    function isValidSyncRun(data) {
+      return data.keys().hasAll(['checkedByUid', 'sourcesChecked', 'candidatesFound', 'psgcVerified', 'checkedAt'])
+        && data.keys().hasOnly(['checkedByUid', 'sourcesChecked', 'candidatesFound', 'psgcVerified', 'checkedAt'])
+        && data.checkedByUid is string && data.checkedByUid.size() <= 128
+        && data.checkedByUid == request.auth.uid
+        && data.sourcesChecked is list
+        && data.sourcesChecked.size() > 0 && data.sourcesChecked.size() <= 10
+        && data.sourcesChecked[0] is string && data.sourcesChecked[0].size() <= 120
+        && data.candidatesFound is int && data.candidatesFound >= 0 && data.candidatesFound <= 500
+        && data.psgcVerified is bool
+        && data.checkedAt is timestamp;
+    }
+
+    match /syncRuns/{runId} {
+      allow get: if isValidId(runId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isValidId(runId)
+        && isAdmin()
+        && isValidSyncRun(incoming())
+        && incoming().checkedAt == request.time;
+      allow update: if false;
+      allow delete: if isValidId(runId) && isAdmin();
+    }
+  }
+}

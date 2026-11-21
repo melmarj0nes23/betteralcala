@@ -1,0 +1,190 @@
+{
+  "entities": {
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized BetterAlcala administrator role marker",
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["admin"],
+          "description": "Role identifier"
+        },
+        "grantedByUid": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "UID of the admin who granted access"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp"
+        }
+      },
+      "required": ["role", "grantedByUid", "createdAt"]
+    },
+    "CivicRecord": {
+      "title": "CivicRecord",
+      "description": "Verified or Needs Review municipal civic record published via Admin Data Sync",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "datasetType": {
+          "type": "string",
+          "enum": ["ordinances", "resolutions", "news", "fiscal_years"]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 400
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 2000
+        },
+        "details": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "category": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "originType": {
+          "type": "string",
+          "enum": ["Official Government Source", "Independently Compiled Civic Summary"]
+        },
+        "publishedDate": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "referenceNo": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "spResolutionRef": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "issuingBody": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "fiscalYear": {
+          "type": "number"
+        },
+        "approvedBudget": {
+          "type": "number"
+        },
+        "ntaShareNote": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "developmentFundNote": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "sourceTitle": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300
+        },
+        "sourceUrl": {
+          "type": "string",
+          "maxLength": 600,
+          "pattern": "^https://.*"
+        },
+        "issuingAgency": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 200
+        },
+        "verificationStatus": {
+          "type": "string",
+          "enum": ["Verified", "Needs Review", "Outdated", "Unavailable"]
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "published": {
+          "type": "boolean"
+        },
+        "publishedByUid": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "datasetType",
+        "title",
+        "summary",
+        "category",
+        "publishedDate",
+        "sourceTitle",
+        "sourceUrl",
+        "issuingAgency",
+        "verificationStatus",
+        "published",
+        "publishedByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "SyncRun": {
+      "title": "SyncRun",
+      "description": "Audit log of Admin official-source sync checks",
+      "type": "object",
+      "properties": {
+        "checkedByUid": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "sourcesChecked": {
+          "type": "array",
+          "maxLength": 10
+        },
+        "candidatesFound": {
+          "type": "number"
+        },
+        "psgcVerified": {
+          "type": "boolean"
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["checkedByUid", "sourcesChecked", "candidatesFound", "psgcVerified", "checkedAt"]
+    }
+  },
+  "firestore": {
+    "/admins/{adminUid}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Authorized admin role markers (no PII stored)"
+    },
+    "/civicRecords/{recordId}": {
+      "schema": { "$ref": "#/entities/CivicRecord" },
+      "description": "Admin-approved civic updates merged into public Budget, Legislative, and News datasets"
+    },
+    "/syncRuns/{runId}": {
+      "schema": { "$ref": "#/entities/SyncRun" },
+      "description": "Admin-only official source sync check audit log"
+    }
+  }
+}

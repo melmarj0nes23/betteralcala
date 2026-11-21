@@ -1,0 +1,49 @@
+name: Civic Data Validation & Weekly Official Source Check
+
+on:
+  push:
+    paths:
+      - 'public/data/*.json'
+  pull_request:
+    paths:
+      - 'public/data/*.json'
+  schedule:
+    # Weekly Monday 01:00 UTC (09:00 AM PHT)
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+
+jobs:
+  validate-civic-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate public/data JSON schemas & source allowlist
+        run: npm run validate:data
+
+  check-official-sources:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check official pangasinan.gov.ph & PSGC sources (deterministic only)
+        run: npm run seed:check -- --write-report
+
+      - name: Upload candidate report artifact for human review
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-source-candidates
+          path: public/data/seed-candidates-report.json
