@@ -285,7 +285,7 @@ export const MUNICIPAL_OFFICES: MunicipalOffice[] = [
   {
     id: 'office-lcr',
     name: 'Office of the Municipal Civil Registrar (MCR)',
-    headName: 'Department Head Name: Needs Review',
+    headName: 'Pending Official Confirmation',
     headVerification: 'Needs Review',
     description: 'Handles civil registration of births, marriages, deaths, court decrees, and clerical error corrections.',
     responsibilities: ['Birth, marriage & death registration', 'Certified true copies', 'RA 9048 / RA 10172 petitions'],
@@ -306,7 +306,7 @@ export const MUNICIPAL_OFFICES: MunicipalOffice[] = [
   {
     id: 'office-bplo',
     name: 'Business Permits & Licensing Office (BPLO)',
-    headName: 'Department Head Name: Needs Review',
+    headName: 'Pending Official Confirmation',
     headVerification: 'Needs Review',
     description: 'Processes new Mayor’s business permits, annual renewals, business retirement, and BOSS transactions.',
     responsibilities: ['New business permit issuance', 'Annual permit renewals', 'Business retirement & inspections'],
@@ -326,7 +326,7 @@ export const MUNICIPAL_OFFICES: MunicipalOffice[] = [
   {
     id: 'office-treasurer',
     name: 'Office of the Municipal Treasurer',
-    headName: 'Department Head Name: Needs Review',
+    headName: 'Pending Official Confirmation',
     headVerification: 'Needs Review',
     description: 'Collects local taxes, real property tax (RPT), community tax certificates (cedula), and municipal fees.',
     responsibilities: ['Real Property Tax collection', 'Community Tax Certificate (Cedula)', 'Official receipts & tax clearances'],
@@ -346,7 +346,7 @@ export const MUNICIPAL_OFFICES: MunicipalOffice[] = [
   {
     id: 'office-assessor',
     name: 'Office of the Municipal Assessor',
-    headName: 'Department Head Name: Needs Review',
+    headName: 'Pending Official Confirmation',
     headVerification: 'Needs Review',
     description: 'Maintains real property assessment rolls, issues tax declarations, and processes land/building transfers.',
     responsibilities: ['Tax Declaration issuance & transfer', 'Property appraisal & assessment', 'Certified copies & landholdings certificate'],
@@ -386,7 +386,7 @@ export const MUNICIPAL_OFFICES: MunicipalOffice[] = [
   {
     id: 'office-mswdo',
     name: 'Municipal Social Welfare & Development Office (MSWDO / DSWD-Alcala)',
-    headName: 'Department Head Name: Needs Review',
+    headName: 'Pending Official Confirmation',
     headVerification: 'Needs Review',
     description: 'Administers Senior Citizen, PWD, Solo Parent IDs, AICS crisis assistance, and social protection programs.',
     responsibilities: ['Senior Citizen, PWD & Solo Parent ID processing', 'Assistance to Individuals in Crisis Situations (AICS)', 'Social case study reports & child welfare'],

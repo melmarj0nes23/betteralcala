@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import SearchAutocomplete from '../components/SearchAutocomplete';
 import WeatherMapSection from '../components/WeatherMapSection';
+import AlcalaHistoryTimeline from '../components/AlcalaHistoryTimeline';
+import { AlcalaPennants, AlcalaWovenStrip } from '../components/AlcalaWovenStrip';
 import { VerificationBadge } from '../components/VerificationBadge';
 import { useLanguage } from '../contexts/LanguageContext';
 import { MUNICIPAL_PROFILE, OFFICIALS_DATA } from '../data/municipalInfo';
@@ -62,39 +64,27 @@ export default function HomePage() {
 
   return (
     <Layout>
-      {/* Editorial Civic Masthead & Finder Workbench */}
-      <section className="home-hero-v2">
+      {/* Warm Editorial Civic Masthead & 4-Pillar Pennants */}
+      <section className="alcala-hero">
         <div className="container">
-          <div className="home-hero-v2-inner">
-            <div className="home-hero-v2-text">
-              <div className="civic-kicker">
-                <span>Alcala, Pangasinan</span>
+          <div className="alcala-hero-grid">
+            <div className="text-center lg:text-left">
+              <div className="alcala-hero-kicker justify-center lg:justify-start">
+                <span className="whitespace-nowrap">Alcala, Pangasinan</span>
                 <span aria-hidden="true">·</span>
-                <span>PSGC {MUNICIPAL_PROFILE.psgcCode}</span>
+                <span className="whitespace-nowrap">PSGC {MUNICIPAL_PROFILE.psgcCode}</span>
                 <span aria-hidden="true">·</span>
-                <span>5th District</span>
+                <span className="whitespace-nowrap">5th District</span>
               </div>
-              <h1>{t('hero-welcome')}</h1>
-              <p>{t('hero-subtitle')}</p>
-              <div className="home-hero-v2-actions">
-                <Link to="/services" className="btn btn-primary">
-                  <i className="bi bi-arrow-right" aria-hidden="true" />{' '}
-                  <span>{t('home-browse-services')}</span>
-                </Link>
-                <Link to="/contact" className="btn btn-outline">
-                  {t('home-contact-us')}
-                </Link>
-              </div>
-              <p className="mt-5 mb-0 text-xs text-white/80 font-mono-data">
-                Municipal Hall Hours: Mon–Fri 8:00 AM–5:00 PM PHT · Public Portal Cost: ₱0
-              </p>
-            </div>
+              <h1 className="alcala-hero-title">
+                BetterAlcala<span className="alcala-hero-accent">.org</span>
+              </h1>
+              <p className="alcala-hero-subtitle mx-auto lg:mx-0">{t('hero-subtitle')}</p>
 
-            <div className="home-hero-v2-search">
-              <div className="home-search-box">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <h2 className="m-0 text-base sm:text-lg font-bold text-[#0032a0] flex items-center gap-2">
-                    <i className="bi bi-search" aria-hidden="true" />
+              <div className="home-search-box alcala-hero-search-card">
+                <div className="flex items-center justify-center sm:justify-between gap-2 mb-2.5">
+                  <h2 className="m-0 text-sm sm:text-base font-bold text-[#0f2342] flex items-center gap-2">
+                    <i className="bi bi-search text-[#26489A]" aria-hidden="true" />
                     <span>{t('home-find-a-service')}</span>
                   </h2>
                   <span className="text-[11px] font-mono-data text-slate-500 hidden sm:inline">
@@ -102,7 +92,7 @@ export default function HomePage() {
                   </span>
                 </div>
                 <SearchAutocomplete />
-                <div className="home-search-tags">
+                <div className="home-search-tags justify-center lg:justify-start">
                   <span className="font-semibold text-slate-700">{t('home-popular')}</span>
                   <Link to="/service-details/birth-certificate">{t('home-birth-certificate')}</Link>
                   <Link to="/service-details/business-permits-licensing">
@@ -114,10 +104,32 @@ export default function HomePage() {
                   <Link to="/budget">FY 2026 Budget</Link>
                 </div>
               </div>
+
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                <Link
+                  to="/services"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0f2342] hover:bg-[#26489A] text-white text-sm font-semibold px-5 py-2.5 transition-colors no-underline"
+                >
+                  <span>{t('home-browse-services')}</span>
+                  <i className="bi bi-arrow-right" aria-hidden="true" />
+                </Link>
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#0f2342]/25 bg-white hover:border-[#0f2342] text-[#0f2342] text-sm font-semibold px-5 py-2.5 transition-colors no-underline"
+                >
+                  {t('home-contact-us')}
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <AlcalaPennants />
             </div>
           </div>
         </div>
       </section>
+
+      <AlcalaWovenStrip />
 
       {/* Civic Transparency & Independent Portal Notice */}
       <section className="appointment-cta-section" aria-label="Civic Platform Overview">
@@ -148,71 +160,83 @@ export default function HomePage() {
             <h2>{t('section-popular')}</h2>
             <p>{t('home-quick-access-to-frequently-requested-municipal')}</p>
           </div>
-          <div className="home-services-grid">
-            <Link to="/services/certificates" className="home-service-card">
-              <div className="home-service-icon">
-                <i className="bi bi-file-earmark-text-fill" aria-hidden="true" />
+          <div className="alcala-services-grid">
+            <Link to="/services/certificates" className="alcala-service-tile alcala-service-tile--blue">
+              <div className="alcala-service-tile-top">
+                <div className="alcala-service-tile-icon">
+                  <i className="bi bi-file-earmark-text-fill" aria-hidden="true" />
+                </div>
+                <span className="alcala-service-tile-badge">Civil Registry</span>
               </div>
-              <div className="home-service-content">
+              <div>
                 <h3>{t('service-certificates')}</h3>
                 <p>{t('service-certificates-desc')}</p>
               </div>
-              <i className="bi bi-arrow-right home-service-arrow" aria-hidden="true" />
             </Link>
 
-            <Link to="/services/business" className="home-service-card">
-              <div className="home-service-icon">
-                <i className="bi bi-shop" aria-hidden="true" />
+            <Link to="/services/business" className="alcala-service-tile alcala-service-tile--terracotta">
+              <div className="alcala-service-tile-top">
+                <div className="alcala-service-tile-icon">
+                  <i className="bi bi-shop" aria-hidden="true" />
+                </div>
+                <span className="alcala-service-tile-badge">BPLO · BOSS</span>
               </div>
-              <div className="home-service-content">
+              <div>
                 <h3>{t('service-business')}</h3>
                 <p>{t('service-business-desc')}</p>
               </div>
-              <i className="bi bi-arrow-right home-service-arrow" aria-hidden="true" />
             </Link>
 
-            <Link to="/services/tax-payments" className="home-service-card">
-              <div className="home-service-icon">
-                <i className="bi bi-cash-coin" aria-hidden="true" />
+            <Link to="/services/tax-payments" className="alcala-service-tile alcala-service-tile--navy">
+              <div className="alcala-service-tile-top">
+                <div className="alcala-service-tile-icon">
+                  <i className="bi bi-cash-coin" aria-hidden="true" />
+                </div>
+                <span className="alcala-service-tile-badge">Treasury</span>
               </div>
-              <div className="home-service-content">
+              <div>
                 <h3>{t('service-tax')}</h3>
                 <p>{t('service-tax-desc')}</p>
               </div>
-              <i className="bi bi-arrow-right home-service-arrow" aria-hidden="true" />
             </Link>
 
-            <Link to="/services/social-services" className="home-service-card">
-              <div className="home-service-icon">
-                <i className="bi bi-people-fill" aria-hidden="true" />
+            <Link to="/services/social-services" className="alcala-service-tile alcala-service-tile--green">
+              <div className="alcala-service-tile-top">
+                <div className="alcala-service-tile-icon">
+                  <i className="bi bi-people-fill" aria-hidden="true" />
+                </div>
+                <span className="alcala-service-tile-badge">MSWDO</span>
               </div>
-              <div className="home-service-content">
+              <div>
                 <h3>{t('service-social')}</h3>
                 <p>{t('service-social-desc')}</p>
               </div>
-              <i className="bi bi-arrow-right home-service-arrow" aria-hidden="true" />
             </Link>
 
-            <Link to="/services/health" className="home-service-card">
-              <div className="home-service-icon">
-                <i className="bi bi-heart-pulse-fill" aria-hidden="true" />
+            <Link to="/services/health" className="alcala-service-tile alcala-service-tile--teal">
+              <div className="alcala-service-tile-top">
+                <div className="alcala-service-tile-icon">
+                  <i className="bi bi-heart-pulse-fill" aria-hidden="true" />
+                </div>
+                <span className="alcala-service-tile-badge">Alcala RHU</span>
               </div>
-              <div className="home-service-content">
+              <div>
                 <h3>{t('service-health')}</h3>
                 <p>{t('service-health-desc')}</p>
               </div>
-              <i className="bi bi-arrow-right home-service-arrow" aria-hidden="true" />
             </Link>
 
-            <Link to="/services" className="home-service-card home-service-card--all">
-              <div className="home-service-icon">
-                <i className="bi bi-grid-fill" aria-hidden="true" />
+            <Link to="/services" className="alcala-service-tile alcala-service-tile--all">
+              <div className="alcala-service-tile-top">
+                <div className="alcala-service-tile-icon">
+                  <i className="bi bi-grid-fill" aria-hidden="true" />
+                </div>
+                <span className="alcala-service-tile-badge">All Categories →</span>
               </div>
-              <div className="home-service-content">
+              <div>
                 <h3>{t('btn-view-all-services')}</h3>
                 <p>{t('home-browse-complete-directory')}</p>
               </div>
-              <i className="bi bi-arrow-right home-service-arrow" aria-hidden="true" />
             </Link>
           </div>
         </div>
@@ -229,7 +253,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="home-stats-v2-grid">
-            <Link to="/statistics" className="home-stat-card">
+            <Link to="/statistics" className="home-stat-card home-stat-card--blue">
               <div className="home-stat-card-icon">
                 <i className="bi bi-people-fill" aria-hidden="true" />
               </div>
@@ -242,7 +266,7 @@ export default function HomePage() {
               </div>
             </Link>
 
-            <Link to="/government#barangays" className="home-stat-card">
+            <Link to="/government#barangays" className="home-stat-card home-stat-card--green">
               <div className="home-stat-card-icon">
                 <i className="bi bi-geo-alt-fill" aria-hidden="true" />
               </div>
@@ -255,7 +279,7 @@ export default function HomePage() {
               </div>
             </Link>
 
-            <Link to="/budget" className="home-stat-card">
+            <Link to="/budget" className="home-stat-card home-stat-card--teal">
               <div className="home-stat-card-icon">
                 <i className="bi bi-award-fill" aria-hidden="true" />
               </div>
@@ -266,7 +290,7 @@ export default function HomePage() {
               </div>
             </Link>
 
-            <Link to="/statistics" className="home-stat-card">
+            <Link to="/statistics" className="home-stat-card home-stat-card--terracotta">
               <div className="home-stat-card-icon">
                 <i className="bi bi-rulers" aria-hidden="true" />
               </div>
@@ -286,32 +310,7 @@ export default function HomePage() {
       <WeatherMapSection />
 
       {/* Brief History of Alcala */}
-      <section className="section history-section">
-        <div className="container">
-          <div className="home-stats-v2-header">
-            <h2>
-              <i className="bi bi-book" aria-hidden="true" />{' '}
-              <span>{t('home-history-title')}</span>
-            </h2>
-          </div>
-
-          <div className="history-content">
-            <div className="history-timeline">
-              {MUNICIPAL_PROFILE.historyTimeline.map((item) => (
-                <div key={item.year} className="timeline-item">
-                  <div className="timeline-marker" />
-                  <div className="timeline-content">
-                    <span className="timeline-year">{item.year}</span>
-                    <p>
-                      <strong>{item.title}:</strong> {item.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <AlcalaHistoryTimeline title={t('home-history-title')} />
 
       {/* Announcements & Civic Updates */}
       <section className="section bg-alt">
@@ -466,7 +465,7 @@ export default function HomePage() {
                 className="quiz-cta-image"
                 width={1200}
                 height={869}
-                loading="lazy"
+                loading="eager"
                 referrerPolicy="no-referrer"
               />
             </picture>

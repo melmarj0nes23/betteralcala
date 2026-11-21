@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import HotlineBar from './HotlineBar';
 import Header from './Header';
-import InfoBar from './InfoBar';
 import Footer from './Footer';
 import PWAManager from '../PWAManager';
 
@@ -24,7 +23,6 @@ export default function Layout({ children, breadcrumbs }: LayoutProps) {
       </a>
       <HotlineBar />
       <Header />
-      <InfoBar />
       <main id="main-content">
         {breadcrumbs && breadcrumbs.length > 0 && (
           <div className="container">

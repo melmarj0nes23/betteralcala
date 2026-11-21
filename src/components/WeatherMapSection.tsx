@@ -203,18 +203,17 @@ export default function WeatherMapSection() {
                   className="map-iframe"
                   src="https://www.openstreetmap.org/export/embed.html?bbox=120.4950%2C15.8300%2C120.5500%2C15.8650&layer=mapnik&marker=15.8467%2C120.5219"
                   title="Map of Alcala, Pangasinan"
-                  loading="lazy"
                   aria-label="OpenStreetMap showing Alcala Municipal Hall, Poblacion East, Pangasinan"
                 />
               </div>
-              <p className="map-attribution">
+              <p className="map-attribution px-3 sm:px-0">
                 <i className="bi bi-geo-alt" aria-hidden="true" />{' '}
                 <span>
                   Alcala Municipal Hall, Poblacion East, Alcala, 2425 Pangasinan (15°50′48″N
                   120°31′19″E)
                 </span>
               </p>
-              <div className="flex flex-wrap gap-3 mt-2 text-xs font-semibold">
+              <div className="flex flex-wrap gap-3 mt-2 px-3 sm:px-0 pb-1 text-xs font-semibold">
                 <a
                   href="https://www.openstreetmap.org/?mlat=15.8467&mlon=120.5219#map=15/15.8467/120.5219"
                   target="_blank"

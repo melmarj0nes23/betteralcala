@@ -989,6 +989,8 @@
   overflow: hidden;
   width: 100%;
   position: relative;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+  mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
 }
 
 .hotline-items-track {
@@ -6992,13 +6994,14 @@ cklist with Icons - Proper Indentation */
 }
 
 .quiz-cta-content {
-  text-align: left;
+  text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   padding: clamp(32px, 5vw, 64px) clamp(24px, 5vw, 72px);
   max-width: 640px;
+  margin: 0 auto;
 }
 
 .quiz-cta-heading {
@@ -8226,7 +8229,7 @@ a.a11y-contact-item:hover i {
 .info-bar-inner {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: var(--spacing-md);
   flex-wrap: wrap;
 }

@@ -10,18 +10,29 @@ export const VerificationBadge: React.FC<BadgeProps> = ({ status }) => {
     return null;
   }
 
-  const config: Record<Exclude<VerificationStatus, 'Verified'>, { cls: string; icon: string }> = {
-    'Needs Review': { cls: 'verify-tag--review', icon: 'bi-exclamation-circle-fill' },
-    Outdated: { cls: 'verify-tag--outdated', icon: 'bi-clock-history' },
-    Unavailable: { cls: 'verify-tag--unavailable', icon: 'bi-slash-circle-fill' },
+  const config: Record<
+    Exclude<VerificationStatus, 'Verified'>,
+    { cls: string; icon: string; label: string }
+  > = {
+    'Needs Review': {
+      cls: 'verify-tag--review',
+      icon: 'bi-info-circle',
+      label: 'Pending LGU Confirmation',
+    },
+    Outdated: { cls: 'verify-tag--outdated', icon: 'bi-clock-history', label: 'Outdated' },
+    Unavailable: {
+      cls: 'verify-tag--unavailable',
+      icon: 'bi-slash-circle-fill',
+      label: 'Unavailable',
+    },
   };
 
-  const { cls, icon } = config[status];
+  const { cls, icon, label } = config[status];
 
   return (
-    <span className={`verify-tag ${cls}`} title={`Verification status: ${status}`}>
+    <span className={`verify-tag ${cls}`} title={`Verification status: ${label}`}>
       <i className={`bi ${icon}`} aria-hidden="true" />
-      <span>{status}</span>
+      <span>{label}</span>
     </span>
   );
 };

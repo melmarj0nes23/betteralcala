@@ -217,14 +217,48 @@ export default function Header() {
                 {t('nav-government')}
               </Link>
             </li>
-            <li>
+            <li className={`has-dropdown ${openDropdown === 2 ? 'dropdown-open' : ''}`}>
               <Link
                 to="/statistics"
                 className={pathname.startsWith('/statistics') ? 'active' : ''}
-                onClick={closeMenu}
+                aria-haspopup="true"
+                aria-expanded={openDropdown === 2 ? 'true' : 'false'}
+                onClick={(e) => toggleDropdown(2, e)}
               >
                 {t('nav-statistics')}
               </Link>
+              <ul className="dropdown-menu">
+                <li>
+                  <Link to="/statistics" onClick={closeMenu}>
+                    21 Barangays Directory
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/statistics?view=overview" onClick={closeMenu}>
+                    Entire Municipality Overview
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/statistics/poblacion-east" onClick={closeMenu}>
+                    Brgy. Poblacion East
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/statistics/poblacion-west" onClick={closeMenu}>
+                    Brgy. Poblacion West
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/statistics/san-vicente" onClick={closeMenu}>
+                    Brgy. San Vicente
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/statistics/bersamin" onClick={closeMenu}>
+                    Brgy. Bersamin
+                  </Link>
+                </li>
+              </ul>
             </li>
             <li className={`has-dropdown ${openDropdown === 1 ? 'dropdown-open' : ''}`}>
               <Link

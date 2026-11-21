@@ -14,6 +14,11 @@ export default function GovernmentPage() {
   const initialBrgy = searchParams.get('barangay') || '';
   const focusedOfficeId = searchParams.get('office') || '';
   const [brgySearch, setBrgySearch] = useState(initialBrgy);
+  const [expandedOffices, setExpandedOffices] = useState<Record<string, boolean>>({});
+
+  const toggleOfficeExpand = (id: string) => {
+    setExpandedOffices((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   useEffect(() => {
     const paramBrgy = searchParams.get('barangay');
@@ -74,7 +79,7 @@ export default function GovernmentPage() {
                     <VerificationBadge status={official.citation.verificationStatus} />
                   </div>
                   <h3 className="executive-name">{official.name}</h3>
-                  <p className="text-xs text-white/80 mb-0">Term: {official.term}</p>
+                  <p className="text-xs text-slate-600 mb-0">Term: {official.term}</p>
                 </div>
                 <div className="executive-card-body">
                   <div className="executive-contacts">
@@ -119,13 +124,13 @@ export default function GovernmentPage() {
           <div className="grid grid-3" style={{ gap: 'var(--spacing-md)' }}>
             {legislativeOfficials.map((c) => (
               <div key={c.id} className="councilor-card">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="councilor-badge">{c.title}</span>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <span className="councilor-badge whitespace-nowrap">{c.title}</span>
                   <VerificationBadge status={c.citation.verificationStatus} />
                 </div>
                 <h3 className="councilor-name text-lg">{c.name}</h3>
                 <p className="councilor-committees">
-                  {c.committees?.join(' · ') || 'Committee assignments: Needs Review'}
+                  {c.committees?.join(' · ') || 'Committee assignments pending confirmation'}
                 </p>
                 <div className="mt-3 text-xs text-slate-500">
                   Term: {c.term}
@@ -159,7 +164,7 @@ export default function GovernmentPage() {
                 }`}
               >
                 <div>
-                  <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
                     <h3 className="text-base font-bold text-[#0032a0] mb-0">{office.name}</h3>
                     <VerificationBadge status={office.citation.verificationStatus} />
                   </div>
@@ -168,7 +173,22 @@ export default function GovernmentPage() {
                       <strong>Department Head:</strong> {office.headName}
                     </span>
                   </p>
-                  <p className="text-sm text-slate-700 mb-3 mobile-clamp-2">{office.description}</p>
+                  <p
+                    className={`text-sm text-slate-700 mb-1 ${
+                      expandedOffices[office.id] ? '' : 'mobile-clamp-2'
+                    }`}
+                  >
+                    {office.description}
+                  </p>
+                  {office.description.length > 65 && (
+                    <button
+                      type="button"
+                      onClick={() => toggleOfficeExpand(office.id)}
+                      className="text-xs font-semibold text-[#0032a0] bg-transparent border-0 p-0 mb-3 cursor-pointer hover:underline"
+                    >
+                      {expandedOffices[office.id] ? 'Show less' : 'Read more'}
+                    </button>
+                  )}
                   <ul className="text-xs text-slate-600 space-y-1 mb-3">
                     {office.responsibilities.map((r) => (
                       <li key={r}>

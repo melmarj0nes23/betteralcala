@@ -134,35 +134,10 @@ export default function InfoBar() {
 
   const currentRate = rates[rateIndex] || rates[0];
 
-  const getHallStatus = (): string => {
-    try {
-      const now = new Date();
-      const parts = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'Asia/Manila',
-        weekday: 'short',
-        hour: 'numeric',
-        hour12: false,
-      }).formatToParts(now);
-      const day = parts.find((p) => p.type === 'weekday')?.value || '';
-      const hour = parseInt(parts.find((p) => p.type === 'hour')?.value || '0', 10);
-      const isWeekday = !['Sat', 'Sun'].includes(day);
-      return isWeekday && hour >= 8 && hour < 17
-        ? 'Municipal Hall: Open Now (until 5:00 PM)'
-        : 'Municipal Hall: Mon–Fri 8:00 AM–5:00 PM';
-    } catch {
-      return 'Municipal Hall: Mon–Fri 8:00 AM–5:00 PM';
-    }
-  };
-
   return (
     <div className="info-bar" role="complementary" aria-label="Real-time information">
       <div className="container">
         <div className="info-bar-inner">
-          <div className="info-bar-item hidden lg:inline-flex" aria-label="Municipal Hall hours">
-            <i className="bi bi-building" aria-hidden="true" />
-            <span>{getHallStatus()}</span>
-          </div>
-
           <div className="info-bar-item info-bar-rates" aria-label="Exchange rates">
             <i className="bi bi-currency-exchange" aria-hidden="true" />
             <span className="rate-rotator">

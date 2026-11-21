@@ -169,7 +169,7 @@ export default function BudgetPage() {
               <h2>Approved Appropriations vs. Execution Records</h2>
               <p>
                 Approved budgets are verified via Sangguniang Panlalawigan resolutions; unreleased
-                execution breakdowns are marked Needs Review.
+                execution breakdowns are awaiting official LGU release.
               </p>
             </div>
 
@@ -517,7 +517,7 @@ export default function BudgetPage() {
                       {item.category}
                     </div>
                     <div className="text-base font-bold text-[#0032a0] font-mono-data mt-1">
-                      {formatPeso(item.total)}
+                      {item.total > 0 ? formatPeso(item.total) : 'Pending / N/A'}
                     </div>
                     <div className="text-[11px] text-slate-600 mt-1 font-mono-data">
                       {item.count} {item.count === 1 ? 'project' : 'projects'} ·{' '}
@@ -535,12 +535,13 @@ export default function BudgetPage() {
                 type="search"
                 value={projectSearch}
                 onChange={(e) => setProjectSearch(e.target.value)}
-                placeholder="Search by Contract ID (e.g., 25AI0044), barangay, project title, or contractor..."
+                placeholder="Search Contract ID, barangay, or contractor..."
                 aria-label="Search infrastructure projects"
                 className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm focus:border-[#0032a0] focus:outline-none"
               />
               <span className="text-sm text-slate-600 self-center tabular-nums">
-                {filteredProjects.length} projects
+                {filteredProjects.length}{' '}
+                {filteredProjects.length === 1 ? 'project' : 'projects'}
               </span>
             </div>
             <div className="mobile-filter-select-wrap">

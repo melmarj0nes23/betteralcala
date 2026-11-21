@@ -77,7 +77,7 @@ export default function Footer() {
             <p className="footer-tagline">{t('footer-tagline')}</p>
             <div className="footer-social-new">
               <a
-                href="https://www.facebook.com/Alcala.2016.2019"
+                href="https://facebook.com/melmarj0nes23/"
                 className="footer-social-btn"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -95,11 +95,11 @@ export default function Footer() {
                 <i className="bi bi-globe2" aria-hidden="true" />
               </a>
               <a
-                href="https://github.com/BetterSolano/bettersolano"
+                href="https://github.com/melmarj0nes23/betteralcala"
                 className="footer-social-btn"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="BetterLGU Template Reference Repository"
+                aria-label="BetterAlcala GitHub Repository"
               >
                 <i className="bi bi-github" aria-hidden="true" />
               </a>
