@@ -780,11 +780,11 @@
 
 .skip-link {
   position: absolute;
-  top: -40px;
+  top: -120px;
   left: 0;
-  background: #ff0000;
+  background: #0f2342;
   color: white;
-  padding: 8px;
+  padding: 8px 14px;
   z-index: 1001;
   transition: top 0.2s;
 }
