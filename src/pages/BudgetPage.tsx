@@ -117,6 +117,28 @@ export default function BudgetPage() {
     );
   }, [infrastructureProjects]);
 
+  const ascendingBudgets = useMemo(
+    () => [...budgetRecords].sort((a, b) => a.fiscalYear - b.fiscalYear),
+    [budgetRecords]
+  );
+
+  const maxAnnualBudget = useMemo(
+    () => Math.max(...budgetRecords.map((b) => b.approvedBudget), 1),
+    [budgetRecords]
+  );
+
+  const categoryTotals = useMemo(() => {
+    const map = new Map<string, { count: number; total: number }>();
+    for (const p of infrastructureProjects) {
+      const prev = map.get(p.category) || { count: 0, total: 0 };
+      map.set(p.category, {
+        count: prev.count + 1,
+        total: prev.total + (p.contractCost ?? p.abcAmount ?? 0),
+      });
+    }
+    return Array.from(map.entries()).map(([category, stats]) => ({ category, ...stats }));
+  }, [infrastructureProjects]);
+
   return (
     <Layout breadcrumbs={[{ label: 'Transparency & Budget' }]}>
       <section className="trans-hero-v2">
@@ -223,6 +245,73 @@ export default function BudgetPage() {
               </div>
             </div>
           </div>
+
+          {ascendingBudgets.length > 1 && (
+            <div className="bg-white border border-black/10 rounded-xl p-5 mt-6">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div>
+                  <h3 className="text-base font-bold text-[#0032a0] m-0">
+                    Multi-Year Approved Appropriations Comparison
+                  </h3>
+                  <p className="text-xs text-slate-600 m-0">
+                    Click a fiscal year bar to inspect its Sangguniang Panlalawigan operative record
+                  </p>
+                </div>
+                <span className="text-xs font-mono-data text-slate-500">
+                  {budgetYearsSummary.label}
+                </span>
+              </div>
+              <div className="space-y-3">
+                {ascendingBudgets.map((b, idx) => {
+                  const prev = idx > 0 ? ascendingBudgets[idx - 1] : null;
+                  const pctDiff = prev
+                    ? (((b.approvedBudget - prev.approvedBudget) / prev.approvedBudget) * 100).toFixed(
+                        1
+                      )
+                    : null;
+                  const barPct = Math.round((b.approvedBudget / maxAnnualBudget) * 100);
+                  const isActive = b.fiscalYear === activeBudget.fiscalYear;
+                  return (
+                    <button
+                      key={b.fiscalYear}
+                      type="button"
+                      onClick={() => {
+                        setHasManuallySelectedYear(true);
+                        setSelectedYear(b.fiscalYear);
+                      }}
+                      className={`w-full text-left rounded-lg border p-3 transition cursor-pointer ${
+                        isActive
+                          ? 'border-[#0032a0] bg-blue-50/40'
+                          : 'border-slate-200 bg-slate-50/50 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs mb-1.5">
+                        <span className="font-bold text-slate-900 font-mono-data">
+                          FY {b.fiscalYear}
+                        </span>
+                        <span className="font-mono-data font-bold text-[#0032a0]">
+                          {formatPeso(b.approvedBudget)}
+                          {pctDiff && (
+                            <span className="ml-2 text-emerald-700 font-semibold">
+                              (+{pctDiff}% YoY)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="h-2.5 w-full rounded-full bg-slate-200/80 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            isActive ? 'bg-[#0032a0]' : 'bg-slate-400'
+                          }`}
+                          style={{ width: `${barPct}%` }}
+                        />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-2 mt-6" style={{ gap: 'var(--spacing-md)' }}>
             <div className="bg-white border border-black/10 rounded-xl p-5">
@@ -404,6 +493,41 @@ export default function BudgetPage() {
               <strong className="tabular-nums">{formatPeso(totalVerifiedContractValue)}</strong>).
             </p>
           </div>
+
+          {categoryTotals.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+              {categoryTotals.map((item) => {
+                const isSelected = selectedCategory === item.category;
+                return (
+                  <button
+                    key={item.category}
+                    type="button"
+                    onClick={() =>
+                      setSelectedCategory((prev) =>
+                        prev === item.category ? 'all' : item.category
+                      )
+                    }
+                    className={`text-left rounded-xl border p-4 transition cursor-pointer ${
+                      isSelected
+                        ? 'border-[#0032a0] bg-blue-50/60'
+                        : 'border-black/10 bg-white hover:border-[#0032a0]/40'
+                    }`}
+                  >
+                    <div className="text-xs font-semibold text-slate-500 truncate">
+                      {item.category}
+                    </div>
+                    <div className="text-base font-bold text-[#0032a0] font-mono-data mt-1">
+                      {formatPeso(item.total)}
+                    </div>
+                    <div className="text-[11px] text-slate-600 mt-1 font-mono-data">
+                      {item.count} {item.count === 1 ? 'project' : 'projects'} ·{' '}
+                      {isSelected ? 'Showing (click to clear)' : 'Click to filter'}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           <div className="bg-slate-50 border border-black/10 rounded-xl p-4 mb-6">
             <div className="flex flex-col md:flex-row gap-3 justify-between mb-3">

@@ -1,29 +1,35 @@
-/* BetterAlcala - Main Stylesheet (based on BetterSolano / BetterLGU Design System) */
+/* BetterAlcala - Unified Civic Editorial Design System */
 :root {
   --color-primary: #0032a0;
-  --color-primary-dark: #002170;
-  --color-secondary: #003d82;
+  --color-primary-dark: #001f68;
+  --color-secondary: #0b2569;
   --color-accent: #f77f00;
-  --color-success: #06a77d;
-  --color-danger: #d62828;
-  --color-info: #0077be;
-  --color-bg: #ffffff;
-  --color-bg-alt: #f8f9fa;
-  --color-text: #1a1a1a;
-  --color-text-light: #666666;
+  --color-accent-ink: #b45309;
+  --color-success: #047857;
+  --color-danger: #b91c1c;
+  --color-info: #0369a1;
+  --color-bg: #fafbfc;
+  --color-bg-alt: #f1f5f9;
+  --color-surface: #ffffff;
+  --color-border: rgba(15, 23, 42, 0.09);
+  --color-text: #0f172a;
+  --color-text-light: #475569;
   --color-white: #ffffff;
-  --font-main: 'Inter', sans-serif;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
   --line-height-body: 1.6;
-  --line-height-heading: 1.2;
+  --line-height-heading: 1.18;
   --spacing-xs: 8px;
   --spacing-sm: 16px;
   --spacing-md: 24px;
   --spacing-lg: 32px;
   --spacing-xl: 48px;
   --max-width: 1200px;
-  --border-radius: 8px;
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --border-radius: 10px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 8px 24px -12px rgba(15, 23, 42, 0.14);
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
@@ -39,12 +45,13 @@
     background-color: var(--color-bg);
     line-height: var(--line-height-body);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   a {
     color: var(--color-primary);
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color 0.18s var(--ease-editorial);
   }
 
   a:hover {
@@ -72,24 +79,33 @@
     line-height: var(--line-height-heading);
     margin-bottom: var(--spacing-sm);
     color: var(--color-primary);
+    text-wrap: balance;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 
   h1 {
-    font-size: 2.5rem;
+    font-size: clamp(1.85rem, 3.4vw, 2.75rem);
+    font-weight: 600;
   }
 
   h2 {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    font-weight: 600;
     color: var(--color-text);
   }
 
   h3 {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
     color: var(--color-text);
   }
 
   h4 {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
 
   p {

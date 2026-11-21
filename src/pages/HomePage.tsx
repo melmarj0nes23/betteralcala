@@ -7,6 +7,20 @@ import { VerificationBadge } from '../components/VerificationBadge';
 import { useLanguage } from '../contexts/LanguageContext';
 import { MUNICIPAL_PROFILE, OFFICIALS_DATA } from '../data/municipalInfo';
 import { ALCALA_QUIZ_QUESTIONS, NEWS_ITEMS } from '../data/communityData';
+import { isValidCitation, useCivicDataset } from '../hooks/useCivicDataset';
+import { NewsItem } from '../types/civic';
+
+function isValidNewsItem(item: unknown): item is NewsItem {
+  if (!item || typeof item !== 'object') return false;
+  const n = item as Record<string, unknown>;
+  return (
+    typeof n.id === 'string' &&
+    typeof n.title === 'string' &&
+    typeof n.date === 'string' &&
+    typeof n.summary === 'string' &&
+    isValidCitation(n.citation)
+  );
+}
 
 export default function HomePage() {
   const { t } = useLanguage();
@@ -16,9 +30,11 @@ export default function HomePage() {
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
 
+  const newsItems = useCivicDataset('news.json', 'news', NEWS_ITEMS, isValidNewsItem);
+
   const mayor = OFFICIALS_DATA.find((o) => o.id === 'mayor-collado');
   const viceMayor = OFFICIALS_DATA.find((o) => o.id === 'vicemayor-callejo');
-  const latestNews = NEWS_ITEMS.slice(0, 3);
+  const latestNews = newsItems.slice(0, 3);
 
   const handleQuizAnswer = (idx: number) => {
     if (selectedOpt !== null) return;
@@ -46,11 +62,18 @@ export default function HomePage() {
 
   return (
     <Layout>
-      {/* Hero Section */}
+      {/* Editorial Civic Masthead & Finder Workbench */}
       <section className="home-hero-v2">
         <div className="container">
           <div className="home-hero-v2-inner">
             <div className="home-hero-v2-text">
+              <div className="civic-kicker">
+                <span>Alcala, Pangasinan</span>
+                <span aria-hidden="true">·</span>
+                <span>PSGC {MUNICIPAL_PROFILE.psgcCode}</span>
+                <span aria-hidden="true">·</span>
+                <span>5th District</span>
+              </div>
               <h1>{t('hero-welcome')}</h1>
               <p>{t('hero-subtitle')}</p>
               <div className="home-hero-v2-actions">
@@ -62,17 +85,25 @@ export default function HomePage() {
                   {t('home-contact-us')}
                 </Link>
               </div>
+              <p className="mt-5 mb-0 text-xs text-white/80 font-mono-data">
+                Municipal Hall Hours: Mon–Fri 8:00 AM–5:00 PM PHT · Public Portal Cost: ₱0
+              </p>
             </div>
 
             <div className="home-hero-v2-search">
               <div className="home-search-box">
-                <h2>
-                  <i className="bi bi-search" aria-hidden="true" />{' '}
-                  <span>{t('home-find-a-service')}</span>
-                </h2>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <h2 className="m-0 text-base sm:text-lg font-bold text-[#0032a0] flex items-center gap-2">
+                    <i className="bi bi-search" aria-hidden="true" />
+                    <span>{t('home-find-a-service')}</span>
+                  </h2>
+                  <span className="text-[11px] font-mono-data text-slate-500 hidden sm:inline">
+                    Press ⌘K anywhere
+                  </span>
+                </div>
                 <SearchAutocomplete />
                 <div className="home-search-tags">
-                  <span>{t('home-popular')}</span>
+                  <span className="font-semibold text-slate-700">{t('home-popular')}</span>
                   <Link to="/service-details/birth-certificate">{t('home-birth-certificate')}</Link>
                   <Link to="/service-details/business-permits-licensing">
                     {t('home-business-permit')}
@@ -80,6 +111,7 @@ export default function HomePage() {
                   <Link to="/service-details/real-property-tax">
                     {t('home-real-property-tax')}
                   </Link>
+                  <Link to="/budget">FY 2026 Budget</Link>
                 </div>
               </div>
             </div>
@@ -296,12 +328,12 @@ export default function HomePage() {
             {latestNews.map((item) => (
               <article
                 key={item.id}
-                className="bg-white border border-black/10 rounded-lg p-5 flex flex-col justify-between"
+                className="bg-white border border-black/10 rounded-xl p-5 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3 text-xs text-slate-600">
                     <span>
-                      {item.category} · {item.date}
+                      {item.category} · <span className="tabular-nums">{item.date}</span>
                     </span>
                     <VerificationBadge status={item.citation.verificationStatus} />
                   </div>
@@ -435,6 +467,7 @@ export default function HomePage() {
                 width={1200}
                 height={869}
                 loading="lazy"
+                referrerPolicy="no-referrer"
               />
             </picture>
           </div>

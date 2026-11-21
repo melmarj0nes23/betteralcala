@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../contexts/LanguageContext';
+import CommandSearchModal from '../CommandSearchModal';
 
 function isMobileNav(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(max-width: 1024px)').matches;
@@ -9,11 +10,23 @@ function isMobileNav(): boolean {
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+  const [commandOpen, setCommandOpen] = useState(false);
   const { pathname } = useLocation();
   const { language, setLanguage, t } = useLanguage();
 
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    function handleGlobalShortcut(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandOpen((prev) => !prev);
+      }
+    }
+    window.addEventListener('keydown', handleGlobalShortcut);
+    return () => window.removeEventListener('keydown', handleGlobalShortcut);
+  }, []);
 
   const closeMenu = useCallback(() => {
     setMobileMenuOpen(false);
@@ -262,7 +275,19 @@ export default function Header() {
           </ul>
         </nav>
 
-        <div className="header-actions">
+        <div className="header-actions flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setCommandOpen(true)}
+            className="header-search-trigger"
+            aria-label="Open quick civic search (Ctrl+K)"
+            title="Quick search (⌘K / Ctrl+K)"
+          >
+            <i className="bi bi-search" aria-hidden="true" />
+            <span className="hidden xl:inline">Search</span>
+            <kbd className="hidden xl:inline-block">⌘K</kbd>
+          </button>
+
           <div className="lang-selector" role="group" aria-label="Language switcher">
             <button
               type="button"
@@ -303,6 +328,7 @@ export default function Header() {
           <i className={`bi ${mobileMenuOpen ? 'bi-x-lg' : 'bi-list'}`} aria-hidden="true" />
         </button>
       </div>
+      <CommandSearchModal open={commandOpen} onClose={() => setCommandOpen(false)} />
     </header>
   );
 }

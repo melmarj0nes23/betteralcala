@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { SourceCitationBox, VerificationBadge } from '../components/VerificationBadge';
@@ -10,6 +10,47 @@ export default function ServiceDetailPage() {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const service = SERVICES_DATA.find((s) => s.id === id);
+
+  const storageKey = service ? `betteralcala_checklist_${service.id}` : '';
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!storageKey) {
+      setCheckedItems({});
+      return;
+    }
+    try {
+      const saved = localStorage.getItem(storageKey);
+      setCheckedItems(saved ? JSON.parse(saved) : {});
+    } catch {
+      setCheckedItems({});
+    }
+  }, [storageKey]);
+
+  const toggleRequirement = (reqText: string) => {
+    setCheckedItems((prev) => {
+      const next = { ...prev, [reqText]: !prev[reqText] };
+      if (storageKey) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(next));
+        } catch {
+          // ignore
+        }
+      }
+      return next;
+    });
+  };
+
+  const resetChecklist = () => {
+    setCheckedItems({});
+    if (storageKey) {
+      try {
+        localStorage.removeItem(storageKey);
+      } catch {
+        // ignore
+      }
+    }
+  };
 
   if (!service) {
     return (
@@ -29,6 +70,10 @@ export default function ServiceDetailPage() {
     );
   }
 
+  const readyCount = service.requirements.filter((r) => Boolean(checkedItems[r])).length;
+  const totalReqs = service.requirements.length;
+  const readinessPct = totalReqs > 0 ? Math.round((readyCount / totalReqs) * 100) : 0;
+
   const handleCopyChecklist = async () => {
     const lines = [
       `${service.title} — BetterAlcala Service Checklist`,
@@ -42,8 +87,8 @@ export default function ServiceDetailPage() {
       'Eligibility:',
       ...service.eligibility.map((e) => `- ${e}`),
       '',
-      'Documentary Requirements:',
-      ...service.requirements.map((r) => `[ ] ${r}`),
+      `Documentary Requirements (${readyCount}/${totalReqs} ready):`,
+      ...service.requirements.map((r) => `${checkedItems[r] ? '[x]' : '[ ]'} ${r}`),
       '',
       'Steps:',
       ...service.steps.map((s) => `${s.step}. ${s.title}: ${s.description}`),
@@ -130,7 +175,7 @@ export default function ServiceDetailPage() {
             </div>
           </div>
 
-          {/* Eligibility & Documentary Requirements */}
+          {/* Eligibility & Interactive Documentary Readiness Checklist */}
           <div className="grid grid-2 mb-8" style={{ gap: 'var(--spacing-md)' }}>
             <div className="req-box">
               <h4>
@@ -147,16 +192,65 @@ export default function ServiceDetailPage() {
             </div>
 
             <div className="req-box">
-              <h4>
-                <i className="bi bi-folder-check" aria-hidden="true" /> {t('service-requirements')}
-              </h4>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <h4 className="mb-0">
+                  <i className="bi bi-folder-check" aria-hidden="true" /> {t('service-requirements')}
+                </h4>
+                <div className="flex items-center gap-2 text-xs no-print">
+                  <span className="font-mono-data font-semibold text-[#0032a0]">
+                    {readyCount}/{totalReqs} ready
+                  </span>
+                  {readyCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={resetChecklist}
+                      className="text-slate-500 hover:text-slate-800 underline bg-transparent border-0 cursor-pointer"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="mb-3 no-print">
+                <div className="checklist-progress-track" aria-hidden="true">
+                  <div
+                    className="checklist-progress-fill"
+                    style={{ width: `${readinessPct}%` }}
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1.5 mb-0">
+                  {readyCount === totalReqs && totalReqs > 0
+                    ? 'All listed documents checked off — ready to visit Municipal Hall.'
+                    : 'Tick off documents you already prepared before heading to Municipal Hall.'}
+                </p>
+              </div>
+
               <ul className="req-list">
-                {service.requirements.map((req) => (
-                  <li key={req}>
-                    <i className="bi bi-file-earmark-check" aria-hidden="true" />
-                    <span>{req}</span>
-                  </li>
-                ))}
+                {service.requirements.map((req) => {
+                  const isChecked = Boolean(checkedItems[req]);
+                  return (
+                    <li key={req} className="!p-0 !border-b-0 mb-1">
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={isChecked}
+                        onClick={() => toggleRequirement(req)}
+                        className={`checklist-item-btn ${isChecked ? 'is-checked' : ''}`}
+                      >
+                        <i
+                          className={`bi ${
+                            isChecked
+                              ? 'bi-check-square-fill text-emerald-700'
+                              : 'bi-square text-slate-400'
+                          } mt-0.5 flex-shrink-0`}
+                          aria-hidden="true"
+                        />
+                        <span className="checklist-item-text">{req}</span>
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
