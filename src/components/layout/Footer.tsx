@@ -2,47 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-type FontScale = 'normal' | 'large' | 'xlarge';
-
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const { t } = useLanguage();
   const [version, setVersion] = useState('1.0.0');
-  const [fontScale, setFontScale] = useState<FontScale>(() => {
-    try {
-      const saved = localStorage.getItem('betteralcala_font_scale') as FontScale | null;
-      return saved && ['normal', 'large', 'xlarge'].includes(saved) ? saved : 'normal';
-    } catch {
-      return 'normal';
-    }
-  });
-  const [highContrast, setHighContrast] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('betteralcala_high_contrast') === '1';
-    } catch {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    document.body.classList.remove('font-large', 'font-xlarge');
-    if (fontScale === 'large') document.body.classList.add('font-large');
-    if (fontScale === 'xlarge') document.body.classList.add('font-xlarge');
-    try {
-      localStorage.setItem('betteralcala_font_scale', fontScale);
-    } catch {
-      // ignore
-    }
-  }, [fontScale]);
-
-  useEffect(() => {
-    document.body.classList.toggle('high-contrast', highContrast);
-    try {
-      localStorage.setItem('betteralcala_high_contrast', highContrast ? '1' : '0');
-    } catch {
-      // ignore
-    }
-  }, [highContrast]);
 
   useEffect(() => {
     fetch('/version.json')
@@ -213,59 +176,6 @@ export default function Footer() {
               </a>
             </div>
           </div>
-        </div>
-
-        <div className="a11y-bar" role="region" aria-label="Accessibility display controls">
-          <span className="a11y-bar-label">
-            <i className="bi bi-universal-access" aria-hidden="true" /> {t('a11y-text-size')}:
-          </span>
-          <button
-            type="button"
-            className={`a11y-btn ${fontScale === 'normal' ? 'active' : ''}`}
-            onClick={() => setFontScale('normal')}
-            aria-pressed={fontScale === 'normal'}
-            aria-label="Normal text size"
-          >
-            A
-          </button>
-          <button
-            type="button"
-            className={`a11y-btn ${fontScale === 'large' ? 'active' : ''}`}
-            onClick={() => setFontScale('large')}
-            aria-pressed={fontScale === 'large'}
-            aria-label="Large text size"
-          >
-            A+
-          </button>
-          <button
-            type="button"
-            className={`a11y-btn ${fontScale === 'xlarge' ? 'active' : ''}`}
-            onClick={() => setFontScale('xlarge')}
-            aria-pressed={fontScale === 'xlarge'}
-            aria-label="Extra large text size"
-          >
-            A++
-          </button>
-          <button
-            type="button"
-            className={`a11y-btn ${highContrast ? 'active' : ''}`}
-            onClick={() => setHighContrast((prev) => !prev)}
-            aria-pressed={highContrast}
-          >
-            <i className="bi bi-contrast" aria-hidden="true" /> {t('a11y-contrast')}
-          </button>
-          {(fontScale !== 'normal' || highContrast) && (
-            <button
-              type="button"
-              className="a11y-btn"
-              onClick={() => {
-                setFontScale('normal');
-                setHighContrast(false);
-              }}
-            >
-              {t('a11y-reset')}
-            </button>
-          )}
         </div>
 
         <div className="footer-bottom-new">

@@ -69,7 +69,7 @@ export default function HomePage() {
         <div className="container">
           <div className="alcala-hero-grid">
             <div className="text-center md:text-left md:self-center">
-              <div className="alcala-hero-kicker justify-center md:justify-start bg-[#26489A]/8 border border-[#26489A]/20 px-3 py-1 rounded-full">
+              <div className="alcala-hero-kicker justify-center md:justify-start">
                 <span className="whitespace-nowrap">Alcala, Pangasinan</span>
                 <span aria-hidden="true">·</span>
                 <span className="whitespace-nowrap">PSGC {MUNICIPAL_PROFILE.psgcCode}</span>

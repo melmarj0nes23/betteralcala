@@ -372,22 +372,24 @@ export default function StatisticsPage() {
             )}
 
             {activeTab === 'all' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
                 {alphabeticalBarangays.map((b, idx) => (
                   <Link
                     key={b.psgcCode}
                     to={`/statistics/${slugifyBarangay(b.name)}`}
                     onClick={() => setActiveTab('overview')}
-                    className={`flex items-center gap-3 rounded-xl border p-3.5 bg-white no-underline transition-all hover:shadow-md ${
+                    className={`flex items-center gap-2.5 sm:gap-3 rounded-xl border p-2.5 sm:p-3.5 bg-white no-underline transition-all hover:shadow-md ${
                       b.psgcCode === selectedBarangay.psgcCode
                         ? 'border-[#26489A] ring-2 ring-[#26489A]/20'
                         : 'border-black/10 hover:border-[#26489A]/40'
                     }`}
                   >
-                    <BarangayEmblem index={idx} size={38} />
+                    <BarangayEmblem index={idx} size={36} />
                     <div className="min-w-0">
-                      <div className="font-bold text-sm text-[#0f2342] truncate">{b.name}</div>
-                      <div className="text-xs text-slate-500 tabular-nums">
+                      <div className="font-bold text-xs sm:text-sm text-[#0f2342] truncate">
+                        {b.name}
+                      </div>
+                      <div className="text-[11px] sm:text-xs text-slate-500 tabular-nums truncate">
                         {b.population2020.toLocaleString()} · {b.classification}
                       </div>
                     </div>
@@ -773,18 +775,20 @@ export default function StatisticsPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-8">
             {filteredDirectory.map((b, idx) => (
               <Link
                 key={b.psgcCode}
                 to={`/statistics/${slugifyBarangay(b.name)}`}
-                className="flex items-center gap-3.5 rounded-2xl border border-black/10 bg-white p-4 shadow-xs hover:shadow-md hover:border-[#26489A]/40 transition-all no-underline"
+                className="flex items-center gap-2.5 sm:gap-3.5 rounded-2xl border border-black/10 bg-white p-3 sm:p-4 shadow-xs hover:shadow-md hover:border-[#26489A]/40 transition-all no-underline"
               >
-                <BarangayEmblem index={idx} size={46} />
+                <BarangayEmblem index={idx} size={38} />
                 <div className="min-w-0">
-                  <div className="font-bold text-base text-[#0f2342] truncate">{b.name}</div>
-                  <div className="text-xs text-slate-500 tabular-nums">
-                    {b.classification} · Pop. {b.population2020.toLocaleString()}
+                  <div className="font-bold text-xs sm:text-base text-[#0f2342] truncate">
+                    {b.name}
+                  </div>
+                  <div className="text-[11px] sm:text-xs text-slate-500 tabular-nums truncate">
+                    {b.classification} · {b.population2020.toLocaleString()}
                   </div>
                 </div>
               </Link>

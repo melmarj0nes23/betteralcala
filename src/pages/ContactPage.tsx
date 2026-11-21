@@ -292,26 +292,28 @@ export default function ContactPage() {
             />
           </div>
 
-          <div className="grid grid-3" style={{ gap: 'var(--spacing-sm)' }}>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
             {filteredBarangays.map((b) => (
-              <div key={b.psgcCode} className="barangay-card" style={{ cursor: 'default' }}>
-                <div className="barangay-card-header flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <i className="bi bi-geo-alt-fill" aria-hidden="true" />
-                    <span className="barangay-name">{b.name}</span>
+              <div key={b.psgcCode} className="barangay-card min-w-0" style={{ cursor: 'default' }}>
+                <div className="barangay-card-header flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <i className="bi bi-geo-alt-fill shrink-0" aria-hidden="true" />
+                    <span className="barangay-name text-xs sm:text-sm truncate">{b.name}</span>
                   </div>
-                  <span className="text-xs font-semibold text-slate-500">{b.classification}</span>
+                  <span className="text-[10px] sm:text-xs font-semibold text-slate-500">
+                    {b.classification}
+                  </span>
                 </div>
                 <div className="barangay-card-body">
-                  <span className="text-xs text-slate-500 tabular-nums mb-1">
+                  <span className="text-[10px] sm:text-xs text-slate-500 tabular-nums mb-1 truncate">
                     PSGC: {b.psgcCode}
                   </span>
-                  <div className="barangay-phones flex flex-wrap gap-2 mt-1">
+                  <div className="barangay-phones flex flex-wrap gap-1.5 sm:gap-2 mt-1">
                     {b.phones?.map((ph) => (
                       <a
                         key={ph}
                         href={`tel:${ph.replace(/[^+\d]/g, '')}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 border border-[#0032a0]/20 px-2.5 py-1 text-xs font-bold text-[#0032a0] hover:bg-[#0032a0] hover:text-white transition tabular-nums"
+                        className="inline-flex items-center gap-1 rounded-lg bg-blue-50 border border-[#26489A]/20 px-2 py-1 text-[11px] sm:text-xs font-bold text-[#26489A] hover:bg-[#26489A] hover:text-white transition tabular-nums"
                       >
                         <i className="bi bi-telephone-fill" aria-hidden="true" />
                         <span>{ph}</span>

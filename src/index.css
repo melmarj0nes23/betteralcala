@@ -1714,9 +1714,11 @@ html:not(.high-contrast) .site-header {
 .alcala-pennant {
   height: clamp(200px, 24vw, 290px);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px 14px 44px;
+  gap: 10px;
+  padding: 20px 10px 44px;
   color: #ffffff;
   clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
   transition: transform 0.25s ease, filter 0.25s ease;
@@ -1726,6 +1728,18 @@ html:not(.high-contrast) .site-header {
 .alcala-pennant:hover {
   transform: translateY(4px);
   filter: brightness(1.06);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.alcala-pennant-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.94);
+  text-align: center;
+  line-height: 1.1;
 }
 
 .alcala-pennant-icon {
@@ -1983,6 +1997,11 @@ html:not(.high-contrast) .site-header {
   .alcala-pennant-icon {
     width: 32px;
     height: 32px;
+  }
+
+  .alcala-pennant-label {
+    font-size: 0.56rem;
+    letter-spacing: 0.04em;
   }
 }
 
