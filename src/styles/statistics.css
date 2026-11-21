@@ -50,7 +50,7 @@
 .stats-hero p {
   color: rgba(255, 255, 255, 0.85);
   font-size: 1rem;
-  margin: 0;
+  margin: 0 auto;
 }
 
 /* Key Metrics Section */

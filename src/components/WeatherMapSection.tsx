@@ -195,6 +195,28 @@ export default function WeatherMapSection() {
                     </div>
                   ))}
                 </div>
+
+                <div className="mt-auto pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-[#0f2342]">
+                      <i className="bi bi-clock text-[#26489A]" aria-hidden="true" />
+                      <span>Municipal Hall Hours</span>
+                    </span>
+                    <span className="tabular-nums">Mon–Fri, 8 AM – 5 PM</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-[#0f2342]">
+                      <i className="bi bi-shield-exclamation text-[#D1432A]" aria-hidden="true" />
+                      <span>MDRRMO 24/7 Hotline</span>
+                    </span>
+                    <a
+                      href="tel:09209817724"
+                      className="font-bold text-[#D1432A] hover:underline tabular-nums"
+                    >
+                      0920-9817724
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

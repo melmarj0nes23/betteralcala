@@ -179,7 +179,7 @@ export default function BudgetPage() {
       <section className="bg-white border-b border-black/10">
         <div className="container">
           <div
-            className="flex flex-nowrap overflow-x-auto gap-2 py-3"
+            className="flex flex-nowrap md:flex-wrap overflow-x-auto justify-start md:justify-center gap-2 py-3"
             role="tablist"
             aria-label="Transparency & Budget Sections"
           >

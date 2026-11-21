@@ -25,7 +25,7 @@
   --spacing-md: 24px;
   --spacing-lg: 32px;
   --spacing-xl: 48px;
-  --max-width: 1200px;
+  --max-width: 1400px;
   --border-radius: 10px;
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
   --shadow-md: 0 8px 24px -12px rgba(15, 23, 42, 0.14);
@@ -133,14 +133,6 @@
   background-color: var(--color-bg-alt);
 }
 
-.text-center {
-  text-align: center;
-}
-
-.text-right {
-  text-align: right;
-}
-
 .text-primary {
   color: var(--color-primary) !important;
 }
@@ -160,14 +152,6 @@
 
 .align-center {
   align-items: center;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.justify-center {
-  justify-content: center;
 }
 
 .gap-sm {
@@ -8084,7 +8068,7 @@ a.a11y-contact-item:hover i {
 
 .home-stats-v2 {
   background: var(--color-bg-alt);
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-xl) 0 var(--spacing-md);
 }
 
 .home-stats-v2-header {
@@ -8426,7 +8410,7 @@ a.a11y-contact-item:hover i {
 
 .weather-map-section {
   background-color: var(--color-bg-alt);
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-md) 0 var(--spacing-xl);
 }
 
 .weather-map-section .home-stats-v2-header {
@@ -8435,7 +8419,7 @@ a.a11y-contact-item:hover i {
 
 .weather-map-grid {
   display: grid;
-  grid-template-columns: 340px minmax(0, 1fr);
+  grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
   gap: var(--spacing-lg);
   align-items: stretch;
 }
@@ -8873,7 +8857,18 @@ a.a11y-contact-item:hover i {
   }
 
   .weather-current {
-    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .weather-current-location {
+    justify-content: center;
+  }
+
+  .weather-stats {
+    justify-content: center;
   }
 
   .weather-hourly {

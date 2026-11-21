@@ -416,25 +416,16 @@ export default function StatisticsPage() {
       >
         <section className="stats-hero">
           <div className="container">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="stats-hero-content">
-                <span className="stats-hero-badge">
-                  <i className="bi bi-bar-chart-fill" aria-hidden="true" />{' '}
-                  <span>PSA &amp; PSGC Verified Data</span>
-                </span>
-                <h1>Alcala Municipal Statistics</h1>
-                <p>
-                  Official demographic, geographic, and economic indicators for the Municipality of
-                  Alcala, Pangasinan (PSGC {MUNICIPAL_PROFILE.psgcCode})
-                </p>
-              </div>
-              <Link
-                to="/statistics"
-                className="inline-flex items-center gap-2 self-start rounded-full bg-white border border-black/15 px-4 py-2 text-xs font-semibold text-[#0f2342] no-underline shadow-xs"
-              >
-                <i className="bi bi-grid-fill" aria-hidden="true" />
-                <span>21 Barangays Directory</span>
-              </Link>
+            <div className="stats-hero-content text-center">
+              <span className="stats-hero-badge">
+                <i className="bi bi-bar-chart-fill" aria-hidden="true" />{' '}
+                <span>PSA &amp; PSGC Verified Data</span>
+              </span>
+              <h1>Alcala Municipal Statistics</h1>
+              <p className="mx-auto max-w-2xl">
+                Official demographic, geographic, and economic indicators for the Municipality of
+                Alcala, Pangasinan (PSGC {MUNICIPAL_PROFILE.psgcCode})
+              </p>
             </div>
           </div>
         </section>

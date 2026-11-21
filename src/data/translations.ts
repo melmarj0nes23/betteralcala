@@ -4,7 +4,7 @@ export const translations: Record<Language, Record<string, string>> = {
   en: {
     'nav-home': 'Home',
     'nav-services': 'Services',
-    'nav-government': 'Government',
+    'nav-government': 'Offices',
     'nav-statistics': 'Statistics',
     'nav-legislative': 'Legislative',
     'nav-transparency': 'Transparency',
@@ -138,7 +138,7 @@ export const translations: Record<Language, Record<string, string>> = {
   fil: {
     'nav-home': 'Tahanan',
     'nav-services': 'Mga Serbisyo',
-    'nav-government': 'Pamahalaan',
+    'nav-government': 'Mga Tanggapan',
     'nav-statistics': 'Estadistika',
     'nav-legislative': 'Lehislatura',
     'nav-transparency': 'Transparensiya',
@@ -272,7 +272,7 @@ export const translations: Record<Language, Record<string, string>> = {
   ilo: {
     'nav-home': 'Pagtaengan',
     'nav-services': 'Serbisio',
-    'nav-government': 'Gobierno',
+    'nav-government': 'Dagiti Opisina',
     'nav-statistics': 'Estadistika',
     'nav-legislative': 'Lehislatura',
     'nav-transparency': 'Transparensia',

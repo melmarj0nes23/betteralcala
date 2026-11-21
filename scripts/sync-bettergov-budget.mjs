@@ -86,6 +86,21 @@ async function main() {
     hgab2027Projects: hgabProjects,
   };
 
+  if (fs.existsSync(OUT_PATH)) {
+    try {
+      const existing = JSON.parse(fs.readFileSync(OUT_PATH, 'utf8'));
+      if (
+        JSON.stringify(existing.gaaProjects) === JSON.stringify(gaaProjects) &&
+        JSON.stringify(existing.hgab2027Projects) === JSON.stringify(hgabProjects)
+      ) {
+        console.log('No new budget or project changes detected; keeping existing file untouched.');
+        return;
+      }
+    } catch {
+      // Proceed to overwrite if existing file cannot be parsed
+    }
+  }
+
   fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
   fs.writeFileSync(OUT_PATH, JSON.stringify(payload, null, 2) + '\n', 'utf8');
 

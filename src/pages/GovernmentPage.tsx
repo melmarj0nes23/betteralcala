@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { SourceCitationBox, VerificationBadge } from '../components/VerificationBadge';
 import {
-  BARANGAYS_DATA,
   MUNICIPAL_OFFICES,
   MUNICIPAL_PROFILE,
   OFFICIALS_DATA,
@@ -11,37 +10,17 @@ import {
 
 export default function GovernmentPage() {
   const [searchParams] = useSearchParams();
-  const initialBrgy = searchParams.get('barangay') || '';
   const focusedOfficeId = searchParams.get('office') || '';
-  const [brgySearch, setBrgySearch] = useState(initialBrgy);
   const [expandedOffices, setExpandedOffices] = useState<Record<string, boolean>>({});
 
   const toggleOfficeExpand = (id: string) => {
     setExpandedOffices((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  useEffect(() => {
-    const paramBrgy = searchParams.get('barangay');
-    if (paramBrgy !== null) {
-      setBrgySearch(paramBrgy);
-    }
-  }, [searchParams]);
-
   const executiveOfficials = OFFICIALS_DATA.filter((o) => o.branch === 'Executive');
   const legislativeOfficials = OFFICIALS_DATA.filter(
     (o) => o.branch === 'Legislative' || o.branch === 'Ex-Officio'
   );
-
-  const filteredBarangays = useMemo(() => {
-    const q = brgySearch.trim().toLowerCase();
-    if (!q) return BARANGAYS_DATA;
-    return BARANGAYS_DATA.filter(
-      (b) =>
-        b.name.toLowerCase().includes(q) ||
-        b.psgcCode.includes(q) ||
-        b.phones?.some((p) => p.toLowerCase().includes(q))
-    );
-  }, [brgySearch]);
 
   return (
     <Layout breadcrumbs={[{ label: 'Government' }]}>
@@ -51,10 +30,10 @@ export default function GovernmentPage() {
             <span className="page-header-badge">
               <i className="bi bi-building-fill" aria-hidden="true" /> <span>Government</span>
             </span>
-            <h1>Government Structure, Officials &amp; Barangays</h1>
+            <h1>Government Structure &amp; Municipal Officials</h1>
             <p className="page-header-desc">
-              Verified municipal leadership (2025–2028 term), municipal offices, and the 21 PSGC
-              barangays of Alcala, Pangasinan
+              Verified municipal leadership (2025–2028 term) and executive offices of Alcala,
+              Pangasinan
             </p>
           </div>
         </div>
@@ -228,84 +207,32 @@ export default function GovernmentPage() {
         </div>
       </section>
 
-      {/* 21 Barangays Directory */}
+      {/* 21 Barangays Directory Callout */}
       <section id="barangays" className="section">
         <div className="container">
-          <div className="text-center" style={{ marginBottom: 'var(--spacing-lg)' }}>
-            <h2>Barangays of Alcala, Pangasinan</h2>
-            <p style={{ color: 'var(--color-text-light)' }}>
-              21 official PSGC administrative units with verified 2020 PSA Census population figures
-            </p>
-          </div>
-
-          <div className="max-w-md mx-auto mb-6 flex gap-2">
-            <input
-              type="search"
-              value={brgySearch}
-              onChange={(e) => setBrgySearch(e.target.value)}
-              placeholder="Filter barangays by name, PSGC code, or hotline..."
-              aria-label="Filter Alcala barangays"
-              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm focus:border-[#0032a0] focus:outline-none"
-            />
-            {brgySearch && (
-              <button
-                type="button"
-                onClick={() => setBrgySearch('')}
-                className="btn btn-outline btn-sm whitespace-nowrap"
-              >
-                Show All
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-3" style={{ gap: 'var(--spacing-sm)' }}>
-            {filteredBarangays.map((b) => (
-              <div key={b.psgcCode} className="barangay-card" style={{ cursor: 'default' }}>
-                <div className="barangay-card-header flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <i className="bi bi-geo-alt-fill" aria-hidden="true" />
-                    <span className="barangay-name">{b.name}</span>
-                  </div>
-                </div>
-                <div className="barangay-card-body">
-                  <span className="barangay-captain tabular-nums">
-                    PSGC: {b.psgcCode} · {b.classification}
-                  </span>
-                  <span className="barangay-contact tabular-nums">
-                    <i className="bi bi-people" aria-hidden="true" /> 2020 Census:{' '}
-                    {b.population2020.toLocaleString()}
-                    {b.population2024 ? ` · 2024: ${b.population2024.toLocaleString()}` : ''}
-                  </span>
-                  {b.phones && b.phones.length > 0 && (
-                    <div className="barangay-phones flex flex-wrap gap-1.5 mt-1.5">
-                      {b.phones.map((ph) => (
-                        <a
-                          key={ph}
-                          href={`tel:${ph.replace(/[^+\d]/g, '')}`}
-                          className="inline-flex items-center gap-1 rounded-md bg-blue-50 border border-[#0032a0]/20 px-2 py-0.5 text-xs font-semibold text-[#0032a0] hover:bg-[#0032a0] hover:text-white transition tabular-nums"
-                        >
-                          <i className="bi bi-telephone-fill" aria-hidden="true" />
-                          <span>{ph}</span>
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                  {b.phoneNote && (
-                    <span className="text-[11px] text-amber-800 mt-1">{b.phoneNote}</span>
-                  )}
-                  <span className="text-xs text-slate-500 mt-1">
-                    Punong Barangay Name: Needs Review
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {BARANGAYS_DATA[0] && (
-            <div className="mt-6">
-              <SourceCitationBox citation={BARANGAYS_DATA[0].citation} />
+          <div className="rounded-2xl border border-[#e3dfd6] bg-[#FAF7F2] p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="max-w-2xl">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2E8B57] mb-2">
+                <i className="bi bi-geo-alt-fill" aria-hidden="true" /> 21 Component Barangays
+              </span>
+              <h2 className="text-xl sm:text-2xl font-bold text-[#0f2342] mb-2">
+                Looking for Barangay Profiles or Direct Hotlines?
+              </h2>
+              <p className="text-sm text-slate-600 leading-relaxed mb-0">
+                Explore PSGC codes, census demographics, and individual profiles for all 21
+                barangays in the Barangay Directory, or view one-tap emergency phone numbers in
+                the Contact &amp; Hotlines page.
+              </p>
             </div>
-          )}
+            <div className="flex flex-wrap gap-3 shrink-0">
+              <Link to="/statistics" className="btn btn-primary">
+                <i className="bi bi-map-fill" aria-hidden="true" /> Barangay Directory
+              </Link>
+              <Link to="/contact#barangay-hotlines" className="btn btn-outline">
+                <i className="bi bi-telephone-fill" aria-hidden="true" /> 21 Barangay Hotlines
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>

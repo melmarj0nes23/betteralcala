@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@media (min-width: 1024px) {
+  .container {
+    max-width: min(1400px, 92vw);
+  }
+}
+
 /* BetterAlcala extensions preserving BetterSolano / BetterLGU design tokens */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
@@ -1626,26 +1632,26 @@ html:not(.high-contrast) .site-header {
 }
 
 .alcala-hero-kicker {
-  display: inline-flex;
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  font-size: 0.72rem;
+  gap: 10px;
+  font-size: clamp(0.78rem, 1vw, 0.9rem);
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: #26489a;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .alcala-hero-title {
   font-family: var(--font-display, 'Fraunces', Georgia, serif);
-  font-size: clamp(2.5rem, 5vw, 4.1rem);
+  font-size: clamp(2.85rem, 5.8vw, 5rem);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.025em;
   color: #0f2342;
-  margin: 0 0 14px;
+  margin: 0 0 18px;
 }
 
 .alcala-hero-accent {
@@ -1653,11 +1659,12 @@ html:not(.high-contrast) .site-header {
 }
 
 .alcala-hero-subtitle {
-  font-size: clamp(0.95rem, 1.3vw, 1.08rem);
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
   line-height: 1.6;
   color: #475569;
-  margin: 0 0 22px;
-  max-width: 520px;
+  margin-top: 0;
+  margin-bottom: 24px;
+  max-width: 600px;
 }
 
 .alcala-hero-search-card {
@@ -1691,13 +1698,9 @@ html:not(.high-contrast) .site-header {
   display: none;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1024px) {
   .alcala-hero-grid {
-    align-items: start;
-  }
-
-  .alcala-hero-grid > div:first-child {
-    padding-top: clamp(28px, 4vw, 48px);
+    align-items: center;
   }
 
   .alcala-pennant {
@@ -1963,7 +1966,7 @@ html:not(.high-contrast) .site-header {
   }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 1023px) {
   .alcala-hero-grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -2042,7 +2045,7 @@ html:not(.high-contrast) .legal-hero::after {
   height: 40px;
   background-repeat: repeat-x;
   background-size: 224px 40px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='224' height='40' viewBox='0 0 224 40'%3E%3Crect x='0' width='56' height='40' fill='%2326489A'/%3E%3Crect x='56' width='56' height='40' fill='%232E8B57'/%3E%3Crect x='112' width='56' height='40' fill='%23D1432A'/%3E%3Crect x='168' width='56' height='40' fill='%231976A8'/%3E%3Cg stroke='white' stroke-opacity='0.9' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M28 11v18M19 20h18M22 14l12 12M34 14L22 26'/%3E%3Cpath d='M70 28L80 14l7 10 5-6 8 10H70z'/%3E%3Cpath d='M140 9v7M137 12h6M131 30V20l9-6 9 6v10h-18z'/%3E%3Cpath d='M182 15c4-3 8-3 12 0s8 3 12 0M182 21c4-3 8-3 12 0s8 3 12 0M182 27c4-3 8-3 12 0s8 3 12 0'/%3E%3Cline x1='55.5' y1='0' x2='55.5' y2='40' stroke-opacity='0.18'/%3E%3Cline x1='111.5' y1='0' x2='111.5' y2='40' stroke-opacity='0.18'/%3E%3Cline x1='167.5' y1='0' x2='167.5' y2='40' stroke-opacity='0.18'/%3E%3Cline x1='223.5' y1='0' x2='223.5' y2='40' stroke-opacity='0.18'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='224' height='40' viewBox='0 0 224 40'%3E%3Crect x='0' width='56' height='40' fill='%2326489A'/%3E%3Crect x='56' width='56' height='40' fill='%232E8B57'/%3E%3Crect x='112' width='56' height='40' fill='%23D1432A'/%3E%3Crect x='168' width='56' height='40' fill='%231976A8'/%3E%3Cg stroke='white' stroke-opacity='0.92' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 17l12-7 12 7H16zM20 17v11M25.5 17v11M30.5 17v11M36 17v11M15 30h26'/%3E%3Ccircle cx='84' cy='14' r='2.8'/%3E%3Ccircle cx='76' cy='17' r='2.3'/%3E%3Ccircle cx='92' cy='17' r='2.3'/%3E%3Cpath d='M78.5 29v-4.2a5.5 5.5 0 0 1 11 0V29M72 29v-2.6a4.4 4.4 0 0 1 5.8-4.1M96 29v-2.6a4.4 4.4 0 0 0-5.8-4.1'/%3E%3Cpath d='M140 10l9 3.6v6.8c0 5.6-3.7 9.8-9 11.6-5.3-1.8-9-6-9-11.6v-6.8l9-3.6zM135.5 21l3 3 6-6'/%3E%3Crect x='186' y='10' width='20' height='22' rx='2.5'/%3E%3Cpath d='M191 17h10M191 22h10M191 27h6'/%3E%3Cline x1='55.5' y1='0' x2='55.5' y2='40' stroke-opacity='0.18'/%3E%3Cline x1='111.5' y1='0' x2='111.5' y2='40' stroke-opacity='0.18'/%3E%3Cline x1='167.5' y1='0' x2='167.5' y2='40' stroke-opacity='0.18'/%3E%3Cline x1='223.5' y1='0' x2='223.5' y2='40' stroke-opacity='0.18'/%3E%3C/g%3E%3C/svg%3E");
   border-top: 2px solid rgba(15, 35, 66, 0.08);
   border-bottom: 2px solid rgba(15, 35, 66, 0.08);
   pointer-events: none;

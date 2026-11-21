@@ -229,33 +229,13 @@ export default function Header() {
               </Link>
               <ul className="dropdown-menu">
                 <li>
-                  <Link to="/statistics" onClick={closeMenu}>
-                    21 Barangays Directory
-                  </Link>
-                </li>
-                <li>
                   <Link to="/statistics?view=overview" onClick={closeMenu}>
-                    Entire Municipality Overview
+                    Municipal Overview
                   </Link>
                 </li>
                 <li>
-                  <Link to="/statistics/poblacion-east" onClick={closeMenu}>
-                    Brgy. Poblacion East
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/statistics/poblacion-west" onClick={closeMenu}>
-                    Brgy. Poblacion West
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/statistics/san-vicente" onClick={closeMenu}>
-                    Brgy. San Vicente
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/statistics/bersamin" onClick={closeMenu}>
-                    Brgy. Bersamin
+                  <Link to="/statistics" onClick={closeMenu}>
+                    Explore by Barangay
                   </Link>
                 </li>
               </ul>

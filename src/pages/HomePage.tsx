@@ -7,8 +7,9 @@ import AlcalaHistoryTimeline from '../components/AlcalaHistoryTimeline';
 import { AlcalaPennants, AlcalaWovenStrip } from '../components/AlcalaWovenStrip';
 import { VerificationBadge } from '../components/VerificationBadge';
 import { useLanguage } from '../contexts/LanguageContext';
-import { MUNICIPAL_PROFILE, OFFICIALS_DATA } from '../data/municipalInfo';
+import { MUNICIPAL_PROFILE } from '../data/municipalInfo';
 import { ALCALA_QUIZ_QUESTIONS, NEWS_ITEMS } from '../data/communityData';
+import { BUDGET_RECORDS } from '../data/transparencyData';
 import { isValidCitation, useCivicDataset } from '../hooks/useCivicDataset';
 import { NewsItem } from '../types/civic';
 
@@ -34,8 +35,6 @@ export default function HomePage() {
 
   const newsItems = useCivicDataset('news.json', 'news', NEWS_ITEMS, isValidNewsItem);
 
-  const mayor = OFFICIALS_DATA.find((o) => o.id === 'mayor-collado');
-  const viceMayor = OFFICIALS_DATA.find((o) => o.id === 'vicemayor-callejo');
   const latestNews = newsItems.slice(0, 3);
 
   const handleQuizAnswer = (idx: number) => {
@@ -68,8 +67,8 @@ export default function HomePage() {
       <section className="alcala-hero">
         <div className="container">
           <div className="alcala-hero-grid">
-            <div className="text-center md:text-left md:self-center">
-              <div className="alcala-hero-kicker justify-center md:justify-start">
+            <div className="text-center lg:text-left">
+              <div className="alcala-hero-kicker justify-center lg:justify-start">
                 <span className="whitespace-nowrap">Alcala, Pangasinan</span>
                 <span aria-hidden="true">·</span>
                 <span className="whitespace-nowrap">PSGC {MUNICIPAL_PROFILE.psgcCode}</span>
@@ -79,20 +78,20 @@ export default function HomePage() {
               <h1 className="alcala-hero-title">
                 BetterAlcala<span className="alcala-hero-accent">.org</span>
               </h1>
-              <p className="alcala-hero-subtitle mx-auto md:mx-0 mb-4">{t('hero-subtitle')}</p>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-semibold text-[#0f2342]">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-[#26489A]" aria-hidden="true" />
+              <p className="alcala-hero-subtitle mx-auto lg:mx-0 mb-6">{t('hero-subtitle')}</p>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-5 text-sm sm:text-base font-semibold text-[#0f2342]">
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#26489A]" aria-hidden="true" />
                   <span className="tabular-nums">
                     {MUNICIPAL_PROFILE.population2024.toLocaleString()} Residents
                   </span>
                 </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-[#2E8B57]" aria-hidden="true" />
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#2E8B57]" aria-hidden="true" />
                   <span>{MUNICIPAL_PROFILE.barangayCount} Barangays</span>
                 </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-[#D1432A]" aria-hidden="true" />
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#D1432A]" aria-hidden="true" />
                   <span>Est. 1875</span>
                 </span>
               </div>
@@ -103,7 +102,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="home-search-box alcala-hero-search-card max-w-3xl mx-auto mt-6 md:mt-8 mb-0">
+          <div className="home-search-box alcala-hero-search-card max-w-3xl mx-auto mt-10 md:mt-14 lg:mt-16 mb-0">
             <div className="flex items-center justify-center md:justify-between gap-2 mb-3">
               <h2 className="m-0 text-sm sm:text-base font-bold text-[#0f2342] flex items-center gap-2 leading-none">
                 <i className="bi bi-search text-[#26489A]" aria-hidden="true" />
@@ -238,7 +237,13 @@ export default function HomePage() {
       <section className="home-stats-v2">
         <div className="container">
           <div className="home-stats-v2-header">
-            <h2>{t('home-at-a-glance')}</h2>
+            <div>
+              <h2>{t('home-at-a-glance')}</h2>
+              <p className="m-0 mt-1 text-sm text-slate-600">
+                Demographic, geographic, and administrative profile of Alcala, 5th District of
+                Pangasinan
+              </p>
+            </div>
             <Link to="/statistics" className="home-section-link">
               <i className="bi bi-arrow-right" aria-hidden="true" />{' '}
               <span>{t('home-view-statistics')}</span>
@@ -320,17 +325,20 @@ export default function HomePage() {
               >
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3 text-xs text-slate-600">
-                    <span>
-                      {item.category} · <span className="tabular-nums">{item.date}</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="font-semibold text-[#26489A] bg-[#26489A]/10 px-2 py-0.5 rounded-full">
+                        {item.category}
+                      </span>
+                      <span className="tabular-nums text-slate-500">{item.date}</span>
                     </span>
                     <VerificationBadge status={item.citation.verificationStatus} />
                   </div>
-                  <h3 className="text-base font-bold text-[#0032a0] mb-2">{item.title}</h3>
+                  <h3 className="text-base font-bold text-[#0f2342] mb-2">{item.title}</h3>
                   <p className="text-sm text-slate-600 mb-3 mobile-clamp-3">{item.summary}</p>
                 </div>
                 <div className="pt-3 border-t border-black/5 flex items-center justify-between text-xs text-slate-500">
                   <span>{item.originType}</span>
-                  <Link to="/news" className="font-semibold text-[#0032a0]">
+                  <Link to="/news" className="font-semibold text-[#26489A]">
                     Read details →
                   </Link>
                 </div>
@@ -340,57 +348,111 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Municipal Leadership */}
-      <section className="section home-leadership-section">
+      {/* Live Transparency & Barangay Project Snapshot */}
+      <section className="section" aria-label="Budget and Project Snapshot">
         <div className="container">
-          <div className="home-section-header">
-            <h2>{t('section-leadership')}</h2>
-            <Link to="/government" className="home-section-link">
-              <i className="bi bi-arrow-right" aria-hidden="true" />{' '}
-              <span>{t('home-view-all-officials')}</span>
-            </Link>
-          </div>
-
-          <div className="home-leadership-grid">
-            {mayor && (
-              <div className="home-leader-card">
-                <div className="home-leader-badge">{t('title-mayor')}</div>
-                <h3>{mayor.name}</h3>
-                <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
-                  <span className="text-xs text-slate-500">Term {mayor.term}</span>
-                  <VerificationBadge status={mayor.citation.verificationStatus} />
-                </div>
-                <div className="home-leader-contacts">
-                  <a href={`mailto:${MUNICIPAL_PROFILE.hallEmail}`}>
-                    <i className="bi bi-envelope" aria-hidden="true" />{' '}
-                    <span>{MUNICIPAL_PROFILE.hallEmail}</span>
-                  </a>
-                  <a href="tel:+63756325938">
-                    <i className="bi bi-telephone" aria-hidden="true" /> (075) 632-5938
-                  </a>
-                </div>
+          <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-xs">
+            <div className="bg-[#EAF2EE] border-b border-black/10 p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 text-center lg:text-left">
+              <div>
+                <span className="inline-flex items-center justify-center lg:justify-start gap-1.5 font-mono-data text-[11px] font-bold uppercase tracking-widest text-[#2E8B57] mb-2">
+                  <i className="bi bi-shield-check" aria-hidden="true" />
+                  <span>Open Civic Data · Alcala, Pangasinan</span>
+                </span>
+                <h2 className="m-0 text-2xl sm:text-3xl font-extrabold text-[#0f2342] font-serif">
+                  Follow Every Peso Across Alcala&apos;s 21 Barangays
+                </h2>
+                <p className="m-0 mt-2 mx-auto lg:mx-0 text-sm text-slate-600 max-w-2xl leading-relaxed">
+                  From municipal appropriations to Agno River flood control, farm-to-market roads,
+                  and barangay multi-purpose halls—see what is funded and check project documents.
+                </p>
               </div>
-            )}
-
-            {viceMayor && (
-              <div className="home-leader-card">
-                <div className="home-leader-badge">{t('title-vice-mayor')}</div>
-                <h3>{viceMayor.name}</h3>
-                <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
-                  <span className="text-xs text-slate-500">Term {viceMayor.term}</span>
-                  <VerificationBadge status={viceMayor.citation.verificationStatus} />
-                </div>
-                <div className="home-leader-contacts">
-                  <a href={`mailto:${MUNICIPAL_PROFILE.hallEmail}`}>
-                    <i className="bi bi-envelope" aria-hidden="true" />{' '}
-                    <span>{MUNICIPAL_PROFILE.hallEmail}</span>
-                  </a>
-                  <a href="tel:+63755933012">
-                    <i className="bi bi-telephone" aria-hidden="true" /> (075) 593-3012
-                  </a>
-                </div>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 shrink-0">
+                <Link
+                  to="/budget#barangay-tracker"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0f2342] hover:bg-[#26489A] text-white text-xs sm:text-sm font-bold px-5 py-2.5 transition-colors no-underline shadow-xs"
+                >
+                  <i className="bi bi-geo-alt-fill" aria-hidden="true" />
+                  <span>Open Barangay Project Tracker</span>
+                </Link>
+                <Link
+                  to="/budget"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#0f2342]/20 bg-white hover:border-[#0f2342] text-[#0f2342] text-xs sm:text-sm font-semibold px-5 py-2.5 transition-colors no-underline"
+                >
+                  <span>{t('home-view-budget')}</span>
+                </Link>
               </div>
-            )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 sm:p-8">
+              <Link
+                to="/budget"
+                className="rounded-xl bg-[#FAF7F2] hover:border-[#26489A]/40 border border-black/10 p-4 transition-all hover:shadow-sm no-underline"
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#26489A]/12 text-[#26489A]">
+                    <i className="bi bi-bank2" aria-hidden="true" />
+                  </span>
+                  <span className="font-mono-data text-[11px] font-bold text-[#26489A]">
+                    FY {BUDGET_RECORDS[0]?.fiscalYear ?? 2026}
+                  </span>
+                </div>
+                <div className="text-2xl font-extrabold text-[#26489A] tabular-nums">
+                  ₱{((BUDGET_RECORDS[0]?.approvedBudget ?? 193594983) / 1_000_000).toFixed(2)}M
+                </div>
+                <div className="text-xs font-bold text-[#0f2342] mt-0.5">
+                  Approved Municipal Budget
+                </div>
+                <p className="m-0 mt-1 text-[11px] text-slate-600">
+                  Verified via Sangguniang Panlalawigan appropriation review
+                </p>
+              </Link>
+
+              <Link
+                to="/budget#national-gaa"
+                className="rounded-xl bg-[#FAF7F2] hover:border-[#2E8B57]/40 border border-black/10 p-4 transition-all hover:shadow-sm no-underline"
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#2E8B57]/12 text-[#2E8B57]">
+                    <i className="bi bi-water" aria-hidden="true" />
+                  </span>
+                  <span className="font-mono-data text-[11px] font-bold text-[#2E8B57]">
+                    2024–2026 GAA
+                  </span>
+                </div>
+                <div className="text-2xl font-extrabold text-[#2E8B57] tabular-nums">
+                  29 Enacted Records
+                </div>
+                <div className="text-xs font-bold text-[#0f2342] mt-0.5">
+                  Flood Control, FMRs &amp; Schools
+                </div>
+                <p className="m-0 mt-1 text-[11px] text-slate-600">
+                  Includes Agno River protection, Macayo &amp; Bersamin FMRs, and evacuation halls
+                </p>
+              </Link>
+
+              <Link
+                to="/budget#barangay-tracker"
+                className="rounded-xl bg-[#FAF7F2] hover:border-[#D1432A]/40 border border-black/10 p-4 transition-all hover:shadow-sm no-underline"
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#D1432A]/12 text-[#D1432A]">
+                    <i className="bi bi-cone-striped" aria-hidden="true" />
+                  </span>
+                  <span className="font-mono-data text-[11px] font-bold text-[#D1432A]">
+                    FY 2027 Pipeline
+                  </span>
+                </div>
+                <div className="text-2xl font-extrabold text-[#D1432A] tabular-nums">
+                  14 Alcala Projects
+                </div>
+                <div className="text-xs font-bold text-[#0f2342] mt-0.5">
+                  NEP vs. House Bill Tracker
+                </div>
+                <p className="m-0 mt-1 text-[11px] text-slate-600">
+                  San Vicente FMR, Poblacion West, Pindangan, Gualsic &amp; more with PDF sources
+                </p>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -399,58 +461,38 @@ export default function HomePage() {
       <AlcalaHistoryTimeline title={t('home-history-title')} />
 
       {/* Interactive Alcala Heritage & Civic Quiz CTA */}
-      <section className="quiz-cta-section" aria-label="Alcala Heritage Quiz">
-        <div className="quiz-cta-inner">
-          <div className="quiz-cta-animation">
-            <picture className="block w-full h-full">
-              <source srcSet="/assets/images/alcala-heritage-quiz.webp" type="image/webp" />
-              <img
-                src="/assets/images/alcala-heritage-quiz.jpg"
-                alt="Alcala Municipal Hall, historical monument, and municipal seal of Alcala, Pangasinan"
-                className="quiz-cta-image"
-                width={1200}
-                height={869}
-                loading="eager"
-                referrerPolicy="no-referrer"
-              />
-            </picture>
-          </div>
-          <div className="quiz-cta-content">
-            <h2 className="quiz-cta-heading">{t('quiz-title')}</h2>
-            <p className="quiz-cta-subtitle">{t('quiz-subtitle')}</p>
-            <p className="quiz-cta-description">{t('quiz-description')}</p>
-            <button
-              type="button"
-              onClick={() => {
-                resetQuiz();
-                setQuizOpen(true);
-              }}
-              className="quiz-cta-btn border-0 cursor-pointer"
-            >
-              <i className="bi bi-play-circle-fill" aria-hidden="true" />{' '}
-              <span>{t('quiz-take')}</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Civic Transparency & Independent Portal Notice */}
-      <section className="appointment-cta-section" aria-label="Civic Platform Overview">
+      <section className="section bg-alt" aria-label="Alcala Heritage Quiz">
         <div className="container">
-          <div className="appointment-cta-inner">
-            <div className="appointment-cta-content">
-              <h2 className="appointment-cta-heading">{t('home-citizen-charter-title')}</h2>
-              <p className="appointment-cta-subtitle">{t('home-citizen-charter-desc')}</p>
-              <div className="appointment-cta-actions">
-                <Link to="/services" className="appointment-cta-btn appointment-cta-btn--primary">
-                  <i className="bi bi-grid-fill" aria-hidden="true" />{' '}
-                  <span>{t('home-explore-directory')}</span>
-                </Link>
-                <Link to="/budget" className="appointment-cta-btn appointment-cta-btn--outline">
-                  <i className="bi bi-pie-chart-fill" aria-hidden="true" />{' '}
-                  <span>{t('home-view-budget')}</span>
-                </Link>
-              </div>
+          <div className="quiz-cta-inner bg-white rounded-2xl overflow-hidden border border-black/10 shadow-xs">
+            <div className="quiz-cta-animation">
+              <picture className="block w-full h-full">
+                <source srcSet="/assets/images/alcala-heritage-quiz.webp" type="image/webp" />
+                <img
+                  src="/assets/images/alcala-heritage-quiz.jpg"
+                  alt="Alcala Municipal Hall, historical monument, and municipal seal of Alcala, Pangasinan"
+                  className="quiz-cta-image"
+                  width={1200}
+                  height={869}
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                />
+              </picture>
+            </div>
+            <div className="quiz-cta-content">
+              <h2 className="quiz-cta-heading">{t('quiz-title')}</h2>
+              <p className="quiz-cta-subtitle">{t('quiz-subtitle')}</p>
+              <p className="quiz-cta-description">{t('quiz-description')}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  resetQuiz();
+                  setQuizOpen(true);
+                }}
+                className="quiz-cta-btn border-0 cursor-pointer"
+              >
+                <i className="bi bi-play-circle-fill" aria-hidden="true" />{' '}
+                <span>{t('quiz-take')}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -467,16 +509,30 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="home-contact-v2-grid">
-            <a href="tel:+63756325938" className="home-contact-v2-card">
+            <div className="home-contact-v2-card">
               <div className="home-contact-v2-icon">
                 <i className="bi bi-telephone-fill" aria-hidden="true" />
               </div>
               <div className="home-contact-v2-content">
                 <h3>{t('contact-phone')}</h3>
-                <p className="home-contact-v2-value">(075) 632-5938</p>
-                <span className="home-contact-v2-note">{t('contact-hours')}</span>
+                <a
+                  href="tel:+63756325938"
+                  className="home-contact-v2-value block no-underline hover:underline"
+                >
+                  (075) 632-5938
+                </a>
+                <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                  <span className="home-contact-v2-note">{t('contact-hours')}</span>
+                  <a
+                    href="tel:09209817724"
+                    className="inline-flex items-center gap-1 rounded-full bg-[#D1432A]/10 text-[#D1432A] px-2.5 py-0.5 text-[11px] font-bold no-underline hover:bg-[#D1432A] hover:text-white transition-colors"
+                  >
+                    <i className="bi bi-exclamation-triangle-fill" aria-hidden="true" />
+                    <span>MDRRMO: 0920-9817724</span>
+                  </a>
+                </div>
               </div>
-            </a>
+            </div>
 
             <a href={`mailto:${MUNICIPAL_PROFILE.hallEmail}`} className="home-contact-v2-card">
               <div className="home-contact-v2-icon">

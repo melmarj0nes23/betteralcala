@@ -47,3 +47,32 @@ jobs:
         with:
           name: official-source-candidates
           path: public/data/seed-candidates-report.json
+
+  sync-national-budget:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Sync BetterGov national GAA & FY27 NEP/HGAB data for Alcala
+        run: npm run sync:budget
+
+      - name: Open Pull Request if budget data changed
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'chore(data): sync Alcala national budget & NEP/GAA records'
+          branch: auto/sync-national-budget
+          delete-branch: true
+          title: 'chore(data): sync Alcala national budget & NEP/GAA records'
+          body: |
+            Automated weekly sync from `https://budget.bettergov.ph/api/v1` for **Alcala, Pangasinan**.
+            Review the diff in `public/data/national-budget-alcala.json` and click **Merge pull request** to publish!
