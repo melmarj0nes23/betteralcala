@@ -68,8 +68,8 @@ export default function HomePage() {
       <section className="alcala-hero">
         <div className="container">
           <div className="alcala-hero-grid">
-            <div className="text-center lg:text-left">
-              <div className="alcala-hero-kicker justify-center lg:justify-start">
+            <div className="text-center md:text-left md:self-center">
+              <div className="alcala-hero-kicker justify-center md:justify-start bg-[#26489A]/8 border border-[#26489A]/20 px-3 py-1 rounded-full">
                 <span className="whitespace-nowrap">Alcala, Pangasinan</span>
                 <span aria-hidden="true">·</span>
                 <span className="whitespace-nowrap">PSGC {MUNICIPAL_PROFILE.psgcCode}</span>
@@ -79,52 +79,66 @@ export default function HomePage() {
               <h1 className="alcala-hero-title">
                 BetterAlcala<span className="alcala-hero-accent">.org</span>
               </h1>
-              <p className="alcala-hero-subtitle mx-auto lg:mx-0">{t('hero-subtitle')}</p>
-
-              <div className="home-search-box alcala-hero-search-card">
-                <div className="flex items-center justify-center sm:justify-between gap-2 mb-2.5">
-                  <h2 className="m-0 text-sm sm:text-base font-bold text-[#0f2342] flex items-center gap-2">
-                    <i className="bi bi-search text-[#26489A]" aria-hidden="true" />
-                    <span>{t('home-find-a-service')}</span>
-                  </h2>
-                  <span className="text-[11px] font-mono-data text-slate-500 hidden sm:inline">
-                    Press ⌘K anywhere
+              <p className="alcala-hero-subtitle mx-auto md:mx-0 mb-4">{t('hero-subtitle')}</p>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-semibold text-[#0f2342]">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-[#26489A]" aria-hidden="true" />
+                  <span className="tabular-nums">
+                    {MUNICIPAL_PROFILE.population2024.toLocaleString()} Residents
                   </span>
-                </div>
-                <SearchAutocomplete />
-                <div className="home-search-tags justify-center lg:justify-start">
-                  <span className="font-semibold text-slate-700">{t('home-popular')}</span>
-                  <Link to="/service-details/birth-certificate">{t('home-birth-certificate')}</Link>
-                  <Link to="/service-details/business-permits-licensing">
-                    {t('home-business-permit')}
-                  </Link>
-                  <Link to="/service-details/real-property-tax">
-                    {t('home-real-property-tax')}
-                  </Link>
-                  <Link to="/budget">FY 2026 Budget</Link>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                <Link
-                  to="/services"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#0f2342] hover:bg-[#26489A] text-white text-sm font-semibold px-5 py-2.5 transition-colors no-underline"
-                >
-                  <span>{t('home-browse-services')}</span>
-                  <i className="bi bi-arrow-right" aria-hidden="true" />
-                </Link>
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#0f2342]/25 bg-white hover:border-[#0f2342] text-[#0f2342] text-sm font-semibold px-5 py-2.5 transition-colors no-underline"
-                >
-                  {t('home-contact-us')}
-                </Link>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-[#2E8B57]" aria-hidden="true" />
+                  <span>{MUNICIPAL_PROFILE.barangayCount} Barangays</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-[#D1432A]" aria-hidden="true" />
+                  <span>Est. 1875</span>
+                </span>
               </div>
             </div>
 
             <div>
               <AlcalaPennants />
             </div>
+          </div>
+
+          <div className="home-search-box alcala-hero-search-card max-w-3xl mx-auto mt-6 md:mt-8 mb-0">
+            <div className="flex items-center justify-center md:justify-between gap-2 mb-3">
+              <h2 className="m-0 text-sm sm:text-base font-bold text-[#0f2342] flex items-center gap-2 leading-none">
+                <i className="bi bi-search text-[#26489A]" aria-hidden="true" />
+                <span>{t('home-find-a-service')}</span>
+              </h2>
+              <span className="text-[11px] font-mono-data text-slate-500 hidden md:inline-flex items-center leading-none">
+                Press ⌘K anywhere
+              </span>
+            </div>
+            <SearchAutocomplete />
+            <div className="home-search-tags justify-center">
+              <span className="font-semibold text-slate-700">{t('home-popular')}</span>
+              <Link to="/service-details/birth-certificate">{t('home-birth-certificate')}</Link>
+              <Link to="/service-details/business-permits-licensing">
+                {t('home-business-permit')}
+              </Link>
+              <Link to="/service-details/real-property-tax">{t('home-real-property-tax')}</Link>
+              <Link to="/budget">FY 2026 Budget</Link>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
+            <Link
+              to="/services"
+              className="inline-flex items-center gap-2 rounded-full bg-[#0f2342] hover:bg-[#26489A] text-white text-sm font-semibold px-5 py-2.5 transition-colors no-underline"
+            >
+              <span>{t('home-browse-services')}</span>
+              <i className="bi bi-arrow-right" aria-hidden="true" />
+            </Link>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 rounded-full border border-[#0f2342]/25 bg-white hover:border-[#0f2342] text-[#0f2342] text-sm font-semibold px-5 py-2.5 transition-colors no-underline"
+            >
+              {t('home-contact-us')}
+            </Link>
           </div>
         </div>
       </section>

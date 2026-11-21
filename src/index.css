@@ -1640,9 +1640,9 @@ html:not(.high-contrast) .site-header {
 
 .alcala-hero-title {
   font-family: var(--font-display, 'Fraunces', Georgia, serif);
-  font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+  font-size: clamp(2.5rem, 5vw, 4.1rem);
   font-weight: 800;
-  line-height: 1.04;
+  line-height: 1.02;
   letter-spacing: -0.025em;
   color: #0f2342;
   margin: 0 0 14px;
@@ -1664,9 +1664,21 @@ html:not(.high-contrast) .site-header {
   background: #ffffff;
   border: 1px solid rgba(15, 35, 66, 0.12);
   border-radius: 16px;
-  padding: 16px;
+  padding: 16px 18px;
   box-shadow: 0 10px 28px rgba(15, 35, 66, 0.06);
   margin-bottom: 18px;
+}
+
+.alcala-hero-search-card .search-submit-btn {
+  background: #0f2342;
+}
+
+.alcala-hero-search-card .search-submit-btn:hover {
+  background: #26489a;
+}
+
+.alcala-hero-search-card h2 {
+  margin-bottom: 0;
 }
 
 /* Hanging 4-Pillar Pennants */
