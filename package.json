@@ -11,7 +11,8 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "validate:data": "node scripts/validate-data.mjs",
-    "seed:check": "node scripts/seed-official-sources.mjs"
+    "seed:check": "node scripts/seed-official-sources.mjs",
+    "sync:budget": "node scripts/sync-bettergov-budget.mjs"
   },
   "dependencies": {
     "@firebase/eslint-plugin-security-rules": "^0.0.2",

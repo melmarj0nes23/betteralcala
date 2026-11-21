@@ -128,7 +128,7 @@ export default function ServiceDetailPage() {
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-white text-[#0032a0] px-3.5 py-2 text-xs font-semibold hover:bg-slate-100 transition cursor-pointer border-0"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-white text-[#0f2342] border border-black/15 px-3.5 py-2 text-xs font-semibold hover:bg-slate-50 transition cursor-pointer"
               >
                 <i className="bi bi-printer" aria-hidden="true" />
                 <span>{t('service-print-checklist')}</span>
@@ -136,7 +136,7 @@ export default function ServiceDetailPage() {
               <button
                 type="button"
                 onClick={handleCopyChecklist}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-white/15 text-white border border-white/30 px-3.5 py-2 text-xs font-semibold hover:bg-white/25 transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#0f2342] text-white border border-[#0f2342] px-3.5 py-2 text-xs font-semibold hover:bg-[#26489A] transition cursor-pointer"
               >
                 <i className={`bi ${copied ? 'bi-check2' : 'bi-clipboard'}`} aria-hidden="true" />
                 <span>{copied ? t('service-copied') : t('service-copy-checklist')}</span>

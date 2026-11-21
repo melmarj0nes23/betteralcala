@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import BarangayProjectTracker from '../components/BarangayProjectTracker';
+import NationalBudgetSection from '../components/NationalBudgetSection';
 import { SourceCitationBox, VerificationBadge } from '../components/VerificationBadge';
 import { BUDGET_RECORDS, INFRASTRUCTURE_PROJECTS } from '../data/transparencyData';
 import { isValidCitation, useCivicDataset } from '../hooks/useCivicDataset';
@@ -38,8 +40,17 @@ function isValidInfraProject(item: unknown): item is InfrastructureProject {
   );
 }
 
+type BudgetTab = 'summary' | 'tracker' | 'municipal' | 'documents' | 'dpwh' | 'national';
+
 export default function BudgetPage() {
   const [searchParams] = useSearchParams();
+  const { hash } = useLocation();
+  const [activeTab, setActiveTab] = useState<BudgetTab>(() => {
+    if (hash === '#barangay-tracker') return 'tracker';
+    if (hash === '#dpwh-projects' || searchParams.get('project')) return 'dpwh';
+    if (hash === '#national-gaa') return 'national';
+    return 'summary';
+  });
   const budgetRecords = useCivicDataset(
     'fiscal_transparency.json',
     'fiscal_years',
@@ -62,8 +73,15 @@ export default function BudgetPage() {
     const paramProj = searchParams.get('project');
     if (paramProj !== null) {
       setProjectSearch(paramProj);
+      setActiveTab('dpwh');
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (hash === '#barangay-tracker') setActiveTab('tracker');
+    else if (hash === '#dpwh-projects') setActiveTab('dpwh');
+    else if (hash === '#national-gaa') setActiveTab('national');
+  }, [hash]);
 
   useEffect(() => {
     if (!hasManuallySelectedYear && budgetRecords.length > 0) {
@@ -157,7 +175,215 @@ export default function BudgetPage() {
         </div>
       </section>
 
+      {/* Budget Section Navigation */}
+      <section className="bg-white border-b border-black/10">
+        <div className="container">
+          <div
+            className="flex flex-nowrap overflow-x-auto gap-2 py-3"
+            role="tablist"
+            aria-label="Transparency & Budget Sections"
+          >
+            {[
+              { id: 'summary' as const, label: 'Overview Summary', icon: 'bi-grid-1x2-fill' },
+              { id: 'tracker' as const, label: 'Barangay Tracker', icon: 'bi-geo-alt-fill' },
+              { id: 'municipal' as const, label: 'Municipal Budget', icon: 'bi-graph-up-arrow' },
+              { id: 'documents' as const, label: 'Document Registry', icon: 'bi-folder-check' },
+              {
+                id: 'dpwh' as const,
+                label: `DPWH Projects (${infrastructureProjects.length})`,
+                icon: 'bi-cone-striped',
+              },
+              { id: 'national' as const, label: 'National GAA / FY27', icon: 'bi-database-check' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-[#0f2342] text-white border border-[#0f2342]'
+                    : 'bg-[#FAF7F2] text-[#0f2342] border border-black/10 hover:border-[#26489A]'
+                }`}
+              >
+                <i className={`bi ${tab.icon}`} aria-hidden="true" />
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Overview Summary View (Default for effortless mobile/desktop scanning) */}
+      {activeTab === 'summary' && (
+        <section className="section">
+          <div className="container">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-[#0f2342] m-0">
+                Transparency &amp; Budget Summary
+              </h2>
+              <p className="text-sm text-slate-600 m-0 mt-1">
+                Select a section below to inspect detailed figures, documents, or project records.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setActiveTab('tracker')}
+                className="md:col-span-2 text-left bg-[#EAF2EE] border border-[#2E8B57]/25 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-[#2E8B57] transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-[#2E8B57] text-white">
+                      <i className="bi bi-geo-alt-fill" aria-hidden="true" />
+                    </span>
+                    <span className="font-mono-data text-xs font-bold uppercase tracking-wider text-[#2E8B57]">
+                      Community-Wide · All 21 Barangays
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-[#0f2342] mb-1">
+                    Barangay-Level Project Tracker (2024–2027)
+                  </h3>
+                  <p className="text-xs text-slate-600 m-0">
+                    Filter every funded road, FMR, flood control, and multi-purpose building across
+                    all 21 Alcala barangays from GAA (2024–2026), FY 2027 NEP/HGAB, and DPWH
+                    records.
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0f2342] text-white text-xs font-bold px-4 py-2 whitespace-nowrap self-start sm:self-center">
+                  <span>Open Tracker</span>
+                  <i className="bi bi-arrow-right" aria-hidden="true" />
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('municipal')}
+                className="text-left bg-white border border-black/10 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-[#26489A]/40 transition-all cursor-pointer flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#26489A]/10 text-[#26489A]">
+                      <i className="bi bi-graph-up-arrow" aria-hidden="true" />
+                    </span>
+                    <span className="font-mono-data text-xs font-bold text-[#26489A] bg-[#26489A]/10 px-2.5 py-1 rounded-full">
+                      FY {activeBudget.fiscalYear}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-[#0f2342] mb-1">
+                    Municipal Annual Budget &amp; SRE
+                  </h3>
+                  <div className="text-2xl font-extrabold text-[#26489A] tabular-nums mb-1">
+                    {formatPeso(activeBudget.approvedBudget)}
+                  </div>
+                  <p className="text-xs text-slate-600 m-0">
+                    Approved appropriations, multi-year comparison (FY 2024–2026), and execution
+                    status.
+                  </p>
+                </div>
+                <span className="mt-4 text-xs font-bold text-[#26489A]">
+                  Explore Municipal Budget →
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('national')}
+                className="text-left bg-white border border-black/10 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-[#2E8B57]/40 transition-all cursor-pointer flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#2E8B57]/12 text-[#2E8B57]">
+                      <i className="bi bi-database-check" aria-hidden="true" />
+                    </span>
+                    <span className="font-mono-data text-xs font-bold text-[#2E8B57] bg-[#2E8B57]/12 px-2.5 py-1 rounded-full">
+                      Alcala-Exclusive
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-[#0f2342] mb-1">
+                    National GAA &amp; FY 2027 Appropriations
+                  </h3>
+                  <div className="text-2xl font-extrabold text-[#2E8B57] tabular-nums mb-1">
+                    FY 2024–2027 Records
+                  </div>
+                  <p className="text-xs text-slate-600 m-0">
+                    29 enacted GAA (2024–2026) &amp; 14 FY 2027 NEP/HGAB projects exclusive to
+                    Alcala, Pangasinan.
+                  </p>
+                </div>
+                <span className="mt-4 text-xs font-bold text-[#2E8B57]">
+                  Explore National Appropriations →
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('dpwh')}
+                className="text-left bg-white border border-black/10 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-[#D1432A]/40 transition-all cursor-pointer flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#D1432A]/10 text-[#D1432A]">
+                      <i className="bi bi-cone-striped" aria-hidden="true" />
+                    </span>
+                    <span className="font-mono-data text-xs font-bold text-[#D1432A] bg-[#D1432A]/10 px-2.5 py-1 rounded-full">
+                      {infrastructureProjects.length} Records
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-[#0f2342] mb-1">
+                    DPWH Infrastructure Registry
+                  </h3>
+                  <div className="text-2xl font-extrabold text-[#D1432A] tabular-nums mb-1">
+                    {infrastructureProjects.length} Documented Projects
+                  </div>
+                  <p className="text-xs text-slate-600 m-0">
+                    Searchable public works projects across Alcala barangays by category and
+                    status.
+                  </p>
+                </div>
+                <span className="mt-4 text-xs font-bold text-[#D1432A]">
+                  Browse DPWH Projects →
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('documents')}
+                className="text-left bg-white border border-black/10 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-[#1976A8]/40 transition-all cursor-pointer flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#1976A8]/12 text-[#1976A8]">
+                      <i className="bi bi-folder-check" aria-hidden="true" />
+                    </span>
+                    <span className="font-mono-data text-xs font-bold text-[#1976A8] bg-[#1976A8]/12 px-2.5 py-1 rounded-full">
+                      FDP / COA / BLGF
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-[#0f2342] mb-1">
+                    Financial &amp; Procurement Document Registry
+                  </h3>
+                  <div className="text-2xl font-extrabold text-[#1976A8] tabular-nums mb-1">
+                    4 Core Disclosures
+                  </div>
+                  <p className="text-xs text-slate-600 m-0">
+                    Availability status for Annual Budgets, BLGF SRE, COA Audits, and PhilGEPS
+                    records.
+                  </p>
+                </div>
+                <span className="mt-4 text-xs font-bold text-[#1976A8]">
+                  View Document Registry →
+                </span>
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Annual Budget & SRE Distinction */}
+      {activeTab === 'municipal' && (
       <section className="sre-section-v2">
         <div className="container">
           <div className="sre-header-v2">
@@ -386,8 +612,10 @@ export default function BudgetPage() {
           <SourceCitationBox citation={activeBudget.citation} />
         </div>
       </section>
+      )}
 
       {/* AIP / Financial Statements / Procurement Status Table */}
+      {activeTab === 'documents' && (
       <section className="section bg-alt">
         <div className="container">
           <h2 className="text-xl font-bold text-slate-900 mb-2">
@@ -477,8 +705,10 @@ export default function BudgetPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* DPWH Infrastructure Projects in Alcala */}
+      {activeTab === 'dpwh' && (
       <section id="dpwh-projects" className="infra-section-v5">
         <div className="container">
           <div className="mb-6">
@@ -656,6 +886,13 @@ export default function BudgetPage() {
           )}
         </div>
       </section>
+      )}
+
+      {activeTab === 'tracker' && (
+        <BarangayProjectTracker dpwhProjects={infrastructureProjects} />
+      )}
+
+      {activeTab === 'national' && <NationalBudgetSection />}
     </Layout>
   );
 }
