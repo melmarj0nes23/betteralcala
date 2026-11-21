@@ -145,28 +145,6 @@ export default function HomePage() {
 
       <AlcalaWovenStrip />
 
-      {/* Civic Transparency & Independent Portal Notice */}
-      <section className="appointment-cta-section" aria-label="Civic Platform Overview">
-        <div className="container">
-          <div className="appointment-cta-inner">
-            <div className="appointment-cta-content">
-              <h2 className="appointment-cta-heading">{t('home-citizen-charter-title')}</h2>
-              <p className="appointment-cta-subtitle">{t('home-citizen-charter-desc')}</p>
-              <div className="appointment-cta-actions">
-                <Link to="/services" className="appointment-cta-btn appointment-cta-btn--primary">
-                  <i className="bi bi-grid-fill" aria-hidden="true" />{' '}
-                  <span>{t('home-explore-directory')}</span>
-                </Link>
-                <Link to="/budget" className="appointment-cta-btn appointment-cta-btn--outline">
-                  <i className="bi bi-pie-chart-fill" aria-hidden="true" />{' '}
-                  <span>{t('home-view-budget')}</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Popular Services Grid */}
       <section className="section">
         <div className="container">
@@ -323,9 +301,6 @@ export default function HomePage() {
       {/* Weather & Map of Alcala */}
       <WeatherMapSection />
 
-      {/* Brief History of Alcala */}
-      <AlcalaHistoryTimeline title={t('home-history-title')} />
-
       {/* Announcements & Civic Updates */}
       <section className="section bg-alt">
         <div className="container">
@@ -420,6 +395,67 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Brief History of Alcala */}
+      <AlcalaHistoryTimeline title={t('home-history-title')} />
+
+      {/* Interactive Alcala Heritage & Civic Quiz CTA */}
+      <section className="quiz-cta-section" aria-label="Alcala Heritage Quiz">
+        <div className="quiz-cta-inner">
+          <div className="quiz-cta-animation">
+            <picture className="block w-full h-full">
+              <source srcSet="/assets/images/alcala-heritage-quiz.webp" type="image/webp" />
+              <img
+                src="/assets/images/alcala-heritage-quiz.jpg"
+                alt="Alcala Municipal Hall, historical monument, and municipal seal of Alcala, Pangasinan"
+                className="quiz-cta-image"
+                width={1200}
+                height={869}
+                loading="eager"
+                referrerPolicy="no-referrer"
+              />
+            </picture>
+          </div>
+          <div className="quiz-cta-content">
+            <h2 className="quiz-cta-heading">{t('quiz-title')}</h2>
+            <p className="quiz-cta-subtitle">{t('quiz-subtitle')}</p>
+            <p className="quiz-cta-description">{t('quiz-description')}</p>
+            <button
+              type="button"
+              onClick={() => {
+                resetQuiz();
+                setQuizOpen(true);
+              }}
+              className="quiz-cta-btn border-0 cursor-pointer"
+            >
+              <i className="bi bi-play-circle-fill" aria-hidden="true" />{' '}
+              <span>{t('quiz-take')}</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Civic Transparency & Independent Portal Notice */}
+      <section className="appointment-cta-section" aria-label="Civic Platform Overview">
+        <div className="container">
+          <div className="appointment-cta-inner">
+            <div className="appointment-cta-content">
+              <h2 className="appointment-cta-heading">{t('home-citizen-charter-title')}</h2>
+              <p className="appointment-cta-subtitle">{t('home-citizen-charter-desc')}</p>
+              <div className="appointment-cta-actions">
+                <Link to="/services" className="appointment-cta-btn appointment-cta-btn--primary">
+                  <i className="bi bi-grid-fill" aria-hidden="true" />{' '}
+                  <span>{t('home-explore-directory')}</span>
+                </Link>
+                <Link to="/budget" className="appointment-cta-btn appointment-cta-btn--outline">
+                  <i className="bi bi-pie-chart-fill" aria-hidden="true" />{' '}
+                  <span>{t('home-view-budget')}</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Information */}
       <section className="section">
         <div className="container">
@@ -463,42 +499,6 @@ export default function HomePage() {
                 <span className="home-contact-v2-note">Alcala, 2425 Pangasinan</span>
               </div>
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive Alcala Heritage & Civic Quiz CTA */}
-      <section className="quiz-cta-section" aria-label="Alcala Heritage Quiz">
-        <div className="quiz-cta-inner">
-          <div className="quiz-cta-animation">
-            <picture className="block w-full h-full">
-              <source srcSet="/assets/images/alcala-heritage-quiz.webp" type="image/webp" />
-              <img
-                src="/assets/images/alcala-heritage-quiz.jpg"
-                alt="Alcala Municipal Hall, historical monument, and municipal seal of Alcala, Pangasinan"
-                className="quiz-cta-image"
-                width={1200}
-                height={869}
-                loading="eager"
-                referrerPolicy="no-referrer"
-              />
-            </picture>
-          </div>
-          <div className="quiz-cta-content">
-            <h2 className="quiz-cta-heading">{t('quiz-title')}</h2>
-            <p className="quiz-cta-subtitle">{t('quiz-subtitle')}</p>
-            <p className="quiz-cta-description">{t('quiz-description')}</p>
-            <button
-              type="button"
-              onClick={() => {
-                resetQuiz();
-                setQuizOpen(true);
-              }}
-              className="quiz-cta-btn border-0 cursor-pointer"
-            >
-              <i className="bi bi-play-circle-fill" aria-hidden="true" />{' '}
-              <span>{t('quiz-take')}</span>
-            </button>
           </div>
         </div>
       </section>

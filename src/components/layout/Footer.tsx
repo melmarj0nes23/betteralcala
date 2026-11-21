@@ -178,25 +178,24 @@ export default function Footer() {
           </div>
 
           <div className="footer-column">
-            <div
-              className="footer-cost"
-              role="status"
-              aria-label="Cost to the People of Alcala: Zero Pesos"
-            >
-              {t('footer-cost')} <span className="footer-cost-value">₱0</span>
-            </div>
-            <Link to="/contact#feedback" className="footer-contribute">
-              <i className="bi bi-envelope-heart" aria-hidden="true" /> {t('footer-volunteer')}
-            </Link>
-            <a
-              href="https://bettergov.ph/"
-              className="footer-contribute"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <i className="bi bi-box-arrow-up-right" aria-hidden="true" /> {t('footer-contribute')}
-            </a>
-            <div className="footer-partners">
+            <h4>Community &amp; Transparency</h4>
+            <ul className="footer-links-new">
+              <li
+                className="text-white/85 text-sm"
+                aria-label="Cost to the People of Alcala: Zero Pesos"
+              >
+                {t('footer-cost')} <strong className="text-white">₱0</strong>
+              </li>
+              <li>
+                <Link to="/contact#feedback">{t('footer-volunteer')}</Link>
+              </li>
+              <li>
+                <a href="https://bettergov.ph/" target="_blank" rel="noopener noreferrer">
+                  {t('footer-contribute')}
+                </a>
+              </li>
+            </ul>
+            <div className="footer-partners mt-4">
               <a
                 href="https://bettergov.ph"
                 target="_blank"
