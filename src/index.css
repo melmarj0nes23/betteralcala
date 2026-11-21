@@ -1808,6 +1808,30 @@ html:not(.high-contrast) .site-header {
   transform: translateZ(0);
 }
 
+/* Evenly spaced single-line hourly weather forecast pills */
+.weather-hourly {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px !important;
+  width: 100%;
+}
+
+.weather-hour {
+  min-width: 0;
+  padding: 10px 4px !important;
+}
+
+.weather-hour-time {
+  white-space: nowrap;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 420px) {
+  .weather-hourly {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 /* Color-blocked Alcala Service Tiles (Original Geometric Patterns) */
 .alcala-services-grid {
   display: grid;

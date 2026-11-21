@@ -201,9 +201,11 @@ export default function WeatherMapSection() {
                 <iframe
                   id="osm-embed"
                   className="map-iframe"
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=120.4950%2C15.8300%2C120.5500%2C15.8650&layer=mapnik&marker=15.8467%2C120.5219"
+                  src="https://maps.google.com/maps?ll=15.8467,120.5219&z=15&output=embed"
                   title="Map of Alcala, Pangasinan"
-                  aria-label="OpenStreetMap showing Alcala Municipal Hall, Poblacion East, Pangasinan"
+                  aria-label="Map showing Alcala Municipal Hall, Poblacion East, Pangasinan"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  loading="lazy"
                 />
               </div>
               <p className="map-attribution px-3 sm:px-0">
