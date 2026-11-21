@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-interface HourlyPoint {
-  time: string;
-  temperature: number;
+interface DailyPoint {
+  day: string;
+  maxTemp: number;
+  minTemp: number;
   icon: string;
 }
 
@@ -13,7 +14,7 @@ interface WeatherData {
   windSpeed: number;
   condition: string;
   icon: string;
-  hourlyForecast: HourlyPoint[];
+  dailyForecast: DailyPoint[];
   isFallback: boolean;
 }
 
@@ -37,31 +38,36 @@ function mapWeatherCode(code: number): { condition: string; icon: string } {
   return mappings[code] || { condition: 'Partly cloudy', icon: 'bi-cloud-sun-fill' };
 }
 
-function getManilaHour(): number {
+function formatDayLabel(isoDate: string, idx: number): string {
+  if (idx === 0) return 'Today';
   try {
-    const hourStr = new Intl.DateTimeFormat('en-US', {
+    const [y, m, d] = isoDate.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'short',
       timeZone: 'Asia/Manila',
-      hour: 'numeric',
-      hour12: false,
-    }).format(new Date());
-    const parsed = parseInt(hourStr, 10);
-    return Number.isNaN(parsed) ? new Date().getHours() : parsed % 24;
+    }).format(dt);
   } catch {
-    return new Date().getHours();
+    return `Day ${idx + 1}`;
   }
 }
 
 function getFallbackWeather(): WeatherData {
-  const currentHour = getManilaHour();
-  const hourlyForecast: HourlyPoint[] = [];
-  for (let i = 0; i < 9; i++) {
-    const hour = (currentHour + i) % 24;
-    const isPM = hour >= 12;
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    hourlyForecast.push({
-      time: `${displayHour} ${isPM ? 'PM' : 'AM'}`,
-      temperature: 29 + (i % 3) - 1,
-      icon: hour >= 6 && hour < 18 ? 'bi-cloud-sun-fill' : 'bi-moon-stars-fill',
+  const now = new Date();
+  const dailyForecast: DailyPoint[] = [];
+  for (let i = 0; i < 6; i++) {
+    const dt = new Date(now.getTime() + i * 86400000);
+    const label =
+      i === 0
+        ? 'Today'
+        : new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'Asia/Manila' }).format(
+            dt
+          );
+    dailyForecast.push({
+      day: label,
+      maxTemp: 31 - (i % 2),
+      minTemp: 23 + (i % 2),
+      icon: i % 3 === 1 ? 'bi-cloud-drizzle-fill' : 'bi-cloud-sun-fill',
     });
   }
   return {
@@ -70,7 +76,7 @@ function getFallbackWeather(): WeatherData {
     windSpeed: 11,
     condition: 'Partly cloudy',
     icon: 'bi-cloud-sun-fill',
-    hourlyForecast,
+    dailyForecast,
     isFallback: true,
   };
 }
@@ -80,12 +86,12 @@ export default function WeatherMapSection() {
   const [weather, setWeather] = useState<WeatherData>(getFallbackWeather);
 
   useEffect(() => {
-    const cacheKey = 'alcala_weather_card_v3';
+    const cacheKey = 'alcala_weather_card_v4';
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const entry = JSON.parse(cached);
-        if (entry?.data && Date.now() < entry.expiresAt) {
+        if (entry?.data?.dailyForecast && Date.now() < entry.expiresAt) {
           setWeather(entry.data);
           return;
         }
@@ -95,24 +101,21 @@ export default function WeatherMapSection() {
     }
 
     fetch(
-      'https://api.open-meteo.com/v1/forecast?latitude=15.8467&longitude=120.5219&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&forecast_days=2&timezone=Asia%2FManila'
+      'https://api.open-meteo.com/v1/forecast?latitude=15.8467&longitude=120.5219&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=6&timezone=Asia%2FManila'
     )
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!data?.current) return;
         const mapped = mapWeatherCode(data.current.weather_code ?? 1);
-        const nowHour = getManilaHour();
-        const hourlyForecast: HourlyPoint[] = [];
-        if (data.hourly?.time && data.hourly?.temperature_2m) {
-          for (let i = 0; i < 9; i++) {
-            const idx = (nowHour + i) % data.hourly.time.length;
-            const hour = (nowHour + i) % 24;
-            const isPM = hour >= 12;
-            const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-            const code = data.hourly.weather_code?.[idx] ?? 1;
-            hourlyForecast.push({
-              time: `${displayHour} ${isPM ? 'PM' : 'AM'}`,
-              temperature: Math.round(data.hourly.temperature_2m[idx]),
+        const dailyForecast: DailyPoint[] = [];
+        if (data.daily?.time && data.daily?.temperature_2m_max) {
+          const count = Math.min(6, data.daily.time.length);
+          for (let i = 0; i < count; i++) {
+            const code = data.daily.weather_code?.[i] ?? 1;
+            dailyForecast.push({
+              day: formatDayLabel(data.daily.time[i], i),
+              maxTemp: Math.round(data.daily.temperature_2m_max[i]),
+              minTemp: Math.round(data.daily.temperature_2m_min?.[i] ?? data.daily.temperature_2m_max[i] - 6),
               icon: mapWeatherCode(code).icon,
             });
           }
@@ -123,8 +126,8 @@ export default function WeatherMapSection() {
           windSpeed: Math.round(data.current.wind_speed_10m ?? 10),
           condition: mapped.condition,
           icon: mapped.icon,
-          hourlyForecast:
-            hourlyForecast.length > 0 ? hourlyForecast : getFallbackWeather().hourlyForecast,
+          dailyForecast:
+            dailyForecast.length > 0 ? dailyForecast : getFallbackWeather().dailyForecast,
           isFallback: false,
         };
         setWeather(live);
@@ -179,11 +182,16 @@ export default function WeatherMapSection() {
                 </div>
 
                 <div className="weather-hourly">
-                  {weather.hourlyForecast.map((h, i) => (
-                    <div key={`${h.time}-${i}`} className="weather-hour">
-                      <span className="weather-hour-time">{h.time}</span>
-                      <i className={`bi ${h.icon}`} aria-hidden="true" />
-                      <span className="weather-hour-temp tabular-nums">{h.temperature}°</span>
+                  {weather.dailyForecast.map((d, i) => (
+                    <div key={`${d.day}-${i}`} className="weather-hour">
+                      <span className="weather-hour-time">{d.day}</span>
+                      <i className={`bi ${d.icon}`} aria-hidden="true" />
+                      <span className="weather-hour-temp tabular-nums">
+                        {d.maxTemp}°
+                      </span>
+                      <span className="text-[10px] text-slate-500 tabular-nums leading-none">
+                        {d.minTemp}°
+                      </span>
                     </div>
                   ))}
                 </div>
