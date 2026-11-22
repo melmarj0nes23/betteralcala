@@ -128,6 +128,31 @@ export default defineConfig(() => {
         },
       },
     ],
+    build: {
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'firebase-vendor',
+                test: /node_modules[\\/](@?firebase|idb)[\\/]/,
+                priority: 20,
+              },
+              {
+                name: 'react-vendor',
+                test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/,
+                priority: 15,
+              },
+              {
+                name: 'ui-vendor',
+                test: /node_modules[\\/](motion|framer-motion|lucide-react)[\\/]/,
+                priority: 10,
+              },
+            ],
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

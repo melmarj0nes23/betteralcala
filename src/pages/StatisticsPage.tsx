@@ -805,7 +805,7 @@ export default function StatisticsPage() {
             </Link>
 
             <Link
-              to="/government#barangays"
+              to="/contact#barangay-hotlines"
               className="flex items-center gap-4 rounded-2xl border border-black/10 bg-white p-5 shadow-xs hover:shadow-md hover:border-[#2E8B57]/40 transition-all no-underline"
             >
               <BarangayEmblem index={2} size={52} />

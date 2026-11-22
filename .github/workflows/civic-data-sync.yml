@@ -30,17 +30,24 @@ jobs:
   check-official-sources:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Check official pangasinan.gov.ph & PSGC sources (deterministic only)
-        run: npm run seed:check -- --write-report
+      - name: Sync official pangasinan.gov.ph & PSGC sources (deterministic only)
+        run: npm run seed:check -- --apply --write-report
+
+      - name: Validate civic datasets before committing
+        run: npm run validate:data
 
       - name: Upload candidate report artifact for human review
         uses: actions/upload-artifact@v4
@@ -48,15 +55,29 @@ jobs:
           name: official-source-candidates
           path: public/data/seed-candidates-report.json
 
+      - name: Auto-commit & push to main if news or legislative data changed
+        run: |
+          if git diff --quiet public/data/news.json public/data/ordinances.json public/data/resolutions.json; then
+            echo "No new news, ordinance, or resolution records detected."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/news.json public/data/ordinances.json public/data/resolutions.json
+          git commit -m "chore(data): auto-sync pangasinan.gov.ph news & legislative records"
+          git pull --rebase origin main
+          git push origin main
+
   sync-national-budget:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -66,13 +87,18 @@ jobs:
       - name: Sync BetterGov national GAA & FY27 NEP/HGAB data for Alcala
         run: npm run sync:budget
 
-      - name: Open Pull Request if budget data changed
-        uses: peter-evans/create-pull-request@v7
-        with:
-          commit-message: 'chore(data): sync Alcala national budget & NEP/GAA records'
-          branch: auto/sync-national-budget
-          delete-branch: true
-          title: 'chore(data): sync Alcala national budget & NEP/GAA records'
-          body: |
-            Automated weekly sync from `https://budget.bettergov.ph/api/v1` for **Alcala, Pangasinan**.
-            Review the diff in `public/data/national-budget-alcala.json` and click **Merge pull request** to publish!
+      - name: Validate civic datasets before committing
+        run: npm run validate:data
+
+      - name: Auto-commit & push to main if budget data changed
+        run: |
+          if git diff --quiet public/data/national-budget-alcala.json; then
+            echo "No new budget or project changes detected."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/national-budget-alcala.json
+          git commit -m "chore(data): auto-sync Alcala national budget & NEP/GAA records"
+          git pull --rebase origin main
+          git push origin main
