@@ -200,5 +200,21 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if isValidId(runId) && isAdmin();
     }
+
+    // Public real-time visitor counter (strict +1 increment only)
+    match /siteMetrics/{metricId} {
+      allow get: if metricId == 'visitors';
+      allow create: if metricId == 'visitors'
+        && incoming().keys().hasOnly(['count', 'updatedAt'])
+        && incoming().count == 1
+        && incoming().updatedAt == request.time;
+      allow update: if metricId == 'visitors'
+        && incoming().keys().hasOnly(['count', 'updatedAt'])
+        && incoming().diff(existing()).affectedKeys().hasOnly(['count', 'updatedAt'])
+        && existing().count is int
+        && incoming().count == existing().count + 1
+        && incoming().updatedAt == request.time;
+      allow list, delete: if false;
+    }
   }
 }

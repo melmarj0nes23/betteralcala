@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { doc, increment, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { useLanguage } from '../../contexts/LanguageContext';
+
+const VISIT_SESSION_KEY = 'betteralcala_visit_counted';
+let visitRecordedInMemory = false;
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const { t } = useLanguage();
   const [version, setVersion] = useState('1.0.0');
+  const [visitorCount, setVisitorCount] = useState<number | null>(null);
 
   useEffect(() => {
     fetch('/version.json')
@@ -14,6 +20,48 @@ export default function Footer() {
         if (data?.version) setVersion(data.version);
       })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const metricsRef = doc(db, 'siteMetrics', 'visitors');
+
+    const unsubscribe = onSnapshot(
+      metricsRef,
+      (snap) => {
+        const count = snap.data()?.count;
+        if (typeof count === 'number' && Number.isFinite(count)) {
+          setVisitorCount(count);
+        }
+      },
+      () => {
+        // Silently ignore if Firestore rules for siteMetrics are not yet published
+      }
+    );
+
+    const alreadyCounted =
+      visitRecordedInMemory ||
+      (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(VISIT_SESSION_KEY) === '1');
+
+    if (!alreadyCounted) {
+      visitRecordedInMemory = true;
+      try {
+        sessionStorage.setItem(VISIT_SESSION_KEY, '1');
+      } catch {
+        // Ignore storage errors in restricted browsing modes
+      }
+      setDoc(
+        metricsRef,
+        {
+          count: increment(1),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      ).catch(() => {
+        // Silently ignore if Firestore rules for siteMetrics are not yet published
+      });
+    }
+
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -158,6 +206,18 @@ export default function Footer() {
                 </a>
               </li>
             </ul>
+            {visitorCount !== null && (
+              <div
+                className="mt-4 inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-1.5 text-xs text-white/90"
+                aria-label={`${visitorCount.toLocaleString()} total portal visits`}
+              >
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                <span className="text-white/75">Total Visits</span>
+                <strong className="font-mono-data text-white tabular-nums">
+                  {visitorCount.toLocaleString()}
+                </strong>
+              </div>
+            )}
             <div className="footer-partners mt-4">
               <a
                 href="https://bettergov.ph"
