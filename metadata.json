@@ -1,6 +1,0 @@
-{
-  "name": "BetterAlcala.org",
-  "description": "Independent civic information, public services directory, and government transparency platform for the Municipality of Alcala, Pangasinan, Philippines (BetterLGU / BetterGov.ph).",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

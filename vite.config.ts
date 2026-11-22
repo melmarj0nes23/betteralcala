@@ -59,7 +59,6 @@ export default defineConfig(() => {
         workbox: {
           maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,webp,woff,woff2,json}'],
-          globIgnores: ['assets/aistudio/**'],
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//, /^\/sitemap\.xml$/, /^\/robots\.txt$/],
           runtimeCaching: [
@@ -112,21 +111,6 @@ export default defineConfig(() => {
           type: 'module',
         },
       }),
-      {
-        name: 'copy-unbundled-src-assets',
-        apply: 'build',
-        closeBundle(error?: Error): void {
-          if (error) {
-            return;
-          }
-          const distDir = path.resolve(__dirname, 'dist');
-          const srcAssets = path.resolve(__dirname, 'src/assets');
-          const distAssets = path.resolve(distDir, 'src/assets');
-          if (fs.existsSync(distDir) && fs.existsSync(srcAssets)) {
-            fs.cpSync(srcAssets, distAssets, { recursive: true, force: true });
-          }
-        },
-      },
     ],
     build: {
       rolldownOptions: {
