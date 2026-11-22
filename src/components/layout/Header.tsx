@@ -268,14 +268,48 @@ export default function Header() {
                 </li>
               </ul>
             </li>
-            <li>
+            <li className={`has-dropdown ${openDropdown === 3 ? 'dropdown-open' : ''}`}>
               <Link
                 to="/budget"
                 className={pathname.startsWith('/budget') ? 'active' : ''}
-                onClick={closeMenu}
+                aria-haspopup="true"
+                aria-expanded={openDropdown === 3 ? 'true' : 'false'}
+                onClick={(e) => toggleDropdown(3, e)}
               >
                 {t('nav-transparency')}
               </Link>
+              <ul className="dropdown-menu">
+                <li>
+                  <Link to="/budget#overview-summary" onClick={closeMenu}>
+                    Overview Summary
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/budget#barangay-tracker" onClick={closeMenu}>
+                    Barangay Tracker
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/budget#municipal-budget" onClick={closeMenu}>
+                    Municipal Budget
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/budget#document-registry" onClick={closeMenu}>
+                    Document Registry
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/budget#dpwh-projects" onClick={closeMenu}>
+                    DPWH Projects (12)
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/budget#national-gaa" onClick={closeMenu}>
+                    National GAA / FY27
+                  </Link>
+                </li>
+              </ul>
             </li>
             <li>
               <Link

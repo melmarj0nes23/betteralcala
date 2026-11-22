@@ -27,7 +27,14 @@ const PrivacyPage = lazy(() =>
 );
 const TermsPage = lazy(() => import('./pages/LegalPages').then((m) => ({ default: m.TermsPage })));
 
-const TAB_ONLY_HASHES = new Set(['#barangay-tracker', '#national-gaa', '#dpwh-projects']);
+const TAB_ONLY_HASHES = new Set([
+  '#overview-summary',
+  '#barangay-tracker',
+  '#municipal-budget',
+  '#document-registry',
+  '#national-gaa',
+  '#dpwh-projects',
+]);
 
 function ScrollManager() {
   const { pathname, search, hash } = useLocation();

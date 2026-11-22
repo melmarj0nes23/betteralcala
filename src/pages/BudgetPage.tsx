@@ -47,6 +47,8 @@ export default function BudgetPage() {
   const { hash } = useLocation();
   const [activeTab, setActiveTab] = useState<BudgetTab>(() => {
     if (hash === '#barangay-tracker') return 'tracker';
+    if (hash === '#municipal-budget') return 'municipal';
+    if (hash === '#document-registry') return 'documents';
     if (hash === '#dpwh-projects' || searchParams.get('project')) return 'dpwh';
     if (hash === '#national-gaa') return 'national';
     return 'summary';
@@ -79,9 +81,12 @@ export default function BudgetPage() {
 
   useEffect(() => {
     if (hash === '#barangay-tracker') setActiveTab('tracker');
+    else if (hash === '#municipal-budget') setActiveTab('municipal');
+    else if (hash === '#document-registry') setActiveTab('documents');
     else if (hash === '#dpwh-projects') setActiveTab('dpwh');
     else if (hash === '#national-gaa') setActiveTab('national');
-  }, [hash]);
+    else if (hash === '#overview-summary' || (!hash && !searchParams.get('project'))) setActiveTab('summary');
+  }, [hash, searchParams]);
 
   useEffect(() => {
     if (!hasManuallySelectedYear && budgetRecords.length > 0) {
