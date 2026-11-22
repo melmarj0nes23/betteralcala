@@ -465,18 +465,15 @@ export default function HomePage() {
         <div className="container">
           <div className="quiz-cta-inner bg-white rounded-2xl overflow-hidden border border-black/10 shadow-xs">
             <div className="quiz-cta-animation">
-              <picture className="block w-full h-full">
-                <source srcSet="/assets/images/alcala-heritage-quiz.webp" type="image/webp" />
-                <img
-                  src="/assets/images/alcala-heritage-quiz.jpg"
-                  alt="Alcala Municipal Hall, historical monument, and municipal seal of Alcala, Pangasinan"
-                  className="quiz-cta-image"
-                  width={1200}
-                  height={869}
-                  loading="eager"
-                  referrerPolicy="no-referrer"
-                />
-              </picture>
+              <img
+                src="/assets/images/alcala-heritage-quiz.jpg"
+                alt="Alcala Municipal Hall, historical monument, and municipal seal of Alcala, Pangasinan"
+                className="quiz-cta-image"
+                width={840}
+                height={644}
+                loading="eager"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <div className="quiz-cta-content">
               <h2 className="quiz-cta-heading">{t('quiz-title')}</h2>

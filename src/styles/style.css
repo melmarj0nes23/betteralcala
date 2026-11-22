@@ -7076,8 +7076,9 @@ cklist with Icons - Proper Indentation */
 
   .quiz-cta-animation {
     max-width: 100%;
-    min-height: 220px;
-    height: 240px;
+    min-height: 0;
+    height: auto;
+    aspect-ratio: 840 / 644;
   }
 
   .quiz-cta-content {
@@ -7113,7 +7114,9 @@ cklist with Icons - Proper Indentation */
 
   .quiz-cta-animation {
     max-width: 100%;
-    height: 210px;
+    min-height: 0;
+    height: auto;
+    aspect-ratio: 840 / 644;
   }
 
   .quiz-cta-content {
