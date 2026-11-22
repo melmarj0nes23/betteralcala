@@ -27,19 +27,47 @@ const PrivacyPage = lazy(() =>
 );
 const TermsPage = lazy(() => import('./pages/LegalPages').then((m) => ({ default: m.TermsPage })));
 
+const TAB_ONLY_HASHES = new Set(['#barangay-tracker', '#national-gaa', '#dpwh-projects']);
+
 function ScrollManager() {
-  const { pathname, hash } = useLocation();
+  const { pathname, search, hash } = useLocation();
 
   useEffect(() => {
-    if (hash) {
-      const target = document.getElementById(hash.slice(1));
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
-        return;
-      }
+    const scrollTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    if (hash && !TAB_ONLY_HASHES.has(hash)) {
+      const id = hash.slice(1);
+      const tryScrollToAnchor = (attemptsLeft: number) => {
+        const target = document.getElementById(id);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+        if (attemptsLeft > 0) {
+          timer = setTimeout(() => tryScrollToAnchor(attemptsLeft - 1), 60);
+        } else {
+          scrollTop();
+        }
+      };
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      tryScrollToAnchor(6);
+      return () => {
+        if (timer) clearTimeout(timer);
+      };
     }
-    window.scrollTo(0, 0);
-  }, [pathname, hash]);
+
+    scrollTop();
+    const raf = requestAnimationFrame(scrollTop);
+    const timer = setTimeout(scrollTop, 80);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+    };
+  }, [pathname, search, hash]);
 
   return null;
 }

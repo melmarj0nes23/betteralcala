@@ -263,7 +263,7 @@ export default function HomePage() {
               </div>
             </Link>
 
-            <Link to="/government#barangays" className="home-stat-card home-stat-card--green">
+            <Link to="/statistics" className="home-stat-card home-stat-card--green">
               <div className="home-stat-card-icon">
                 <i className="bi bi-geo-alt-fill" aria-hidden="true" />
               </div>

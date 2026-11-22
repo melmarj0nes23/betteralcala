@@ -9,6 +9,7 @@ import {
 } from '../data/municipalInfo';
 import { INFRASTRUCTURE_PROJECTS, ORDINANCES_DATA } from '../data/transparencyData';
 import { FAQ_ITEMS, NEWS_ITEMS } from '../data/communityData';
+import { slugifyBarangay } from './BarangayEmblem';
 
 interface SearchEntry {
   id: string;
@@ -123,10 +124,10 @@ export default function CommandSearchModal({ open, onClose }: CommandSearchModal
       entries.push({
         id: `brgy-${b.psgcCode}`,
         label: `Brgy. ${b.name}`,
-        sublabel: `PSGC ${b.psgcCode}${b.phones?.[0] ? ` · ${b.phones[0]}` : ''}`,
+        sublabel: `PSGC ${b.psgcCode} · ${b.classification}${b.phones?.[0] ? ` · ${b.phones[0]}` : ''}`,
         type: 'Barangay',
-        route: `/government?barangay=${encodeURIComponent(b.name)}#barangays`,
-        keywords: `barangay ${b.name} ${b.psgcCode} ${b.phones?.join(' ') || ''}`.toLowerCase(),
+        route: `/statistics/${slugifyBarangay(b.name)}`,
+        keywords: `barangay ${b.name} ${b.psgcCode} ${b.classification} ${b.phones?.join(' ') || ''}`.toLowerCase(),
       });
     });
 
