@@ -5718,7 +5718,9 @@ cklist with Icons - Proper Indentation */
 }
 
 .home-section-header h2 {
-  font-size: 1.5rem;
+  font-family: var(--font-display, 'Fraunces', Georgia, serif);
+  font-size: clamp(1.45rem, 2.2vw, 1.85rem);
+  font-weight: 700;
   margin: 0;
 }
 
@@ -8082,7 +8084,9 @@ a.a11y-contact-item:hover i {
 }
 
 .home-stats-v2-header h2 {
-  font-size: 1.25rem;
+  font-family: var(--font-display, 'Fraunces', Georgia, serif);
+  font-size: clamp(1.45rem, 2.2vw, 1.85rem);
+  font-weight: 700;
   margin: 0;
 }
 
