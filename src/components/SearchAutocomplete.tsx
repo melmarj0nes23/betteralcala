@@ -113,7 +113,7 @@ export default function SearchAutocomplete({
         id: `proj-${proj.id}`,
         label: `${proj.id} · ${proj.name}`,
         type: 'Project',
-        route: `/budget?project=${encodeURIComponent(proj.id)}#dpwh-projects`,
+        route: `/contracts?project=${encodeURIComponent(proj.id)}`,
         keywords: `${proj.id} ${proj.name} ${proj.barangay} ${proj.contractor} ${proj.category}`.toLowerCase(),
       });
     });

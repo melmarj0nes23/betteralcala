@@ -51,7 +51,19 @@ export default function SitemapPage() {
                 <i className="bi bi-arrow-right" aria-hidden="true" /> Resolution Framework
               </Link>
               <Link to="/budget" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Budget &amp; DPWH Projects
+                <i className="bi bi-arrow-right" aria-hidden="true" /> Budget Overview Summary
+              </Link>
+              <Link to="/tracker" className="sitemap-link-item">
+                <i className="bi bi-arrow-right" aria-hidden="true" /> Barangay Project Tracker
+              </Link>
+              <Link to="/budgetdocs" className="sitemap-link-item">
+                <i className="bi bi-arrow-right" aria-hidden="true" /> Municipal Budget &amp; Docs
+              </Link>
+              <Link to="/contracts" className="sitemap-link-item">
+                <i className="bi bi-arrow-right" aria-hidden="true" /> DPWH Contracts
+              </Link>
+              <Link to="/transparency" className="sitemap-link-item">
+                <i className="bi bi-arrow-right" aria-hidden="true" /> Transparency Portal
               </Link>
               <Link to="/news" className="sitemap-link-item">
                 <i className="bi bi-arrow-right" aria-hidden="true" /> News &amp; Announcements

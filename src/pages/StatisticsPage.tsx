@@ -346,7 +346,7 @@ export default function StatisticsPage() {
                           </p>
                         </div>
                         <Link
-                          to="/budget#dpwh-projects"
+                          to="/contracts"
                           className="text-xs font-semibold text-[#26489A] whitespace-nowrap"
                         >
                           View in Budget Registry →
@@ -361,7 +361,7 @@ export default function StatisticsPage() {
                       {selectedBarangay.name} by name in the current registry.
                     </p>
                     <Link
-                      to="/budget#dpwh-projects"
+                      to="/contracts"
                       className="inline-flex items-center gap-2 rounded-full bg-[#0f2342] text-white text-xs font-semibold px-4 py-2 no-underline"
                     >
                       Browse All Alcala DPWH Projects →

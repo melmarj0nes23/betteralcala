@@ -148,7 +148,7 @@ export default function CommandSearchModal({ open, onClose }: CommandSearchModal
         label: `${proj.id} · ${proj.name}`,
         sublabel: `${proj.barangay} · ${proj.statusLabel}`,
         type: 'Project',
-        route: `/budget?project=${encodeURIComponent(proj.id)}#dpwh-projects`,
+        route: `/contracts?project=${encodeURIComponent(proj.id)}`,
         keywords: `${proj.id} ${proj.name} ${proj.barangay} ${proj.contractor} ${proj.category}`.toLowerCase(),
       });
     });

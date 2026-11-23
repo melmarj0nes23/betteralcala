@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -27,16 +27,6 @@ const PrivacyPage = lazy(() =>
 );
 const TermsPage = lazy(() => import('./pages/LegalPages').then((m) => ({ default: m.TermsPage })));
 
-const TAB_ONLY_HASHES = new Set([
-  '#overview-summary',
-  '#barangay-tracker',
-  '#municipal-budget',
-  '#document-registry',
-  '#national-gaa',
-  '#dpwh-projects',
-  '#regional-budget',
-]);
-
 function ScrollManager() {
   const { pathname, search, hash } = useLocation();
 
@@ -47,7 +37,7 @@ function ScrollManager() {
       document.body.scrollTop = 0;
     };
 
-    if (hash && !TAB_ONLY_HASHES.has(hash)) {
+    if (hash) {
       const id = hash.slice(1);
       const tryScrollToAnchor = (attemptsLeft: number) => {
         const target = document.getElementById(id);
@@ -129,6 +119,11 @@ export default function App() {
                 <Route path="/legislative/ordinance-framework" element={<OrdinanceFrameworkPage />} />
                 <Route path="/legislative/resolution-framework" element={<ResolutionFrameworkPage />} />
                 <Route path="/budget" element={<BudgetPage />} />
+                <Route path="/tracker" element={<BudgetPage />} />
+                <Route path="/budgetdocs" element={<BudgetPage />} />
+                <Route path="/contracts" element={<BudgetPage />} />
+                <Route path="/contacts" element={<Navigate to="/contracts" replace />} />
+                <Route path="/transparency" element={<BudgetPage />} />
                 <Route path="/news" element={<NewsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/faq" element={<FaqPage />} />

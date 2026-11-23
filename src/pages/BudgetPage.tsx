@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import BarangayProjectTracker from '../components/BarangayProjectTracker';
 
@@ -43,16 +43,64 @@ function isValidInfraProject(item: unknown): item is InfrastructureProject {
 
 type BudgetTab = 'summary' | 'tracker' | 'municipal' | 'dpwh' | 'regional';
 
+const TAB_ROUTES: Record<BudgetTab, string> = {
+  summary: '/budget',
+  tracker: '/tracker',
+  municipal: '/budgetdocs',
+  dpwh: '/contracts',
+  regional: '/transparency',
+};
+
+const TAB_SEO: Record<BudgetTab, { label: string; title: string; description: string }> = {
+  summary: {
+    label: 'Transparency & Budget',
+    title: 'Transparency & Budget Overview',
+    description:
+      'FY 2026 municipal budget snapshot, funding mix, and direct access to Alcala, Pangasinan project trackers and public records.',
+  },
+  tracker: {
+    label: 'Barangay Project Tracker',
+    title: 'Barangay-Level Project Tracker (2024–2027)',
+    description:
+      'Filter funded roads, farm-to-market roads, flood control, and multi-purpose buildings across all 21 barangays in Alcala, Pangasinan.',
+  },
+  municipal: {
+    label: 'Municipal Budget & Docs',
+    title: 'Municipal Annual Budget & Document Registry',
+    description:
+      'Approved municipal appropriations (FY 2024–2026), BLGF SRE, COA audit reports, and procurement disclosures for Alcala, Pangasinan.',
+  },
+  dpwh: {
+    label: 'DPWH Contracts',
+    title: 'DPWH Infrastructure Contracts & Public Works',
+    description:
+      'Searchable DPWH infrastructure contracts, project budgets, contractors, and completion status in Alcala, Pangasinan.',
+  },
+  regional: {
+    label: 'Transparency Portal',
+    title: 'National GAA & FY 2027 Transparency Portal',
+    description:
+      'Compare FY 2027 NEP vs. House Bill and 2020–2026 Enacted GAA allocations for Alcala, Pangasinan, and nationwide LGUs.',
+  },
+};
+
 export default function BudgetPage() {
   const [searchParams] = useSearchParams();
-  const { hash } = useLocation();
-  const [activeTab, setActiveTab] = useState<BudgetTab>(() => {
-    if (hash === '#barangay-tracker') return 'tracker';
-    if (hash === '#municipal-budget' || hash === '#document-registry') return 'municipal';
-    if (hash === '#dpwh-projects' || searchParams.get('project')) return 'dpwh';
-    if (hash === '#regional-budget' || hash === '#national-gaa') return 'regional';
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const activeTab: BudgetTab = useMemo(() => {
+    const cleanPath = pathname.replace(/\/+$/, '');
+    if (cleanPath === '/tracker') return 'tracker';
+    if (cleanPath === '/budgetdocs') return 'municipal';
+    if (cleanPath === '/contracts' || searchParams.get('project')) return 'dpwh';
+    if (cleanPath === '/transparency') return 'regional';
     return 'summary';
-  });
+  }, [pathname, searchParams]);
+
+  const setActiveTab = (tab: BudgetTab) => {
+    navigate(TAB_ROUTES[tab]);
+  };
   const budgetRecords = useCivicDataset(
     'fiscal_transparency.json',
     'fiscal_years',
@@ -84,17 +132,8 @@ export default function BudgetPage() {
     const paramProj = searchParams.get('project');
     if (paramProj !== null) {
       setProjectSearch(paramProj);
-      setActiveTab('dpwh');
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    if (hash === '#barangay-tracker') setActiveTab('tracker');
-    else if (hash === '#municipal-budget' || hash === '#document-registry') setActiveTab('municipal');
-    else if (hash === '#dpwh-projects') setActiveTab('dpwh');
-    else if (hash === '#regional-budget' || hash === '#national-gaa') setActiveTab('regional');
-    else if (hash === '#overview-summary' || (!hash && !searchParams.get('project'))) setActiveTab('summary');
-  }, [hash, searchParams]);
 
   useEffect(() => {
     if (!hasManuallySelectedYear && budgetRecords.length > 0) {
@@ -170,10 +209,17 @@ export default function BudgetPage() {
     return Array.from(map.entries()).map(([category, stats]) => ({ category, ...stats }));
   }, [infrastructureProjects]);
 
+  const seo = TAB_SEO[activeTab];
+
   return (
     <Layout
-      breadcrumbs={[{ label: 'Transparency & Budget' }]}
-      pageDescription="Municipal budget, 21-barangay project tracker, DPWH infrastructure, national GAA (2020–2026), FY 2027 NEP vs. House Bill, and regional LGU budget explorer for Alcala, Pangasinan."
+      breadcrumbs={
+        activeTab === 'summary'
+          ? [{ label: 'Transparency & Budget' }]
+          : [{ label: 'Transparency & Budget', to: '/budget' }, { label: seo.label }]
+      }
+      pageTitle={seo.title}
+      pageDescription={seo.description}
     >
       <section className="trans-hero-v2">
         <div className="container">

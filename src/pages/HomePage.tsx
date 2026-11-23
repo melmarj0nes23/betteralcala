@@ -370,7 +370,7 @@ export default function HomePage() {
               </div>
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 shrink-0">
                 <Link
-                  to="/budget#barangay-tracker"
+                  to="/tracker"
                   className="inline-flex items-center gap-2 rounded-full bg-[#0f2342] hover:bg-[#26489A] text-white text-xs sm:text-sm font-bold px-5 py-2.5 transition-colors no-underline shadow-xs"
                 >
                   <i className="bi bi-geo-alt-fill" aria-hidden="true" />
@@ -410,7 +410,7 @@ export default function HomePage() {
               </Link>
 
               <Link
-                to="/budget#national-gaa"
+                to="/transparency"
                 className="rounded-xl bg-[#FAF7F2] hover:border-[#2E8B57]/40 border border-black/10 p-4 transition-all hover:shadow-sm no-underline"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
@@ -433,7 +433,7 @@ export default function HomePage() {
               </Link>
 
               <Link
-                to="/budget#barangay-tracker"
+                to="/tracker"
                 className="rounded-xl bg-[#FAF7F2] hover:border-[#D1432A]/40 border border-black/10 p-4 transition-all hover:shadow-sm no-underline"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">

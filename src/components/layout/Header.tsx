@@ -262,7 +262,14 @@ export default function Header() {
             <li className={`has-dropdown ${openDropdown === 3 ? 'dropdown-open' : ''}`}>
               <Link
                 to="/budget"
-                className={pathname.startsWith('/budget') ? 'active' : ''}
+                className={
+                  pathname.startsWith('/budget') ||
+                  pathname.startsWith('/tracker') ||
+                  pathname.startsWith('/contracts') ||
+                  pathname.startsWith('/transparency')
+                    ? 'active'
+                    : ''
+                }
                 aria-haspopup="true"
                 aria-expanded={openDropdown === 3 ? 'true' : 'false'}
                 onClick={(e) => toggleDropdown(3, e)}
@@ -271,27 +278,27 @@ export default function Header() {
               </Link>
               <ul className="dropdown-menu">
                 <li>
-                  <Link to="/budget#overview-summary" onClick={closeMenu}>
+                  <Link to="/budget" onClick={closeMenu}>
                     Overview Summary
                   </Link>
                 </li>
                 <li>
-                  <Link to="/budget#barangay-tracker" onClick={closeMenu}>
+                  <Link to="/tracker" onClick={closeMenu}>
                     Barangay Tracker
                   </Link>
                 </li>
                 <li>
-                  <Link to="/budget#municipal-budget" onClick={closeMenu}>
+                  <Link to="/budgetdocs" onClick={closeMenu}>
                     Municipal Budget &amp; Docs
                   </Link>
                 </li>
                 <li>
-                  <Link to="/budget#dpwh-projects" onClick={closeMenu}>
+                  <Link to="/contracts" onClick={closeMenu}>
                     DPWH Contracts (12)
                   </Link>
                 </li>
                 <li>
-                  <Link to="/budget#regional-budget" onClick={closeMenu}>
+                  <Link to="/transparency" onClick={closeMenu}>
                     Transparency Portal
                   </Link>
                 </li>
