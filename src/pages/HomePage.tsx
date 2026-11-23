@@ -92,17 +92,19 @@ export default function HomePage() {
     <Layout>
       {/* Fellowship-style Blueprint Civic Hero with Rotating Sun Rays */}
       <section className="t-blueprint fs-hero">
-        <div className="fs-rays" aria-hidden="true">
-          <svg viewBox="-1000 -1000 2000 2000">
-            {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
-              <g key={deg} transform={`rotate(${deg})`}>
-                <polygon transform="rotate(0)" points="-6,-190 6,-190 32,-960 -32,-960" />
-                <polygon transform="rotate(-8)" points="-6,-190 6,-190 20,-780 -20,-780" />
-                <polygon transform="rotate(8)" points="-6,-190 6,-190 20,-780 -20,-780" />
-              </g>
-            ))}
-            <circle r="150" />
-          </svg>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+          <div className="fs-rays">
+            <svg viewBox="-1000 -1000 2000 2000">
+              {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+                <g key={deg} transform={`rotate(${deg})`}>
+                  <polygon transform="rotate(0)" points="-6,-190 6,-190 32,-960 -32,-960" />
+                  <polygon transform="rotate(-8)" points="-6,-190 6,-190 20,-780 -20,-780" />
+                  <polygon transform="rotate(8)" points="-6,-190 6,-190 20,-780 -20,-780" />
+                </g>
+              ))}
+              <circle r="150" />
+            </svg>
+          </div>
         </div>
 
         <div className="container relative z-10 w-full">
