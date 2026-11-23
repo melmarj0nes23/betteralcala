@@ -362,53 +362,53 @@ export default function RegionalBudgetSection() {
               <>
                 {/* KPI Cards (FY 2027 only) */}
                 {subView === '2027' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-4">
-                    <div className="font-mono-data text-[11px] font-bold uppercase text-[#26489A]">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-6">
+                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-3 sm:p-4">
+                    <div className="font-mono-data text-[10px] sm:text-[11px] font-bold uppercase text-[#26489A]">
                       FY 2027 NEP
                     </div>
-                    <div className="text-2xl font-extrabold text-[#0f2342] font-mono-data tabular-nums mt-1">
+                    <div className="text-2xl sm:text-4xl font-extrabold text-[#0f2342] font-mono-data tabular-nums mt-1">
                       {formatCompactPhp(kpis.nep)}
                     </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
-                      Executive budget proposal
+                    <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      Executive Proposal
                     </div>
                   </div>
 
-                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-4">
-                    <div className="font-mono-data text-[11px] font-bold uppercase text-[#2E8B57]">
+                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-3 sm:p-4">
+                    <div className="font-mono-data text-[10px] sm:text-[11px] font-bold uppercase text-[#2E8B57]">
                       FY 2027 House Bill
                     </div>
-                    <div className="text-2xl font-extrabold text-[#2E8B57] font-mono-data tabular-nums mt-1">
+                    <div className="text-2xl sm:text-4xl font-extrabold text-[#2E8B57] font-mono-data tabular-nums mt-1">
                       {formatCompactPhp(kpis.house)}
                     </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
-                      House version (compared, not added)
+                    <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      House Version
                     </div>
                   </div>
 
-                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-4">
-                    <div className="font-mono-data text-[11px] font-bold uppercase text-[#D1432A]">
+                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-3 sm:p-4">
+                    <div className="font-mono-data text-[10px] sm:text-[11px] font-bold uppercase text-[#D1432A]">
                       Net Delta (House − NEP)
                     </div>
-                    <div className="text-2xl font-extrabold text-[#D1432A] font-mono-data tabular-nums mt-1">
+                    <div className="text-2xl sm:text-4xl font-extrabold text-[#D1432A] font-mono-data tabular-nums mt-1">
                       {kpis.delta >= 0 ? '+' : '−'}
                       {formatCompactPhp(Math.abs(kpis.delta))}
                     </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
-                      Candidate difference across versions
+                    <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      Total Discrepancy
                     </div>
                   </div>
 
-                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-4">
-                    <div className="font-mono-data text-[11px] font-bold uppercase text-[#1976A8]">
+                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-3 sm:p-4">
+                    <div className="font-mono-data text-[10px] sm:text-[11px] font-bold uppercase text-[#1976A8]">
                       Matched Lines
                     </div>
-                    <div className="text-2xl font-extrabold text-[#1976A8] font-mono-data tabular-nums mt-1">
+                    <div className="text-2xl sm:text-4xl font-extrabold text-[#1976A8] font-mono-data tabular-nums mt-1">
                       {kpis.count.toLocaleString()}
                     </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
-                      {data.gaaRecords.length.toLocaleString()} GAA programs (2020–2026)
+                    <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      GAA Programs
                     </div>
                   </div>
                 </div>
