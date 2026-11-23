@@ -71,7 +71,7 @@ export default function Footer() {
           <div className="footer-brand">
             <Link to="/" aria-label="BetterAlcala Home" className="brand-lockup brand-lockup--footer mb-4">
               <img
-                src="/assets/images/logo/alcala-seal.png"
+                src="/assets/images/logo/alcala-seal-v2.png"
                 alt="BetterAlcala logo"
                 className="footer-logo !mb-0"
                 width={52}

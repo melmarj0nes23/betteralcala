@@ -171,7 +171,7 @@ export default function HomePage() {
 
             <div className="fs-hero-search-bar max-w-2xl mx-auto mt-20 md:mt-32">
               <img
-                src="/assets/images/logo/alcala-seal.png"
+                src="/assets/images/logo/alcala-seal-v2.png"
                 alt="BetterAlcala Seal"
                 width={38}
                 height={38}

@@ -113,7 +113,7 @@ export default function Header() {
         <div className="logo-container">
           <Link to="/" aria-label="BetterAlcala Home" className="brand-lockup" onClick={closeMenu}>
             <img
-              src="/assets/images/logo/alcala-seal.png"
+              src="/assets/images/logo/alcala-seal-v2.png"
               alt="Official Seal of the Municipality of Alcala — BetterAlcala Logo"
               className="logo-img"
               width={48}
