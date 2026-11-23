@@ -60,25 +60,25 @@ const TAB_SEO: Record<BudgetTab, { label: string; title: string; description: st
   },
   tracker: {
     label: 'Barangay Project Tracker',
-    title: 'Barangay-Level Project Tracker (2024–2027)',
+    title: 'Barangay Project Tracker',
     description:
       'Filter funded roads, farm-to-market roads, flood control, and multi-purpose buildings across all 21 barangays in Alcala, Pangasinan.',
   },
   municipal: {
     label: 'Municipal Budget & Docs',
-    title: 'Municipal Annual Budget & Document Registry',
+    title: 'Municipal Budget & Docs',
     description:
       'Approved municipal appropriations (FY 2024–2026), BLGF SRE, COA audit reports, and procurement disclosures for Alcala, Pangasinan.',
   },
   dpwh: {
     label: 'DPWH Contracts',
-    title: 'DPWH Infrastructure Contracts & Public Works',
+    title: 'DPWH Contracts',
     description:
       'Searchable DPWH infrastructure contracts, project budgets, contractors, and completion status in Alcala, Pangasinan.',
   },
   regional: {
     label: 'Transparency Portal',
-    title: 'National GAA & FY 2027 Transparency Portal',
+    title: 'Transparency Portal',
     description:
       'Compare FY 2027 NEP vs. House Bill and 2020–2026 Enacted GAA allocations for Alcala, Pangasinan, and nationwide LGUs.',
   },

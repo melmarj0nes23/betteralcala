@@ -34,7 +34,7 @@ export default function Layout({
     const resolvedTitle = pageTitle
       ? `${pageTitle} | BetterAlcala`
       : breadcrumbs && breadcrumbs.length > 0
-        ? `${breadcrumbs[breadcrumbs.length - 1].label} | BetterAlcala — Alcala, Pangasinan`
+        ? `${breadcrumbs[breadcrumbs.length - 1].label} | BetterAlcala`
         : DEFAULT_TITLE;
     document.title = resolvedTitle;
 
