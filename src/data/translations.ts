@@ -7,7 +7,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav-government': 'Offices',
     'nav-statistics': 'Statistics',
     'nav-legislative': 'Legislative',
-    'nav-transparency': 'Transparency',
+    'nav-transparency': 'Budget',
     'nav-contact': 'Contact',
 
     'hero-welcome': 'Welcome to BetterAlcala',
@@ -141,7 +141,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav-government': 'Mga Tanggapan',
     'nav-statistics': 'Estadistika',
     'nav-legislative': 'Lehislatura',
-    'nav-transparency': 'Transparensiya',
+    'nav-transparency': 'Badyet',
     'nav-contact': 'Makipag-ugnayan',
 
     'hero-welcome': 'Maligayang Pagdating sa BetterAlcala',
@@ -275,7 +275,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav-government': 'Dagiti Opisina',
     'nav-statistics': 'Estadistika',
     'nav-legislative': 'Lehislatura',
-    'nav-transparency': 'Transparensia',
+    'nav-transparency': 'Badyet',
     'nav-contact': 'Kontak',
 
     'hero-welcome': 'Naragsak a Panagsangbay iti BetterAlcala',

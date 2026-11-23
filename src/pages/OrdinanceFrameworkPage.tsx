@@ -40,6 +40,7 @@ export default function OrdinanceFrameworkPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [busyRecordId, setBusyRecordId] = useState<string | null>(null);
   const [adminNotice, setAdminNotice] = useState<string | null>(null);
+  const [expandedOrdNo, setExpandedOrdNo] = useState<string | null>(null);
 
   const liveRecordByOrdNo = useMemo(() => {
     const map = new Map<string, FirestoreCivicRecord>();
@@ -215,8 +216,91 @@ export default function OrdinanceFrameworkPage() {
               </button>
             </div>
           ) : (
-            <div className="table-responsive">
-              <table className="data-table ordinance-table">
+            <>
+              {/* Mobile Accordion */}
+              <div className="md:hidden rounded-xl border border-black/10 overflow-hidden divide-y divide-black/10 bg-white">
+                {filtered.map((ord) => {
+                  const isOpen = expandedOrdNo === ord.ordinanceNo;
+                  const liveRec = isAdmin
+                    ? liveRecordByOrdNo.get(ord.ordinanceNo.toLowerCase())
+                    : undefined;
+                  return (
+                    <div key={ord.ordinanceNo} className="bg-white">
+                      <button
+                        type="button"
+                        aria-expanded={isOpen}
+                        onClick={() => setExpandedOrdNo(isOpen ? null : ord.ordinanceNo)}
+                        className="w-full text-left p-3.5 flex items-start justify-between gap-3 cursor-pointer bg-transparent border-0"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                            <span className="font-mono-data text-[11px] font-bold text-[#0032a0] bg-[#26489A]/10 px-2 py-0.5 rounded">
+                              Ord. {ord.ordinanceNo}
+                            </span>
+                            <span className="text-[11px] font-medium text-slate-500">
+                              {ord.category}
+                            </span>
+                          </div>
+                          <div className="text-xs font-semibold text-[#0f2342] leading-snug">
+                            {ord.title}
+                          </div>
+                        </div>
+                        <i
+                          className={`bi ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'} text-xs text-slate-400 shrink-0 mt-1`}
+                          aria-hidden="true"
+                        />
+                      </button>
+
+                      {isOpen && (
+                        <div className="px-3.5 pb-3.5 pt-2 bg-[#FAF7F2] border-t border-black/5 text-xs space-y-2">
+                          <p className="m-0 text-slate-700 leading-relaxed">{ord.summary}</p>
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                            <span className="tabular-nums">{ord.sessionDate}</span>
+                            {ord.spResolutionRef && <span>{ord.spResolutionRef}</span>}
+                          </div>
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                            <VerificationBadge status={ord.citation.verificationStatus} />
+                            {ord.documentUrl && (
+                              <a
+                                href={ord.documentUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-semibold text-[#26489A] hover:underline"
+                              >
+                                SP Archive <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
+                              </a>
+                            )}
+                          </div>
+                          {liveRec && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              <button
+                                type="button"
+                                disabled={busyRecordId === liveRec.id}
+                                onClick={() => handleUnpublishLive(liveRec)}
+                                className="rounded border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700"
+                              >
+                                Unpublish
+                              </button>
+                              <button
+                                type="button"
+                                disabled={busyRecordId === liveRec.id}
+                                onClick={() => handleDeleteLive(liveRec)}
+                                className="rounded border border-red-200 bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-700"
+                              >
+                                {busyRecordId === liveRec.id ? 'Removing...' : 'Delete'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table */}
+              <div className="hidden md:block table-responsive">
+                <table className="data-table ordinance-table">
                 <thead>
                   <tr>
                     <th scope="col">Ordinance No.</th>
@@ -292,7 +376,8 @@ export default function OrdinanceFrameworkPage() {
                   })}
                 </tbody>
               </table>
-            </div>
+              </div>
+            </>
           )}
         </div>
       </section>

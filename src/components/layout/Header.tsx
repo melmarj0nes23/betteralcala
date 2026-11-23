@@ -208,15 +208,6 @@ export default function Header() {
                 </li>
               </ul>
             </li>
-            <li>
-              <Link
-                to="/government"
-                className={pathname.startsWith('/government') ? 'active' : ''}
-                onClick={closeMenu}
-              >
-                {t('nav-government')}
-              </Link>
-            </li>
             <li className={`has-dropdown ${openDropdown === 2 ? 'dropdown-open' : ''}`}>
               <Link
                 to="/statistics"
@@ -291,25 +282,29 @@ export default function Header() {
                 </li>
                 <li>
                   <Link to="/budget#municipal-budget" onClick={closeMenu}>
-                    Municipal Budget
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/budget#document-registry" onClick={closeMenu}>
-                    Document Registry
+                    Municipal Budget &amp; Docs
                   </Link>
                 </li>
                 <li>
                   <Link to="/budget#dpwh-projects" onClick={closeMenu}>
-                    DPWH Projects (12)
+                    DPWH Contracts (12)
                   </Link>
                 </li>
                 <li>
-                  <Link to="/budget#national-gaa" onClick={closeMenu}>
-                    National GAA / FY27
+                  <Link to="/budget#regional-budget" onClick={closeMenu}>
+                    Transparency Portal
                   </Link>
                 </li>
               </ul>
+            </li>
+            <li>
+              <Link
+                to="/government"
+                className={pathname.startsWith('/government') ? 'active' : ''}
+                onClick={closeMenu}
+              >
+                {t('nav-government')}
+              </Link>
             </li>
             <li>
               <Link

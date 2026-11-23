@@ -34,6 +34,7 @@ const TAB_ONLY_HASHES = new Set([
   '#document-registry',
   '#national-gaa',
   '#dpwh-projects',
+  '#regional-budget',
 ]);
 
 function ScrollManager() {

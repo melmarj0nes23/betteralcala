@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import BarangayProjectTracker from '../components/BarangayProjectTracker';
-import NationalBudgetSection from '../components/NationalBudgetSection';
+
+const RegionalBudgetSection = lazy(() => import('../components/RegionalBudgetSection'));
 import { SourceCitationBox, VerificationBadge } from '../components/VerificationBadge';
 import { BUDGET_RECORDS, INFRASTRUCTURE_PROJECTS } from '../data/transparencyData';
 import { isValidCitation, useCivicDataset } from '../hooks/useCivicDataset';
@@ -40,17 +41,16 @@ function isValidInfraProject(item: unknown): item is InfrastructureProject {
   );
 }
 
-type BudgetTab = 'summary' | 'tracker' | 'municipal' | 'documents' | 'dpwh' | 'national';
+type BudgetTab = 'summary' | 'tracker' | 'municipal' | 'dpwh' | 'regional';
 
 export default function BudgetPage() {
   const [searchParams] = useSearchParams();
   const { hash } = useLocation();
   const [activeTab, setActiveTab] = useState<BudgetTab>(() => {
     if (hash === '#barangay-tracker') return 'tracker';
-    if (hash === '#municipal-budget') return 'municipal';
-    if (hash === '#document-registry') return 'documents';
+    if (hash === '#municipal-budget' || hash === '#document-registry') return 'municipal';
     if (hash === '#dpwh-projects' || searchParams.get('project')) return 'dpwh';
-    if (hash === '#national-gaa') return 'national';
+    if (hash === '#regional-budget' || hash === '#national-gaa') return 'regional';
     return 'summary';
   });
   const budgetRecords = useCivicDataset(
@@ -70,6 +70,15 @@ export default function BudgetPage() {
   const [hasManuallySelectedYear, setHasManuallySelectedYear] = useState(false);
   const [projectSearch, setProjectSearch] = useState(() => searchParams.get('project') || '');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const activeTabRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    activeTabRef.current?.scrollIntoView({
+      inline: 'center',
+      block: 'nearest',
+      behavior: 'smooth',
+    });
+  }, [activeTab]);
 
   useEffect(() => {
     const paramProj = searchParams.get('project');
@@ -81,10 +90,9 @@ export default function BudgetPage() {
 
   useEffect(() => {
     if (hash === '#barangay-tracker') setActiveTab('tracker');
-    else if (hash === '#municipal-budget') setActiveTab('municipal');
-    else if (hash === '#document-registry') setActiveTab('documents');
+    else if (hash === '#municipal-budget' || hash === '#document-registry') setActiveTab('municipal');
     else if (hash === '#dpwh-projects') setActiveTab('dpwh');
-    else if (hash === '#national-gaa') setActiveTab('national');
+    else if (hash === '#regional-budget' || hash === '#national-gaa') setActiveTab('regional');
     else if (hash === '#overview-summary' || (!hash && !searchParams.get('project'))) setActiveTab('summary');
   }, [hash, searchParams]);
 
@@ -163,7 +171,10 @@ export default function BudgetPage() {
   }, [infrastructureProjects]);
 
   return (
-    <Layout breadcrumbs={[{ label: 'Transparency & Budget' }]}>
+    <Layout
+      breadcrumbs={[{ label: 'Transparency & Budget' }]}
+      pageDescription="Municipal budget, 21-barangay project tracker, DPWH infrastructure, national GAA (2020–2026), FY 2027 NEP vs. House Bill, and regional LGU budget explorer for Alcala, Pangasinan."
+    >
       <section className="trans-hero-v2">
         <div className="container">
           <div className="trans-hero-content-v2">
@@ -181,27 +192,27 @@ export default function BudgetPage() {
       </section>
 
       {/* Budget Section Navigation */}
-      <section className="bg-white border-b border-black/10">
+      <section className="sticky top-[56px] sm:top-[64px] z-30 md:static bg-white/95 backdrop-blur-sm border-b border-black/10">
         <div className="container">
           <div
-            className="flex flex-nowrap md:flex-wrap overflow-x-auto justify-start md:justify-center gap-2 py-3"
+            className="flex flex-nowrap md:flex-wrap overflow-x-auto justify-start md:justify-center gap-2 py-2.5"
             role="tablist"
             aria-label="Transparency & Budget Sections"
           >
             {[
               { id: 'summary' as const, label: 'Overview Summary', icon: 'bi-grid-1x2-fill' },
               { id: 'tracker' as const, label: 'Barangay Tracker', icon: 'bi-geo-alt-fill' },
-              { id: 'municipal' as const, label: 'Municipal Budget', icon: 'bi-graph-up-arrow' },
-              { id: 'documents' as const, label: 'Document Registry', icon: 'bi-folder-check' },
+              { id: 'municipal' as const, label: 'Municipal Budget & Docs', icon: 'bi-graph-up-arrow' },
               {
                 id: 'dpwh' as const,
-                label: `DPWH Projects (${infrastructureProjects.length})`,
+                label: `DPWH Contracts (${infrastructureProjects.length})`,
                 icon: 'bi-cone-striped',
               },
-              { id: 'national' as const, label: 'National GAA / FY27', icon: 'bi-database-check' },
+              { id: 'regional' as const, label: 'Transparency Portal', icon: 'bi-compass-fill' },
             ].map((tab) => (
               <button
                 key={tab.id}
+                ref={activeTab === tab.id ? activeTabRef : undefined}
                 type="button"
                 role="tab"
                 aria-selected={activeTab === tab.id}
@@ -229,39 +240,40 @@ export default function BudgetPage() {
                 Transparency &amp; Budget Summary
               </h2>
               <p className="text-sm text-slate-600 m-0 mt-1">
-                Select a section below to inspect detailed figures, documents, or project records.
+                FY {activeBudget.fiscalYear} fiscal snapshot, funding mix, and direct access to
+                project trackers.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setActiveTab('tracker')}
-                className="md:col-span-2 text-left bg-[#EAF2EE] border border-[#2E8B57]/25 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-[#2E8B57] transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-[#2E8B57] text-white">
-                      <i className="bi bi-geo-alt-fill" aria-hidden="true" />
-                    </span>
-                    <span className="font-mono-data text-xs font-bold uppercase tracking-wider text-[#2E8B57]">
-                      Community-Wide · All 21 Barangays
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-bold text-[#0f2342] mb-1">
-                    Barangay-Level Project Tracker (2024–2027)
-                  </h3>
-                  <p className="text-xs text-slate-600 m-0">
-                    Filter every funded road, FMR, flood control, and multi-purpose building across
-                    all 21 Alcala barangays from GAA (2024–2026), FY 2027 NEP/HGAB, and DPWH
-                    records.
-                  </p>
+            <button
+              type="button"
+              onClick={() => setActiveTab('tracker')}
+              className="w-full mb-4 text-left bg-[#EAF2EE] border border-[#2E8B57]/25 rounded-2xl p-5 sm:p-6 shadow-xs hover:shadow-md hover:border-[#2E8B57] transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-[#2E8B57] text-white">
+                    <i className="bi bi-geo-alt-fill" aria-hidden="true" />
+                  </span>
+                  <span className="font-mono-data text-xs font-bold uppercase tracking-wider text-[#2E8B57]">
+                    Community-Wide · All 21 Barangays
+                  </span>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0f2342] text-white text-xs font-bold px-4 py-2 whitespace-nowrap self-start sm:self-center">
-                  <span>Open Tracker</span>
-                  <i className="bi bi-arrow-right" aria-hidden="true" />
-                </span>
-              </button>
+                <h3 className="text-lg font-bold text-[#0f2342] mb-1">
+                  Barangay-Level Project Tracker (2024–2027)
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 m-0 max-w-2xl">
+                  Filter every funded road, FMR, flood control, and multi-purpose building across all
+                  21 Alcala barangays from GAA (2024–2026), FY 2027 NEP/HGAB, and DPWH records.
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0f2342] text-white text-xs font-bold px-4 py-2 whitespace-nowrap self-start sm:self-center shrink-0">
+                <span>Open Tracker</span>
+                <i className="bi bi-arrow-right" aria-hidden="true" />
+              </span>
+            </button>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
               <button
                 type="button"
@@ -295,31 +307,31 @@ export default function BudgetPage() {
 
               <button
                 type="button"
-                onClick={() => setActiveTab('national')}
+                onClick={() => setActiveTab('regional')}
                 className="text-left bg-white border border-black/10 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-[#2E8B57]/40 transition-all cursor-pointer flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#2E8B57]/12 text-[#2E8B57]">
-                      <i className="bi bi-database-check" aria-hidden="true" />
+                      <i className="bi bi-compass-fill" aria-hidden="true" />
                     </span>
                     <span className="font-mono-data text-xs font-bold text-[#2E8B57] bg-[#2E8B57]/12 px-2.5 py-1 rounded-full">
-                      Alcala-Exclusive
+                      Live BetterGov API
                     </span>
                   </div>
                   <h3 className="text-base font-bold text-[#0f2342] mb-1">
-                    National GAA &amp; FY 2027 Appropriations
+                    Transparency Portal (GAA &amp; FY 2027)
                   </h3>
                   <div className="text-2xl font-extrabold text-[#2E8B57] tabular-nums mb-1">
-                    FY 2024–2027 Records
+                    FY 2020–2027 Explorer
                   </div>
                   <p className="text-xs text-slate-600 m-0">
-                    29 enacted GAA (2024–2026) &amp; 14 FY 2027 NEP/HGAB projects exclusive to
-                    Alcala, Pangasinan.
+                    Compare FY 2027 NEP vs. House Bill &amp; 2020–2026 GAA for Alcala, Pangasinan,
+                    and nationwide LGUs.
                   </p>
                 </div>
                 <span className="mt-4 text-xs font-bold text-[#2E8B57]">
-                  Explore National Appropriations →
+                  Open Transparency Portal →
                 </span>
               </button>
 
@@ -352,36 +364,145 @@ export default function BudgetPage() {
                   Browse DPWH Projects →
                 </span>
               </button>
+            </div>
 
-              <button
-                type="button"
-                onClick={() => setActiveTab('documents')}
-                className="text-left bg-white border border-black/10 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-[#1976A8]/40 transition-all cursor-pointer flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#1976A8]/12 text-[#1976A8]">
-                      <i className="bi bi-folder-check" aria-hidden="true" />
-                    </span>
-                    <span className="font-mono-data text-xs font-bold text-[#1976A8] bg-[#1976A8]/12 px-2.5 py-1 rounded-full">
-                      FDP / COA / BLGF
-                    </span>
-                  </div>
-                  <h3 className="text-base font-bold text-[#0f2342] mb-1">
-                    Financial &amp; Procurement Document Registry
+            {/* Executive Visual Breakdown */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="bg-white border border-black/10 rounded-2xl p-5 sm:p-6 shadow-xs">
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <h3 className="text-base font-bold text-[#0f2342] m-0">
+                    FY {activeBudget.fiscalYear} Municipal Funding Mix
                   </h3>
-                  <div className="text-2xl font-extrabold text-[#1976A8] tabular-nums mb-1">
-                    4 Core Disclosures
-                  </div>
-                  <p className="text-xs text-slate-600 m-0">
-                    Availability status for Annual Budgets, BLGF SRE, COA Audits, and PhilGEPS
-                    records.
-                  </p>
+                  <span className="font-mono-data text-xs font-semibold text-slate-500">
+                    {activeBudget.spResolution}
+                  </span>
                 </div>
-                <span className="mt-4 text-xs font-bold text-[#1976A8]">
-                  View Document Registry →
-                </span>
-              </button>
+
+                {(() => {
+                  const ntaMatch = activeBudget.ntaShareNote?.match(/NTA\)\s+share\s+of\s+₱([\d,]+(?:\.\d+)?)/i);
+                  const ntaShareAmount = ntaMatch ? Number(ntaMatch[1].replace(/,/g, '')) : null;
+                  if (!ntaShareAmount || !Number.isFinite(ntaShareAmount)) {
+                    return (
+                      <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+                        {activeBudget.ntaShareNote}
+                      </p>
+                    );
+                  }
+                  const ntaPct =
+                    Math.round((ntaShareAmount / activeBudget.approvedBudget) * 1000) / 10;
+                  const localAmt = activeBudget.approvedBudget - ntaShareAmount;
+                  const localPct = Math.round((100 - ntaPct) * 10) / 10;
+                  return (
+                    <div className="mb-5">
+                      <div className="h-3 w-full rounded-full overflow-hidden bg-slate-100 flex mb-3">
+                        <div
+                          className="bg-[#26489A] h-full"
+                          style={{ width: `${ntaPct}%` }}
+                          title={`NTA Share (${ntaPct}%)`}
+                        />
+                        <div
+                          className="bg-[#2E8B57] h-full"
+                          style={{ width: `${localPct}%` }}
+                          title={`Local & Other Revenues (${localPct}%)`}
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="rounded-xl bg-[#FAF7F2] p-3 border border-black/5">
+                          <div className="flex items-center gap-1.5 font-semibold text-[#0f2342] mb-0.5">
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#26489A]" />
+                            National Tax Allotment ({ntaPct}%)
+                          </div>
+                          <div className="font-mono-data font-bold text-[#26489A] tabular-nums">
+                            {formatPeso(ntaShareAmount)}
+                          </div>
+                        </div>
+                        <div className="rounded-xl bg-[#FAF7F2] p-3 border border-black/5">
+                          <div className="flex items-center gap-1.5 font-semibold text-[#0f2342] mb-0.5">
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#2E8B57]" />
+                            Local &amp; Other Sources ({localPct}%)
+                          </div>
+                          <div className="font-mono-data font-bold text-[#2E8B57] tabular-nums">
+                            {formatPeso(localAmt)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                <div className="border-t border-black/5 pt-4 space-y-2.5">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    Multi-Year Approved Appropriations
+                  </div>
+                  {ascendingBudgets.map((rec) => {
+                    const pct = Math.round((rec.approvedBudget / maxAnnualBudget) * 100);
+                    return (
+                      <div key={rec.fiscalYear} className="text-xs">
+                        <div className="flex justify-between gap-2 mb-1">
+                          <span className="font-semibold text-[#0f2342]">
+                            FY {rec.fiscalYear} ({rec.appropriationOrdinance})
+                          </span>
+                          <span className="font-mono-data font-bold text-[#0f2342] tabular-nums">
+                            {formatPeso(rec.approvedBudget)}
+                          </span>
+                        </div>
+                        <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-[#26489A]"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="bg-white border border-black/10 rounded-2xl p-5 sm:p-6 shadow-xs">
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <h3 className="text-base font-bold text-[#0f2342] m-0">
+                    Documented DPWH Contracts by Sector
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('dpwh')}
+                    className="text-xs font-bold text-[#D1432A] hover:underline bg-transparent border-0 p-0 cursor-pointer"
+                  >
+                    View all {infrastructureProjects.length} →
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {categoryTotals
+                    .slice()
+                    .sort((a, b) => b.total - a.total)
+                    .map((cat) => {
+                      const pct =
+                        totalVerifiedContractValue > 0
+                          ? Math.round((cat.total / totalVerifiedContractValue) * 100)
+                          : 0;
+                      return (
+                        <div key={cat.category} className="text-xs">
+                          <div className="flex justify-between gap-2 mb-1">
+                            <span className="font-semibold text-[#0f2342]">
+                              {cat.category}{' '}
+                              <span className="text-slate-500 font-normal">({cat.count})</span>
+                            </span>
+                            <span className="font-mono-data font-bold text-[#0f2342] tabular-nums">
+                              {formatPeso(cat.total)}
+                            </span>
+                          </div>
+                          <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-[#D1432A]"
+                              style={{ width: `${Math.max(pct, 4)}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -389,6 +510,7 @@ export default function BudgetPage() {
 
       {/* Annual Budget & SRE Distinction */}
       {activeTab === 'municipal' && (
+        <>
       <section className="sre-section-v2">
         <div className="container">
           <div className="sre-header-v2">
@@ -617,10 +739,8 @@ export default function BudgetPage() {
           <SourceCitationBox citation={activeBudget.citation} />
         </div>
       </section>
-      )}
 
       {/* AIP / Financial Statements / Procurement Status Table */}
-      {activeTab === 'documents' && (
       <section className="section bg-alt">
         <div className="container">
           <h2 className="text-xl font-bold text-slate-900 mb-2">
@@ -710,6 +830,7 @@ export default function BudgetPage() {
           </div>
         </div>
       </section>
+        </>
       )}
 
       {/* DPWH Infrastructure Projects in Alcala */}
@@ -897,7 +1018,19 @@ export default function BudgetPage() {
         <BarangayProjectTracker dpwhProjects={infrastructureProjects} />
       )}
 
-      {activeTab === 'national' && <NationalBudgetSection />}
+      {activeTab === 'regional' && (
+        <Suspense
+          fallback={
+            <section className="section bg-alt">
+              <div className="container py-12 text-center text-sm text-slate-600">
+                Loading Transparency Portal...
+              </div>
+            </section>
+          }
+        >
+          <RegionalBudgetSection />
+        </Suspense>
+      )}
     </Layout>
   );
 }
