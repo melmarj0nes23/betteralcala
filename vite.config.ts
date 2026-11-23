@@ -58,10 +58,65 @@ export default defineConfig(() => {
         },
         workbox: {
           maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,webp,woff,woff2,json}'],
+          globPatterns: [
+            'index.html',
+            'offline.html',
+            'manifest.webmanifest',
+            'assets/index-*.css',
+            'assets/index-*.js',
+            'assets/react-vendor-*.js',
+            'assets/bootstrap-icons-*.woff2',
+            'favicon*.png',
+            'favicon.ico',
+            'pwa-*.png',
+            'apple-touch-icon.png',
+            'assets/images/logo/alcala-seal.png',
+          ],
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//, /^\/sitemap\.xml$/, /^\/robots\.txt$/],
           runtimeCaching: [
+            {
+              urlPattern: /\/assets\/.*\.js$/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'app-chunks-cache',
+                expiration: {
+                  maxEntries: 40,
+                  maxAgeSeconds: 60 * 60 * 24 * 30,
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              urlPattern: /\/data\/.*\.json$/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'civic-data-cache',
+                expiration: {
+                  maxEntries: 20,
+                  maxAgeSeconds: 60 * 60 * 24 * 7,
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              urlPattern: /\/assets\/images\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'local-images-cache',
+                expiration: {
+                  maxEntries: 30,
+                  maxAgeSeconds: 60 * 60 * 24 * 30,
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'CacheFirst',

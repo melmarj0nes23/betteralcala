@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import SearchAutocomplete from '../components/SearchAutocomplete';
@@ -11,6 +11,7 @@ import { MUNICIPAL_PROFILE } from '../data/municipalInfo';
 import { ALCALA_QUIZ_QUESTIONS, NEWS_ITEMS } from '../data/communityData';
 import { BUDGET_RECORDS } from '../data/transparencyData';
 import { isValidCitation, useCivicDataset } from '../hooks/useCivicDataset';
+import { useCountUp, useScrollReveal } from '../hooks/useScrollReveal';
 import { NewsItem } from '../types/civic';
 
 function isValidNewsItem(item: unknown): item is NewsItem {
@@ -25,6 +26,22 @@ function isValidNewsItem(item: unknown): item is NewsItem {
   );
 }
 
+function RiseText({ text, baseDelay = 0.04 }: { text: string; baseDelay?: number }) {
+  const words = text.split(/\s+/).filter(Boolean);
+  return (
+    <>
+      {words.map((word, idx) => (
+        <span key={`${word}-${idx}`} className="rise">
+          <span style={{ '--d': `${(baseDelay + idx * 0.045).toFixed(3)}s` } as CSSProperties}>
+            {word}
+            {idx < words.length - 1 ? '\u00A0' : ''}
+          </span>
+        </span>
+      ))}
+    </>
+  );
+}
+
 export default function HomePage() {
   const { t } = useLanguage();
   const [quizOpen, setQuizOpen] = useState(false);
@@ -32,6 +49,16 @@ export default function HomePage() {
   const [selectedOpt, setSelectedOpt] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
+
+  const servicesReveal = useScrollReveal<HTMLElement>();
+  const statsReveal = useScrollReveal<HTMLElement>();
+  const newsReveal = useScrollReveal<HTMLElement>();
+  const transparencyReveal = useScrollReveal<HTMLElement>();
+  const quizReveal = useScrollReveal<HTMLElement>();
+  const contactReveal = useScrollReveal<HTMLElement>();
+
+  const animatedPop = useCountUp(MUNICIPAL_PROFILE.population2024, statsReveal.isIn);
+  const animatedBrgy = useCountUp(MUNICIPAL_PROFILE.barangayCount, statsReveal.isIn, 750);
 
   const newsItems = useCivicDataset('news.json', 'news', NEWS_ITEMS, isValidNewsItem);
 
@@ -63,83 +90,95 @@ export default function HomePage() {
 
   return (
     <Layout>
-      {/* Warm Editorial Civic Masthead & 4-Pillar Pennants */}
-      <section className="alcala-hero">
-        <div className="container">
-          <div className="alcala-hero-grid">
-            <div className="text-center lg:text-left">
-              <div className="alcala-hero-kicker justify-center lg:justify-start">
-                <span className="whitespace-nowrap">Alcala, Pangasinan</span>
-                <span aria-hidden="true">·</span>
-                <span className="whitespace-nowrap">PSGC {MUNICIPAL_PROFILE.psgcCode}</span>
-                <span aria-hidden="true">·</span>
-                <span className="whitespace-nowrap">5th District</span>
-              </div>
-              <h1 className="alcala-hero-title">
-                BetterAlcala<span className="alcala-hero-accent">.org</span>
-              </h1>
-              <p className="alcala-hero-subtitle mx-auto lg:mx-0 mb-6">{t('hero-subtitle')}</p>
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-5 text-sm sm:text-base font-semibold text-[#0f2342]">
-                <span className="inline-flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#26489A]" aria-hidden="true" />
-                  <span className="tabular-nums">
-                    {MUNICIPAL_PROFILE.population2024.toLocaleString()} Residents
-                  </span>
-                </span>
-                <span className="sr-only"> · </span>
-                <span className="inline-flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#2E8B57]" aria-hidden="true" />
-                  <span>{MUNICIPAL_PROFILE.barangayCount} Barangays</span>
-                </span>
-                <span className="sr-only"> · </span>
-                <span className="inline-flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#D1432A]" aria-hidden="true" />
-                  <span>Est. 1875</span>
-                </span>
-              </div>
-            </div>
+      {/* Fellowship-style Blueprint Civic Hero with Rotating Sun Rays */}
+      <section className="t-blueprint fs-hero">
+        <div className="fs-rays" aria-hidden="true">
+          <svg viewBox="-1000 -1000 2000 2000">
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+              <g key={deg} transform={`rotate(${deg})`}>
+                <polygon transform="rotate(0)" points="-6,-190 6,-190 32,-960 -32,-960" />
+                <polygon transform="rotate(-8)" points="-6,-190 6,-190 20,-780 -20,-780" />
+                <polygon transform="rotate(8)" points="-6,-190 6,-190 20,-780 -20,-780" />
+              </g>
+            ))}
+            <circle r="150" />
+          </svg>
+        </div>
 
-            <div>
-              <AlcalaPennants />
-            </div>
+        <div className="container relative z-10 w-full">
+          <div className="md:hidden mb-6">
+            <AlcalaPennants />
           </div>
-
-          <div className="home-search-box alcala-hero-search-card max-w-3xl mx-auto mt-10 md:mt-14 lg:mt-16 mb-0">
-            <div className="flex items-center justify-center md:justify-between gap-2 mb-3">
-              <h2 className="m-0 text-sm sm:text-base font-bold text-[#0f2342] flex items-center gap-2 leading-none">
-                <i className="bi bi-search text-[#26489A]" aria-hidden="true" />
-                <span>{t('home-find-a-service')}</span>
-              </h2>
-              <span className="text-[11px] font-mono-data text-slate-500 hidden md:inline-flex items-center leading-none">
-                Press ⌘K anywhere
+          <div className="max-w-4xl mx-auto text-center mt-4 md:-mt-20">
+            <div className="fs-eyebrow justify-center mb-4">
+              <span className="whitespace-nowrap">Alcala, Pangasinan</span>
+              <span aria-hidden="true">·</span>
+              <span className="whitespace-nowrap">PSGC {MUNICIPAL_PROFILE.psgcCode}</span>
+              <span aria-hidden="true">·</span>
+              <span className="whitespace-nowrap">5th District</span>
+            </div>
+            <h1 className="alcala-hero-title text-white">
+              <span className="rise">
+                <span style={{ '--d': '0.03s' } as CSSProperties}>Welcome&nbsp;to</span>
+              </span>
+              <br />
+              <span className="rise">
+                <span style={{ '--d': '0.12s' } as CSSProperties}>
+                  BetterAlcala<span className="text-[#fcd116]">.org</span>
+                </span>
+              </span>
+            </h1>
+            <p className="alcala-hero-subtitle text-white/85 mx-auto mb-5">
+              {t('hero-subtitle')}
+            </p>
+            <div className="fs-hero-stats flex flex-wrap items-center justify-center gap-5 text-sm sm:text-base font-semibold text-white/90">
+              <span className="inline-flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#fcd116]" aria-hidden="true" />
+                <span className="tabular-nums">
+                  {MUNICIPAL_PROFILE.population2024.toLocaleString()} Residents
+                </span>
+              </span>
+              <span className="sr-only"> · </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#34d399]" aria-hidden="true" />
+                <span>{MUNICIPAL_PROFILE.barangayCount} Barangays</span>
+              </span>
+              <span className="sr-only"> · </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#0096ff]" aria-hidden="true" />
+                <span>Est. 1875</span>
               </span>
             </div>
-            <SearchAutocomplete />
-            <div className="home-search-tags justify-center">
-              <span className="font-semibold text-slate-700">{t('home-popular')}</span>
-              <Link to="/service-details/birth-certificate">{t('home-birth-certificate')}</Link>
-              <Link to="/service-details/business-permits-licensing">
-                {t('home-business-permit')}
-              </Link>
-              <Link to="/service-details/real-property-tax">{t('home-real-property-tax')}</Link>
-              <Link to="/budget">FY 2026 Budget</Link>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
-            <Link
-              to="/services"
-              className="inline-flex items-center gap-2 rounded-full bg-[#0f2342] hover:bg-[#26489A] text-white text-sm font-semibold px-5 py-2.5 transition-colors no-underline"
-            >
-              <span>{t('home-browse-services')}</span>
-              <i className="bi bi-arrow-right" aria-hidden="true" />
-            </Link>
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-[#0f2342]/25 bg-white hover:border-[#0f2342] text-[#0f2342] text-sm font-semibold px-5 py-2.5 transition-colors no-underline"
-            >
-              {t('home-contact-us')}
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
+              <Link
+                to="/services"
+                className="fs-button fs-button--sun w-[250px]"
+              >
+                <span>{t('home-browse-services')}</span>
+                <i className="bi bi-arrow-right" aria-hidden="true" />
+              </Link>
+              <Link
+                to="/transparency"
+                className="fs-button fs-button--outline-bright w-[250px]"
+              >
+                <i className="bi bi-shield-check" aria-hidden="true" />
+                <span>Explore Transparency</span>
+              </Link>
+            </div>
+
+            <div className="fs-hero-search-bar max-w-2xl mx-auto mt-20 md:mt-32">
+              <img
+                src="/assets/images/logo/alcala-seal.png"
+                alt="BetterAlcala Seal"
+                width={38}
+                height={38}
+                className="h-9 w-9 object-contain shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <SearchAutocomplete placeholder="Looking for something? Search here..." />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -147,13 +186,18 @@ export default function HomePage() {
       <AlcalaWovenStrip />
 
       {/* Popular Services Grid */}
-      <section className="section">
+      <section
+        ref={servicesReveal.ref}
+        className={`section t-paper fs-slide ${servicesReveal.isIn ? 'is-in' : ''}`}
+      >
         <div className="container">
           <div className="home-section-header">
-            <h2>{t('section-popular')}</h2>
+            <h2>
+              <RiseText text={t('section-popular')} />
+            </h2>
             <p>{t('home-quick-access-to-frequently-requested-municipal')}</p>
           </div>
-          <div className="alcala-services-grid">
+          <div className="alcala-services-grid" data-reveal-grid="true">
             <Link to="/services/certificates" className="alcala-service-tile alcala-service-tile--blue">
               <div className="alcala-service-tile-top">
                 <div className="alcala-service-tile-icon">
@@ -236,11 +280,16 @@ export default function HomePage() {
       </section>
 
       {/* Quick Stats: Alcala at a Glance */}
-      <section className="home-stats-v2">
+      <section
+        ref={statsReveal.ref}
+        className={`home-stats-v2 fs-slide ${statsReveal.isIn ? 'is-in' : ''}`}
+      >
         <div className="container">
           <div className="home-stats-v2-header">
             <div>
-              <h2>{t('home-at-a-glance')}</h2>
+              <h2>
+                <RiseText text={t('home-at-a-glance')} />
+              </h2>
               <p className="m-0 mt-1 text-sm text-slate-600">
                 Demographic, geographic, and administrative profile of Alcala, 5th District of
                 Pangasinan
@@ -251,14 +300,14 @@ export default function HomePage() {
               <span>{t('home-view-statistics')}</span>
             </Link>
           </div>
-          <div className="home-stats-v2-grid">
+          <div className="home-stats-v2-grid" data-reveal-grid="true">
             <Link to="/statistics" className="home-stat-card home-stat-card--blue">
               <div className="home-stat-card-icon">
                 <i className="bi bi-people-fill" aria-hidden="true" />
               </div>
               <div className="home-stat-card-content">
                 <span className="home-stat-card-value tabular-nums">
-                  {MUNICIPAL_PROFILE.population2024.toLocaleString()}
+                  {animatedPop.toLocaleString()}
                 </span>
                 <span className="home-stat-card-label">{t('home-population')}</span>
                 <span className="home-stat-card-source">{t('home-2024-census')}</span>
@@ -270,9 +319,7 @@ export default function HomePage() {
                 <i className="bi bi-geo-alt-fill" aria-hidden="true" />
               </div>
               <div className="home-stat-card-content">
-                <span className="home-stat-card-value tabular-nums">
-                  {MUNICIPAL_PROFILE.barangayCount}
-                </span>
+                <span className="home-stat-card-value tabular-nums">{animatedBrgy}</span>
                 <span className="home-stat-card-label">{t('home-barangays')}</span>
                 <span className="home-stat-card-source">{t('home-administrative-units')}</span>
               </div>
@@ -309,17 +356,22 @@ export default function HomePage() {
       <WeatherMapSection />
 
       {/* Announcements & Civic Updates */}
-      <section className="section bg-alt">
+      <section
+        ref={newsReveal.ref}
+        className={`section t-wash fs-slide ${newsReveal.isIn ? 'is-in' : ''}`}
+      >
         <div className="container">
           <div className="home-section-header">
-            <h2>{t('section-news')}</h2>
+            <h2>
+              <RiseText text={t('section-news')} />
+            </h2>
             <Link to="/news" className="home-section-link">
               <i className="bi bi-arrow-right" aria-hidden="true" />{' '}
               <span>{t('home-view-all-news')}</span>
             </Link>
           </div>
 
-          <div className="grid grid-3" style={{ gap: 'var(--spacing-md)' }}>
+          <div className="grid grid-3" data-reveal-grid="true" style={{ gap: 'var(--spacing-md)' }}>
             {latestNews.map((item) => (
               <article
                 key={item.id}
@@ -351,9 +403,16 @@ export default function HomePage() {
       </section>
 
       {/* Live Transparency & Barangay Project Snapshot */}
-      <section className="section" aria-label="Budget and Project Snapshot">
+      <section
+        ref={transparencyReveal.ref}
+        className={`section t-paper fs-slide ${transparencyReveal.isIn ? 'is-in' : ''}`}
+        aria-label="Budget and Project Snapshot"
+      >
         <div className="container">
-          <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-xs">
+          <div
+            className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-xs"
+            data-reveal="true"
+          >
             <div className="bg-[#EAF2EE] border-b border-black/10 p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 text-center lg:text-left">
               <div>
                 <span className="inline-flex items-center justify-center lg:justify-start gap-1.5 font-mono-data text-[11px] font-bold uppercase tracking-widest text-[#2E8B57] mb-2">
@@ -361,7 +420,7 @@ export default function HomePage() {
                   <span>Open Civic Data · Alcala, Pangasinan</span>
                 </span>
                 <h2 className="m-0 text-2xl sm:text-3xl font-extrabold text-[#0f2342] font-serif">
-                  Follow Every Peso Across Alcala&apos;s 21 Barangays
+                  <RiseText text="Follow Every Peso Across Alcala's 21 Barangays" />
                 </h2>
                 <p className="m-0 mt-2 mx-auto lg:mx-0 text-sm text-slate-600 max-w-2xl leading-relaxed">
                   From municipal appropriations to Agno River flood control, farm-to-market roads,
@@ -463,9 +522,16 @@ export default function HomePage() {
       <AlcalaHistoryTimeline title={t('home-history-title')} />
 
       {/* Interactive Alcala Heritage & Civic Quiz CTA */}
-      <section className="section bg-alt" aria-label="Alcala Heritage Quiz">
+      <section
+        ref={quizReveal.ref}
+        className={`section t-wash fs-slide ${quizReveal.isIn ? 'is-in' : ''}`}
+        aria-label="Alcala Heritage Quiz"
+      >
         <div className="container">
-          <div className="quiz-cta-inner bg-white rounded-2xl overflow-hidden border border-black/10 shadow-xs">
+          <div
+            className="quiz-cta-inner bg-white rounded-2xl overflow-hidden border border-black/10 shadow-xs"
+            data-reveal="true"
+          >
             <div className="quiz-cta-animation">
               <img
                 src="/assets/images/alcala-heritage-quiz.jpg"
@@ -498,16 +564,21 @@ export default function HomePage() {
       </section>
 
       {/* Contact Information */}
-      <section className="section">
+      <section
+        ref={contactReveal.ref}
+        className={`section t-paper fs-slide ${contactReveal.isIn ? 'is-in' : ''}`}
+      >
         <div className="container">
           <div className="home-section-header">
-            <h2>{t('section-contact')}</h2>
+            <h2>
+              <RiseText text={t('section-contact')} />
+            </h2>
             <Link to="/contact" className="home-section-link">
               <i className="bi bi-arrow-right" aria-hidden="true" />{' '}
               <span>{t('home-view-all')}</span>
             </Link>
           </div>
-          <div className="home-contact-v2-grid">
+          <div className="home-contact-v2-grid" data-reveal-grid="true">
             <div className="home-contact-v2-card">
               <div className="home-contact-v2-icon">
                 <i className="bi bi-telephone-fill" aria-hidden="true" />

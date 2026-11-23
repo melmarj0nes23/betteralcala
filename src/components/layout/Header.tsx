@@ -379,6 +379,7 @@ export default function Header() {
         </button>
       </div>
       <CommandSearchModal open={commandOpen} onClose={() => setCommandOpen(false)} />
+      <div className="fs-progress" aria-hidden="true" />
     </header>
   );
 }

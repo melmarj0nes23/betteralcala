@@ -10,6 +10,7 @@ import './styles/legislative.css';
 import './styles/statistics.css';
 import './styles/legal.css';
 import './index.css';
+import './styles/fellowship-theme.css';
 import App from './App.tsx';
 
 registerSW({ immediate: true });
