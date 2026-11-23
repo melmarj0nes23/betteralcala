@@ -108,10 +108,10 @@ export default function HomePage() {
         </div>
 
         <div className="container relative z-10 w-full">
-          <div className="md:hidden mb-6">
+          <div className="md:hidden mb-3">
             <AlcalaPennants />
           </div>
-          <div className="max-w-4xl mx-auto text-center mt-4 md:-mt-20">
+          <div className="max-w-4xl mx-auto text-center mt-0 md:-mt-20">
             <div className="fs-eyebrow justify-center mb-4">
               <span className="whitespace-nowrap">Alcala, Pangasinan</span>
               <span aria-hidden="true">·</span>

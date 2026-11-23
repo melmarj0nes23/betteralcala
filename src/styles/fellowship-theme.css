@@ -339,6 +339,21 @@ html:not(.high-contrast) .site-header {
     font-size: clamp(0.72rem, 3vw, 0.95rem);
     gap: clamp(0.5rem, 2.5vw, 1.25rem);
   }
+
+  .fs-hero .alcala-pennant {
+    height: 92px;
+    padding: 8px 6px 20px;
+  }
+
+  .fs-hero .alcala-pennant-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .fs-hero .alcala-pennant-label {
+    font-size: 0.52rem;
+    letter-spacing: 0.04em;
+  }
 }
 
 @media (min-width: 768px) {
