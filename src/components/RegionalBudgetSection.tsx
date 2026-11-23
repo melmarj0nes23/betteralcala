@@ -36,6 +36,13 @@ function formatProvinceRegion(regionCode: string): string {
   return regionCode;
 }
 
+function formatStatusLabel(label: string): string {
+  const lower = label.trim().toLowerCase();
+  if (lower === 'possible match, unconfirmed') return 'Possible Match';
+  if (lower === 'same amount in both') return 'Unchanged';
+  return label;
+}
+
 export default function RegionalBudgetSection() {
   const [selectedProvinceCode, setSelectedProvinceCode] = useState<string>('015500000');
   const [selectedMuniPsgc, setSelectedMuniPsgc] = useState<string>('0105504000');
@@ -211,16 +218,12 @@ export default function RegionalBudgetSection() {
 
   return (
     <section id="regional-budget" className="section bg-alt">
-      <div className="container">
-        <div className="rounded-2xl overflow-clip border border-black/10 bg-white shadow-xs">
+      <div className="container !px-1.5 sm:!px-4">
+        <div className="rounded-xl sm:rounded-2xl overflow-clip border border-black/10 bg-white shadow-xs">
           {/* BetterAlcala Soft-Sage Editorial Header */}
-          <div className="bg-[#EAF2EE] border-b border-black/10 p-6 sm:p-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+          <div className="bg-[#EAF2EE] border-b border-black/10 p-4 sm:p-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-5">
               <div>
-                <span className="inline-flex items-center gap-1.5 font-mono-data text-[11px] font-bold uppercase tracking-widest text-[#2E8B57] mb-2">
-                  <i className="bi bi-compass-fill" aria-hidden="true" />
-                  <span>BetterGov Live API · Regional &amp; Nationwide Explorer</span>
-                </span>
                 <h2 className="m-0 text-2xl sm:text-3xl font-bold text-[#0f2342] font-serif">
                   {data ? data.scopeLabel : 'Regional & LGU Budget Tracker'}
                 </h2>
@@ -299,24 +302,9 @@ export default function RegionalBudgetSection() {
                 </div>
               </div>
             </div>
-
-            {data && (
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/80 border border-black/10 px-2.5 py-1 font-medium text-[#0f2342]">
-                  <i className="bi bi-geo-alt text-[#2E8B57]" aria-hidden="true" />
-                  {data.regionLabel}
-                </span>
-                {data.offices.length > 0 && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white/80 border border-black/10 px-2.5 py-1 font-medium text-[#0f2342]">
-                    <i className="bi bi-building text-[#26489A]" aria-hidden="true" />
-                    {data.offices.length} DPWH Engineering Office(s)
-                  </span>
-                )}
-              </div>
-            )}
           </div>
 
-          <div className="p-6 sm:p-8">
+          <div className="p-2.5 sm:p-8">
             {loading && (
               <div className="py-12 text-center text-sm text-slate-600">
                 <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[#26489A] border-t-transparent mb-2" />
@@ -444,7 +432,7 @@ export default function RegionalBudgetSection() {
                           <option value="all">All Statuses</option>
                           {statusOptions.map((st) => (
                             <option key={st} value={st}>
-                              {st}
+                              {formatStatusLabel(st)}
                             </option>
                           ))}
                         </select>
@@ -497,7 +485,7 @@ export default function RegionalBudgetSection() {
                               type="button"
                               aria-expanded={isOpen}
                               onClick={() => setExpandedKey(isOpen ? null : rowKey)}
-                              className="w-full text-left p-3.5 flex items-start justify-between gap-3 cursor-pointer bg-transparent border-0"
+                              className="w-full text-left p-2.5 sm:p-3.5 flex items-start justify-between gap-2.5 cursor-pointer bg-transparent border-0"
                             >
                               <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-1.5 mb-1">
@@ -509,7 +497,7 @@ export default function RegionalBudgetSection() {
                                       isChangedOrInserted ? 'text-[#D1432A] font-semibold' : 'text-slate-500'
                                     }`}
                                   >
-                                    {p.statusLabel}
+                                    {formatStatusLabel(p.statusLabel)}
                                   </span>
                                 </div>
                                 <div className="text-xs font-semibold text-[#0f2342] leading-snug">
@@ -532,7 +520,7 @@ export default function RegionalBudgetSection() {
                             </button>
 
                             {isOpen && (
-                              <div className="px-3.5 pb-3.5 pt-2 bg-[#FAF7F2] border-t border-black/5 text-xs space-y-2">
+                              <div className="px-2.5 pb-3 pt-2 bg-[#FAF7F2] border-t border-black/5 text-xs space-y-2">
                                 {p.office && (
                                   <div className="flex justify-between gap-2">
                                     <span className="text-slate-500">Office</span>
@@ -642,7 +630,7 @@ export default function RegionalBudgetSection() {
                             </td>
                             <td className="py-3 px-3.5 whitespace-nowrap">
                               <span className="inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
-                                {p.statusLabel}
+                                {formatStatusLabel(p.statusLabel)}
                               </span>
                             </td>
                             <td className="py-3 px-3.5 text-right font-mono-data tabular-nums whitespace-nowrap text-slate-700">
@@ -729,7 +717,7 @@ export default function RegionalBudgetSection() {
                     {/* Mobile Stacked List */}
                     <div className="md:hidden divide-y divide-black/10">
                       {filteredGaa.slice(0, 100).map((g) => (
-                        <div key={g.famKey} className="p-3.5 bg-white">
+                        <div key={g.famKey} className="p-2.5 sm:p-3.5 bg-white">
                           <div className="text-[11px] font-semibold text-[#2E8B57] mb-0.5">
                             {g.department}
                           </div>
