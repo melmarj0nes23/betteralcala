@@ -86,10 +86,12 @@ export default function HomePage() {
                     {MUNICIPAL_PROFILE.population2024.toLocaleString()} Residents
                   </span>
                 </span>
+                <span className="sr-only"> · </span>
                 <span className="inline-flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-[#2E8B57]" aria-hidden="true" />
                   <span>{MUNICIPAL_PROFILE.barangayCount} Barangays</span>
                 </span>
+                <span className="sr-only"> · </span>
                 <span className="inline-flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-[#D1432A]" aria-hidden="true" />
                   <span>Est. 1875</span>
