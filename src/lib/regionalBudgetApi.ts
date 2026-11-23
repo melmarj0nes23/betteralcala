@@ -56,6 +56,12 @@ export interface RegionalBudgetResult {
   gaaRecords: RegionalGaaRow[];
   notice: string;
   truncatedProjects: boolean;
+  summaryTotals?: {
+    nep: number;
+    house: number;
+    delta: number;
+    totalLines: number;
+  };
 }
 
 const API_BASE = 'https://budget.bettergov.ph/api/v1';
@@ -171,16 +177,23 @@ async function fetchAllProjectPages(
 ): Promise<{
   ds: DatasetKey;
   rows: Record<string, unknown>[];
+  total: number;
   notice?: string;
   truncated: boolean;
 }> {
+  const queryPrefix = extraQuery ? `${extraQuery}&` : '';
   const first = await fetchCachedJson<Record<string, unknown>>(
-    `${API_BASE}/hgab/2027/datasets/${ds}/projects?${extraQuery}&limit=${PAGE_SIZE}&offset=0`
+    `${API_BASE}/hgab/2027/datasets/${ds}/projects?${queryPrefix}limit=${PAGE_SIZE}&offset=0`
   );
-  const meta = first.meta as { notice?: string } | undefined;
+  const meta = first.meta as { notice?: string; total?: number } | undefined;
   const dataObj = first.data as { total?: number } | undefined;
   const firstRows = extractProjectRows(first);
-  const total = typeof dataObj?.total === 'number' ? dataObj.total : firstRows.length;
+  const total =
+    typeof dataObj?.total === 'number'
+      ? dataObj.total
+      : typeof meta?.total === 'number'
+        ? meta.total
+        : firstRows.length;
   const cappedTotal = Math.min(total, MAX_ROWS_PER_QUERY);
 
   const offsets: number[] = [];
@@ -192,7 +205,7 @@ async function fetchAllProjectPages(
   for (let i = 0; i < offsets.length; i += 4) {
     const batch = offsets.slice(i, i + 4).map((offset) =>
       fetchCachedJson<Record<string, unknown>>(
-        `${API_BASE}/hgab/2027/datasets/${ds}/projects?${extraQuery}&limit=${PAGE_SIZE}&offset=${offset}`
+        `${API_BASE}/hgab/2027/datasets/${ds}/projects?${queryPrefix}limit=${PAGE_SIZE}&offset=${offset}`
       )
     );
     extraPages.push(...(await Promise.all(batch)));
@@ -202,12 +215,14 @@ async function fetchAllProjectPages(
   return {
     ds,
     rows: allRows,
+    total,
     notice: meta?.notice,
     truncated: total > MAX_ROWS_PER_QUERY,
   };
 }
 
 export async function fetchRegionalBudget(selectionKey: string): Promise<RegionalBudgetResult> {
+  const isNationwide = selectionKey === 'all';
   const isProvince = selectionKey.startsWith('prov:');
   let scopeLabel = 'Province of Pangasinan';
   let scopeKind: 'province' | 'city' | 'municipality' = 'province';
@@ -217,7 +232,14 @@ export async function fetchRegionalBudget(selectionKey: string): Promise<Regiona
   let gaaApiQ = 'Pangasinan';
   const discoveredOffices: string[] = [];
 
-  if (isProvince) {
+  if (isNationwide) {
+    scopeLabel = 'Philippines (Nationwide)';
+    scopeKind = 'province';
+    regionLabel = 'All Regions (Philippines)';
+    apiRegion = undefined;
+    searchQ = '';
+    gaaApiQ = '';
+  } else if (isProvince) {
     const code = selectionKey.slice(5);
     const prov =
       PSGC_PROVINCES.find((p) => p.code === code || p.psgc10 === code) ||
@@ -276,24 +298,33 @@ export async function fetchRegionalBudget(selectionKey: string): Promise<Regiona
 
   // Do NOT pass &region= to the API: irrigation (NIA) rows omit region and would be dropped.
   // Region filtering happens client-side below, matching transparency-portal's resolveScope().
-  const placePromises = datasets.map((ds) =>
-    fetchAllProjectPages(ds, `q=${encodeURIComponent(searchQ)}`)
-  );
+  const placeQuery = searchQ ? `q=${encodeURIComponent(searchQ)}` : '';
+  const placePromises = datasets.map((ds) => fetchAllProjectPages(ds, placeQuery));
 
   const officePromises = discoveredOffices.map((office) =>
     fetchAllProjectPages('dpwh', `office=${encodeURIComponent(office)}`)
   );
 
   const gaaYears = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
+  const gaaQuery = gaaApiQ ? `q=${encodeURIComponent(gaaApiQ)}&` : '';
   const gaaPromises = gaaYears.map((yr) =>
     fetchCachedJson<{ data?: Array<Record<string, unknown>> }>(
-      `${API_BASE}/gaa/search?q=${encodeURIComponent(gaaApiQ)}&year=${yr}&limit=500`
+      `${API_BASE}/gaa/search?${gaaQuery}year=${yr}&limit=500`
     ).catch(() => ({ data: [] }))
   );
 
-  const [projectResponses, gaaResponses] = await Promise.all([
+  const nationwideSummaryPromise = isNationwide
+    ? fetchCachedJson<{
+        data?: Array<{
+          totals?: { nep_php?: number; hgab3_php?: number; hgab2_php?: number };
+        }>;
+      }>(`${API_BASE}/hgab/2027/datasets`).catch(() => null)
+    : Promise.resolve(null);
+
+  const [projectResponses, gaaResponses, nationwideSummaryRes] = await Promise.all([
     Promise.all([...placePromises, ...officePromises]),
     Promise.all(gaaPromises),
+    nationwideSummaryPromise,
   ]);
 
   let notice =
@@ -309,7 +340,7 @@ export async function fetchRegionalBudget(selectionKey: string): Promise<Regiona
     const isFromOffice = i >= datasets.length;
     for (const raw of rows) {
       const mapped = mapRawProject(raw, ds);
-      if (!isFromOffice) {
+      if (!isFromOffice && searchQ) {
         const haystack = [mapped.title, mapped.program, mapped.pap, mapped.region, mapped.office]
           .filter(Boolean)
           .join(' ');
@@ -324,7 +355,7 @@ export async function fetchRegionalBudget(selectionKey: string): Promise<Regiona
   for (const res of gaaResponses) {
     for (const item of res.data || []) {
       const name = String(item.name || '');
-      if (!matchesWholeWords(name, searchQ)) continue;
+      if (searchQ && !matchesWholeWords(name, searchQ)) continue;
       const famKey = String(item.fam_key || name);
       const existing = gaaByKey.get(famKey) || {
         famKey,
@@ -346,6 +377,27 @@ export async function fetchRegionalBudget(selectionKey: string): Promise<Regiona
     (g) => Object.keys(g.years).length > 0
   );
 
+  let summaryTotals: RegionalBudgetResult['summaryTotals'];
+  if (isNationwide && nationwideSummaryRes?.data?.length) {
+    const nep = nationwideSummaryRes.data.reduce(
+      (sum, d) => sum + (d.totals?.nep_php || 0),
+      0
+    );
+    const house = nationwideSummaryRes.data.reduce(
+      (sum, d) => sum + (d.totals?.hgab3_php ?? d.totals?.hgab2_php ?? 0),
+      0
+    );
+    const totalLines = projectResponses
+      .slice(0, datasets.length)
+      .reduce((sum, r) => sum + r.total, 0);
+    summaryTotals = {
+      nep,
+      house,
+      delta: house - nep,
+      totalLines,
+    };
+  }
+
   return {
     scopeLabel,
     scopeKind,
@@ -355,5 +407,6 @@ export async function fetchRegionalBudget(selectionKey: string): Promise<Regiona
     gaaRecords,
     notice,
     truncatedProjects,
+    summaryTotals,
   };
 }

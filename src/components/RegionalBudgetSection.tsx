@@ -5,9 +5,11 @@ import {
   PSGC_MUNICIPALITIES,
   PSGC_PROVINCES,
   RegionalBudgetResult,
+  RegionalProjectRow,
 } from '../lib/regionalBudgetApi';
 
 type SubView = '2027' | 'gaa';
+type ChangeKind = 'inserted' | 'removed' | 'increased' | 'reduced' | 'unchanged';
 
 function formatPhp(amount: number | null | undefined): string {
   if (typeof amount !== 'number' || Number.isNaN(amount) || amount === 0) return '—';
@@ -36,84 +38,100 @@ function formatProvinceRegion(regionCode: string): string {
   return regionCode;
 }
 
-function formatStatusLabel(label: string): string {
-  const lower = label.trim().toLowerCase();
-  if (lower === 'possible match, unconfirmed') return 'Possible Match';
-  if (lower === 'same amount in both') return 'Unchanged';
-  return label;
+function classifyChange(p: RegionalProjectRow): { kind: ChangeKind; delta: number } {
+  const nep = p.nepPhp ?? 0;
+  const house = p.housePhp ?? 0;
+  const delta = house - nep;
+  if (nep === 0 && house > 0) return { kind: 'inserted', delta };
+  if (nep > 0 && house === 0) return { kind: 'removed', delta };
+  if (house > nep) return { kind: 'increased', delta };
+  if (house < nep) return { kind: 'reduced', delta };
+  return { kind: 'unchanged', delta: 0 };
 }
+
+function formatSignedPhp(delta: number): string {
+  if (delta === 0) return '₱0';
+  const sign = delta > 0 ? '+' : '−';
+  return `${sign}₱${Math.abs(delta).toLocaleString('en-PH', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}`;
+}
+
+function formatSignedCompactPhp(delta: number): string {
+  if (delta === 0) return '₱0';
+  const sign = delta > 0 ? '+' : '−';
+  return `${sign}${formatCompactPhp(Math.abs(delta))}`;
+}
+
+const CHANGE_META: Record<
+  ChangeKind,
+  { label: string; badgeClass: string; textClass: string }
+> = {
+  inserted: {
+    label: 'Inserted',
+    badgeClass: 'bg-[#D1432A]/12 text-[#D1432A] border-[#D1432A]/25',
+    textClass: 'text-[#D1432A]',
+  },
+  removed: {
+    label: 'Removed',
+    badgeClass: 'bg-amber-100 text-amber-900 border-amber-300/60',
+    textClass: 'text-amber-800',
+  },
+  increased: {
+    label: 'Increased',
+    badgeClass: 'bg-[#2E8B57]/12 text-[#2E8B57] border-[#2E8B57]/25',
+    textClass: 'text-[#2E8B57]',
+  },
+  reduced: {
+    label: 'Reduced',
+    badgeClass: 'bg-orange-100 text-orange-900 border-orange-300/60',
+    textClass: 'text-orange-800',
+  },
+  unchanged: {
+    label: 'Unchanged',
+    badgeClass: 'bg-slate-100 text-slate-600 border-slate-200',
+    textClass: 'text-slate-500',
+  },
+};
 
 export default function RegionalBudgetSection() {
   const [selectedProvinceCode, setSelectedProvinceCode] = useState<string>('015500000');
   const [selectedMuniPsgc, setSelectedMuniPsgc] = useState<string>('0105504000');
-  const [locationQuery, setLocationQuery] = useState<string>('');
   const [data, setData] = useState<RegionalBudgetResult | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [subView, setSubView] = useState<SubView>('2027');
+  const [fiscalYear, setFiscalYear] = useState<string>('2027');
+  const subView: SubView = fiscalYear === '2027' ? '2027' : 'gaa';
+  const gaaYear = fiscalYear === '2027' ? '2026' : fiscalYear;
   const [searchQuery, setSearchQuery] = useState('');
   const [datasetFilter, setDatasetFilter] = useState<'all' | DatasetKey>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [gaaYear, setGaaYear] = useState<string>('2026');
+  const [changeFilter, setChangeFilter] = useState<'all' | ChangeKind>('all');
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   const provinceMunicipalities = useMemo(
-    () => PSGC_MUNICIPALITIES.filter((m) => m.provinceCode === selectedProvinceCode),
+    () =>
+      selectedProvinceCode === 'all'
+        ? []
+        : PSGC_MUNICIPALITIES.filter((m) => m.provinceCode === selectedProvinceCode),
     [selectedProvinceCode]
   );
-
-  const filteredProvinces = useMemo(() => {
-    const q = locationQuery.trim().toLowerCase();
-    if (!q) return PSGC_PROVINCES;
-    return PSGC_PROVINCES.filter(
-      (p) =>
-        p.code === selectedProvinceCode ||
-        p.name.toLowerCase().includes(q) ||
-        p.regionCode.toLowerCase().includes(q)
-    );
-  }, [locationQuery, selectedProvinceCode]);
-
-  const filteredMunicipalities = useMemo(() => {
-    const q = locationQuery.trim().toLowerCase();
-    if (!q) return provinceMunicipalities;
-    return provinceMunicipalities.filter(
-      (m) => m.psgc === selectedMuniPsgc || m.name.toLowerCase().includes(q)
-    );
-  }, [locationQuery, provinceMunicipalities, selectedMuniPsgc]);
-
-  const locationQuickMatches = useMemo(() => {
-    const q = locationQuery.trim().toLowerCase();
-    if (q.length < 2) return [];
-    const provHits = PSGC_PROVINCES.filter((p) => p.name.toLowerCase().includes(q))
-      .slice(0, 3)
-      .map((p) => ({
-        key: `prov-${p.code}`,
-        label: p.name === 'Metro Manila (NCR)' ? p.name : `Province of ${p.name}`,
-        sub: p.regionCode,
-        provinceCode: p.code,
-        muniPsgc: 'all',
-      }));
-    const muniHits = PSGC_MUNICIPALITIES.filter(
-      (m) => m.name.toLowerCase().includes(q) || `${m.name}, ${m.provinceName}`.toLowerCase().includes(q)
-    )
-      .slice(0, 5)
-      .map((m) => ({
-        key: `muni-${m.psgc}`,
-        label: `${m.name}, ${m.provinceName}`,
-        sub: m.isCity ? 'City' : 'Municipality',
-        provinceCode: m.provinceCode,
-        muniPsgc: m.psgc,
-      }));
-    return [...provHits, ...muniHits].slice(0, 6);
-  }, [locationQuery]);
 
   const selectedProvince = useMemo(
-    () => PSGC_PROVINCES.find((p) => p.code === selectedProvinceCode),
+    () =>
+      selectedProvinceCode === 'all'
+        ? undefined
+        : PSGC_PROVINCES.find((p) => p.code === selectedProvinceCode),
     [selectedProvinceCode]
   );
 
-  const selectedKey = selectedMuniPsgc === 'all' ? `prov:${selectedProvinceCode}` : selectedMuniPsgc;
+  const selectedKey =
+    selectedProvinceCode === 'all'
+      ? 'all'
+      : selectedMuniPsgc === 'all'
+        ? `prov:${selectedProvinceCode}`
+        : selectedMuniPsgc;
 
   useEffect(() => {
     let active = true;
@@ -138,14 +156,42 @@ export default function RegionalBudgetSection() {
 
   const kpis = useMemo(() => {
     if (!data) return { nep: 0, house: 0, delta: 0, count: 0 };
+    if (data.summaryTotals) {
+      return {
+        nep: data.summaryTotals.nep,
+        house: data.summaryTotals.house,
+        delta: data.summaryTotals.delta,
+        count: data.summaryTotals.totalLines,
+      };
+    }
     const nep = data.projects.reduce((sum, p) => sum + (p.nepPhp || 0), 0);
     const house = data.projects.reduce((sum, p) => sum + (p.housePhp || 0), 0);
     return { nep, house, delta: house - nep, count: data.projects.length };
   }, [data]);
 
-  const statusOptions = useMemo(() => {
-    if (!data) return [];
-    return Array.from(new Set(data.projects.map((p) => p.statusLabel))).sort();
+  const changeSummary = useMemo(() => {
+    const counts: Record<ChangeKind, number> = {
+      inserted: 0,
+      removed: 0,
+      increased: 0,
+      reduced: 0,
+      unchanged: 0,
+    };
+    const totals: Record<ChangeKind, number> = {
+      inserted: 0,
+      removed: 0,
+      increased: 0,
+      reduced: 0,
+      unchanged: 0,
+    };
+    if (data) {
+      for (const p of data.projects) {
+        const { kind, delta } = classifyChange(p);
+        counts[kind] += 1;
+        totals[kind] += delta;
+      }
+    }
+    return { counts, totals };
   }, [data]);
 
   const filteredProjects = useMemo(() => {
@@ -153,16 +199,17 @@ export default function RegionalBudgetSection() {
     const q = searchQuery.trim().toLowerCase();
     return data.projects
       .filter((p) => datasetFilter === 'all' || p.dataset === datasetFilter)
-      .filter((p) => statusFilter === 'all' || p.statusLabel === statusFilter)
+      .filter((p) => changeFilter === 'all' || classifyChange(p).kind === changeFilter)
       .filter(
         (p) =>
           !q ||
           p.title.toLowerCase().includes(q) ||
           (p.office && p.office.toLowerCase().includes(q)) ||
-          (p.program && p.program.toLowerCase().includes(q))
+          (p.program && p.program.toLowerCase().includes(q)) ||
+          (p.pap && p.pap.toLowerCase().includes(q))
       )
       .sort((a, b) => (b.housePhp || b.nepPhp || 0) - (a.housePhp || a.nepPhp || 0));
-  }, [data, datasetFilter, statusFilter, searchQuery]);
+  }, [data, datasetFilter, changeFilter, searchQuery]);
 
   const filteredGaa = useMemo(() => {
     if (!data) return [];
@@ -183,21 +230,26 @@ export default function RegionalBudgetSection() {
     const rows =
       subView === '2027'
         ? [
-            ['Dataset', 'Title', 'Office', 'Status', 'FY2027 NEP (PHP)', 'FY2027 House Bill (PHP)', 'Delta (PHP)', 'Detail URL'],
-            ...filteredProjects.map((p) => [
-              DATASET_LABELS[p.dataset],
-              p.title,
-              p.office || '',
-              p.statusLabel,
-              String(p.nepPhp ?? ''),
-              String(p.housePhp ?? ''),
-              String(p.deltaPhp ?? ''),
-              p.detailUrl
-                ? p.detailUrl.startsWith('http')
-                  ? p.detailUrl
-                  : `https://budget.bettergov.ph${p.detailUrl}`
-                : '',
-            ]),
+            ['Dataset', 'Change Type', 'Title', 'Program', 'PAP', 'Office', 'FY2027 NEP (PHP)', 'FY2027 House Bill (PHP)', 'Delta (PHP)', 'Detail URL'],
+            ...filteredProjects.map((p) => {
+              const { kind, delta } = classifyChange(p);
+              return [
+                DATASET_LABELS[p.dataset],
+                CHANGE_META[kind].label,
+                p.title,
+                p.program || '',
+                p.pap || '',
+                p.office || '',
+                String(p.nepPhp ?? ''),
+                String(p.housePhp ?? ''),
+                String(delta),
+                p.detailUrl
+                  ? p.detailUrl.startsWith('http')
+                    ? p.detailUrl
+                    : `https://budget.bettergov.ph${p.detailUrl}`
+                  : '',
+              ];
+            }),
           ]
         : [
             ['Department', 'Program / Project', `FY ${gaaYear} Enacted (PHP)`],
@@ -233,37 +285,21 @@ export default function RegionalBudgetSection() {
                 </p>
               </div>
 
-              {/* Scope Selector: Province + City/Municipality */}
+              {/* Scope Selector: Fiscal Year + Province + City/Municipality */}
               <div className="flex flex-col gap-2.5 shrink-0">
-                <div className="relative">
-                  <input
-                    type="search"
-                    value={locationQuery}
-                    onChange={(e) => setLocationQuery(e.target.value)}
-                    placeholder="Search province, city, or municipality..."
-                    aria-label="Search province, city, or municipality"
-                    className="w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-xs sm:text-sm text-[#0f2342] focus:border-[#26489A] focus:outline-none"
-                  />
-                  {locationQuickMatches.length > 0 && (
-                    <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      {locationQuickMatches.map((hit) => (
-                        <button
-                          key={hit.key}
-                          type="button"
-                          onClick={() => {
-                            setSelectedProvinceCode(hit.provinceCode);
-                            setSelectedMuniPsgc(hit.muniPsgc);
-                            setLocationQuery('');
-                          }}
-                          className="inline-flex items-center gap-1 rounded-full bg-white border border-[#26489A]/25 hover:border-[#26489A] px-2.5 py-1 text-[11px] font-semibold text-[#0f2342] cursor-pointer transition-colors"
-                        >
-                          <span>{hit.label}</span>
-                          <span className="text-[10px] text-slate-500">· {hit.sub}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <select
+                  aria-label="Filter by Fiscal Year"
+                  value={fiscalYear}
+                  onChange={(e) => setFiscalYear(e.target.value)}
+                  className="w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-[#0f2342] focus:border-[#26489A] focus:outline-none"
+                >
+                  <option value="2027">FY 2027 (NEP vs. House)</option>
+                  {['2026', '2025', '2024', '2023', '2022', '2021', '2020'].map((yr) => (
+                    <option key={yr} value={yr}>
+                      FY {yr} (Enacted GAA)
+                    </option>
+                  ))}
+                </select>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <select
@@ -275,7 +311,8 @@ export default function RegionalBudgetSection() {
                     }}
                     className="rounded-lg border border-black/15 bg-white px-3 py-2 text-xs sm:text-sm font-medium text-[#0f2342] focus:border-[#26489A] focus:outline-none min-w-[200px]"
                   >
-                    {filteredProvinces.map((p) => (
+                    <option value="all">All (Philippines)</option>
+                    {PSGC_PROVINCES.map((p) => (
                       <option key={p.code} value={p.code}>
                         {p.name === 'Metro Manila (NCR)'
                           ? p.name
@@ -287,13 +324,16 @@ export default function RegionalBudgetSection() {
                   <select
                     aria-label="Filter by Municipality or City"
                     value={selectedMuniPsgc}
+                    disabled={selectedProvinceCode === 'all'}
                     onChange={(e) => setSelectedMuniPsgc(e.target.value)}
-                    className="rounded-lg border border-black/15 bg-white px-3 py-2 text-xs sm:text-sm font-medium text-[#0f2342] focus:border-[#26489A] focus:outline-none min-w-[210px]"
+                    className="rounded-lg border border-black/15 bg-white px-3 py-2 text-xs sm:text-sm font-medium text-[#0f2342] focus:border-[#26489A] focus:outline-none min-w-[210px] disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <option value="all">
-                      All of {selectedProvince?.name || 'Province'}
+                      {selectedProvinceCode === 'all'
+                        ? 'All of Philippines'
+                        : `All of ${selectedProvince?.name || 'Province'}`}
                     </option>
-                    {filteredMunicipalities.map((m) => (
+                    {provinceMunicipalities.map((m) => (
                       <option key={m.psgc} value={m.psgc}>
                         {m.name}
                       </option>
@@ -320,7 +360,8 @@ export default function RegionalBudgetSection() {
 
             {!loading && !error && data && (
               <>
-                {/* KPI Cards */}
+                {/* KPI Cards (FY 2027 only) */}
+                {subView === '2027' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-4">
                     <div className="font-mono-data text-[11px] font-bold uppercase text-[#26489A]">
@@ -371,91 +412,39 @@ export default function RegionalBudgetSection() {
                     </div>
                   </div>
                 </div>
+                )}
 
                 {/* Controls Row */}
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-5">
-                  <div className="sticky top-[104px] sm:top-[112px] z-20 md:static bg-white/95 backdrop-blur-sm py-2 md:py-0 flex flex-nowrap overflow-x-auto items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSubView('2027')}
-                      className={`rounded-full px-4 py-1.5 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
-                        subView === '2027'
-                          ? 'bg-[#0f2342] text-white border border-[#0f2342]'
-                          : 'bg-[#FAF7F2] text-[#0f2342] border border-black/10 hover:border-[#26489A]'
-                      }`}
-                    >
-                      FY 2027 NEP vs. House ({data.projects.length})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSubView('gaa')}
-                      className={`rounded-full px-4 py-1.5 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
-                        subView === 'gaa'
-                          ? 'bg-[#0f2342] text-white border border-[#0f2342]'
-                          : 'bg-[#FAF7F2] text-[#0f2342] border border-black/10 hover:border-[#26489A]'
-                      }`}
-                    >
-                      Enacted GAA 2020–2026 ({data.gaaRecords.length})
-                    </button>
-                  </div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                  <input
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Filter projects or offices..."
+                    aria-label="Filter regional budget projects"
+                    className="w-full sm:flex-1 sm:max-w-md rounded-lg border border-black/15 bg-white px-3 py-1.5 text-xs sm:text-sm focus:border-[#26489A] focus:outline-none"
+                  />
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <input
-                      type="search"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Filter projects or offices..."
-                      aria-label="Filter regional budget projects"
-                      className="w-full sm:w-auto sm:min-w-[230px] rounded-lg border border-black/15 bg-white px-3 py-1.5 text-xs sm:text-sm focus:border-[#26489A] focus:outline-none"
-                    />
-
-                    {subView === '2027' ? (
-                      <>
-                        <select
-                          aria-label="Filter by program"
-                          value={datasetFilter}
-                          onChange={(e) => setDatasetFilter(e.target.value as 'all' | DatasetKey)}
-                          className="rounded-lg border border-black/15 bg-white px-2.5 py-1.5 text-xs font-medium text-[#0f2342]"
-                        >
-                          <option value="all">All Programs</option>
-                          <option value="dpwh">DPWH</option>
-                          <option value="fmr">FMR (DA)</option>
-                          <option value="hfep">HFEP (DOH)</option>
-                          <option value="nia">NIA</option>
-                        </select>
-                        <select
-                          aria-label="Filter by status"
-                          value={statusFilter}
-                          onChange={(e) => setStatusFilter(e.target.value)}
-                          className="rounded-lg border border-black/15 bg-white px-2.5 py-1.5 text-xs font-medium text-[#0f2342]"
-                        >
-                          <option value="all">All Statuses</option>
-                          {statusOptions.map((st) => (
-                            <option key={st} value={st}>
-                              {formatStatusLabel(st)}
-                            </option>
-                          ))}
-                        </select>
-                      </>
-                    ) : (
+                  <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto shrink-0">
+                    {subView === '2027' && (
                       <select
-                        aria-label="Select GAA Fiscal Year"
-                        value={gaaYear}
-                        onChange={(e) => setGaaYear(e.target.value)}
-                        className="rounded-lg border border-black/15 bg-white px-2.5 py-1.5 text-xs font-medium text-[#0f2342]"
+                        aria-label="Filter by program"
+                        value={datasetFilter}
+                        onChange={(e) => setDatasetFilter(e.target.value as 'all' | DatasetKey)}
+                        className="flex-1 sm:flex-none rounded-lg border border-black/15 bg-white px-2.5 py-1.5 text-xs font-medium text-[#0f2342]"
                       >
-                        {['2026', '2025', '2024', '2023', '2022', '2021', '2020'].map((yr) => (
-                          <option key={yr} value={yr}>
-                            FY {yr} GAA
-                          </option>
-                        ))}
+                        <option value="all">All Programs</option>
+                        <option value="dpwh">DPWH</option>
+                        <option value="fmr">FMR (DA)</option>
+                        <option value="hfep">HFEP (DOH)</option>
+                        <option value="nia">NIA</option>
                       </select>
                     )}
 
                     <button
                       type="button"
                       onClick={exportCsv}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#0f2342]/20 bg-[#FAF7F2] hover:border-[#0f2342] px-3 py-1.5 text-xs font-semibold text-[#0f2342] cursor-pointer"
+                      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#0f2342]/20 bg-[#FAF7F2] hover:border-[#0f2342] px-3 py-1.5 text-xs font-semibold text-[#0f2342] cursor-pointer shrink-0"
                     >
                       <i className="bi bi-download" aria-hidden="true" />
                       <span>Export CSV</span>
@@ -465,241 +454,338 @@ export default function RegionalBudgetSection() {
 
                 {data.truncatedProjects && (
                   <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4">
-                    Showing the first 200 rows per query. Use the search box or switch to a
-                    specific city/municipality to narrow results.
+                    Showing the top 4,000 rows per dataset (exact nationwide totals are shown in the
+                    summary cards above). Use the search box or select a province/municipality to
+                    narrow results.
                   </p>
                 )}
 
-                {/* 2027 Projects: Mobile Accordion + Desktop Table */}
+                {/* 2027 Projects: Change-Type Pills + Mobile Accordion + Desktop Table */}
                 {subView === '2027' && (
-                  <div className="rounded-xl border border-black/10 overflow-hidden">
-                    {/* Mobile Accordion */}
-                    <div className="md:hidden divide-y divide-black/10">
-                      {filteredProjects.slice(0, 100).map((p) => {
-                        const rowKey = `${p.dataset}-${p.id}`;
-                        const isOpen = expandedKey === rowKey;
-                        const isChangedOrInserted = p.nepPhp !== p.housePhp;
-                        return (
-                          <div key={rowKey} className="bg-white">
+                  <>
+                    <div
+                      className="flex flex-nowrap overflow-x-auto items-center gap-1.5 pb-2 mb-3"
+                      role="group"
+                      aria-label="Filter by NEP vs House Bill change type"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setChangeFilter('all')}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer border transition-colors ${
+                          changeFilter === 'all'
+                            ? 'bg-[#0f2342] text-white border-[#0f2342]'
+                            : 'bg-[#FAF7F2] text-[#0f2342] border-black/10 hover:border-[#26489A]'
+                        }`}
+                      >
+                        <span>All ({data.projects.length})</span>
+                      </button>
+                      {(['inserted', 'removed', 'increased', 'reduced', 'unchanged'] as ChangeKind[]).map(
+                        (kind) => {
+                          const count = changeSummary.counts[kind];
+                          const total = changeSummary.totals[kind];
+                          const meta = CHANGE_META[kind];
+                          const active = changeFilter === kind;
+                          return (
                             <button
+                              key={kind}
                               type="button"
-                              aria-expanded={isOpen}
-                              onClick={() => setExpandedKey(isOpen ? null : rowKey)}
-                              className="w-full text-left p-2.5 sm:p-3.5 flex items-start justify-between gap-2.5 cursor-pointer bg-transparent border-0"
+                              onClick={() => setChangeFilter(active ? 'all' : kind)}
+                              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer border transition-colors ${
+                                active
+                                  ? 'bg-[#0f2342] text-white border-[#0f2342]'
+                                  : 'bg-white text-[#0f2342] border-black/10 hover:border-[#26489A]'
+                              }`}
                             >
-                              <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                                  <span className="font-mono-data text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#26489A]/10 text-[#26489A]">
-                                    {DATASET_LABELS[p.dataset]}
-                                  </span>
-                                  <span
-                                    className={`text-[11px] font-medium ${
-                                      isChangedOrInserted ? 'text-[#D1432A] font-semibold' : 'text-slate-500'
-                                    }`}
-                                  >
-                                    {formatStatusLabel(p.statusLabel)}
-                                  </span>
-                                </div>
-                                <div className="text-xs font-semibold text-[#0f2342] leading-snug">
-                                  {p.title}
-                                </div>
-                              </div>
-                              <div className="shrink-0 text-right">
-                                <div
-                                  className={`font-mono-data text-xs font-bold tabular-nums ${
-                                    isChangedOrInserted ? 'text-[#D1432A]' : 'text-[#0f2342]'
-                                  }`}
-                                >
-                                  {formatPhp(p.housePhp ?? p.nepPhp)}
-                                </div>
-                                <i
-                                  className={`bi ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'} text-xs text-slate-400`}
-                                  aria-hidden="true"
-                                />
-                              </div>
+                              <span>
+                                {meta.label} ({count})
+                              </span>
                             </button>
-
-                            {isOpen && (
-                              <div className="px-2.5 pb-3 pt-2 bg-[#FAF7F2] border-t border-black/5 text-xs space-y-2">
-                                {p.office && (
-                                  <div className="flex justify-between gap-2">
-                                    <span className="text-slate-500">Office</span>
-                                    <span className="font-medium text-[#0f2342] text-right">
-                                      {p.office}
-                                    </span>
-                                  </div>
-                                )}
-                                <div className="flex justify-between gap-2">
-                                  <span className="text-slate-500">FY 2027 NEP</span>
-                                  <span className="font-mono-data tabular-nums text-[#0f2342]">
-                                    {formatPhp(p.nepPhp)}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between gap-2">
-                                  <span className="text-slate-500">House Bill</span>
-                                  <span
-                                    className={`font-mono-data tabular-nums font-bold ${
-                                      isChangedOrInserted ? 'text-[#D1432A]' : 'text-[#0f2342]'
-                                    }`}
-                                  >
-                                    {formatPhp(p.housePhp)}
-                                  </span>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-3 pt-1 font-semibold">
-                                  {p.nepPdfUrl && (
-                                    <a
-                                      href={p.nepPdfUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-[#26489A] hover:underline"
-                                    >
-                                      NEP PDF{' '}
-                                      <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
-                                    </a>
-                                  )}
-                                  {p.housePdfUrl && (
-                                    <a
-                                      href={p.housePdfUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-[#2E8B57] hover:underline"
-                                    >
-                                      House PDF{' '}
-                                      <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
-                                    </a>
-                                  )}
-                                  {p.detailUrl && (
-                                    <a
-                                      href={
-                                        p.detailUrl.startsWith('http')
-                                          ? p.detailUrl
-                                          : `https://budget.bettergov.ph${p.detailUrl}`
-                                      }
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-slate-700 hover:underline"
-                                    >
-                                      Details{' '}
-                                      <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
-                                    </a>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                      {filteredProjects.length === 0 && (
-                        <div className="py-8 text-center text-xs text-slate-500">
-                          No FY 2027 projects match the current filter.
-                        </div>
+                          );
+                        }
                       )}
                     </div>
 
-                    {/* Desktop Table */}
-                    <div className="hidden md:block overflow-x-auto">
-                      <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                      <thead>
-                        <tr className="bg-[#FAF7F2] border-b border-black/10 text-[#0f2342]">
-                          <th className="py-3 px-3.5 font-bold">Program &amp; Project</th>
-                          <th className="py-3 px-3.5 font-bold whitespace-nowrap">Status</th>
-                          <th className="py-3 px-3.5 font-bold text-right whitespace-nowrap">
-                            FY 2027 NEP
-                          </th>
-                          <th className="py-3 px-3.5 font-bold text-right whitespace-nowrap">
-                            House Bill
-                          </th>
-                          <th className="py-3 px-3.5 font-bold whitespace-nowrap">Sources</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-black/5">
-                        {filteredProjects.slice(0, 100).map((p) => (
-                          <tr key={`${p.dataset}-${p.id}`} className="hover:bg-[#FAF7F2]/60">
-                            <td className="py-3 px-3.5">
-                              <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                                <span className="font-mono-data text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#26489A]/10 text-[#26489A]">
-                                  {DATASET_LABELS[p.dataset]}
-                                </span>
-                                {p.office && (
-                                  <span className="text-[11px] text-slate-500">{p.office}</span>
-                                )}
-                              </div>
-                              <div className="font-medium text-[#0f2342] leading-snug">
-                                {p.title}
-                              </div>
-                            </td>
-                            <td className="py-3 px-3.5 whitespace-nowrap">
-                              <span className="inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
-                                {formatStatusLabel(p.statusLabel)}
-                              </span>
-                            </td>
-                            <td className="py-3 px-3.5 text-right font-mono-data tabular-nums whitespace-nowrap text-slate-700">
-                              {formatPhp(p.nepPhp)}
-                            </td>
-                            <td
-                              className={`py-3 px-3.5 text-right font-mono-data tabular-nums font-bold whitespace-nowrap ${
-                                p.nepPhp !== p.housePhp ? 'text-[#D1432A]' : 'text-[#0f2342]'
-                              }`}
-                            >
-                              {formatPhp(p.housePhp)}
-                            </td>
-                            <td className="py-3 px-3.5 whitespace-nowrap">
-                              <div className="flex items-center gap-2 text-[11px] font-semibold">
-                                {p.nepPdfUrl && (
-                                  <a
-                                    href={p.nepPdfUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[#26489A] hover:underline"
+                    <div className="rounded-xl border border-black/10 overflow-hidden">
+                      {/* Mobile Accordion */}
+                      <div className="md:hidden divide-y divide-black/10">
+                        {filteredProjects.slice(0, 100).map((p) => {
+                          const rowKey = `${p.dataset}-${p.id}`;
+                          const isOpen = expandedKey === rowKey;
+                          const { kind, delta } = classifyChange(p);
+                          const meta = CHANGE_META[kind];
+                          return (
+                            <div key={rowKey} className="bg-white">
+                              <button
+                                type="button"
+                                aria-expanded={isOpen}
+                                onClick={() => setExpandedKey(isOpen ? null : rowKey)}
+                                className="w-full text-left p-2.5 sm:p-3.5 flex items-start justify-between gap-2.5 cursor-pointer bg-transparent border-0"
+                              >
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                                    <span className="font-mono-data text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#26489A]/10 text-[#26489A]">
+                                      {DATASET_LABELS[p.dataset]}
+                                    </span>
+                                    <span
+                                      className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold ${meta.badgeClass}`}
+                                    >
+                                      {meta.label}
+                                    </span>
+                                  </div>
+                                  <div className="text-xs font-semibold text-[#0f2342] leading-snug">
+                                    {p.title}
+                                  </div>
+                                </div>
+                                <div className="shrink-0 text-right">
+                                  <div
+                                    className={`font-mono-data text-xs font-bold tabular-nums ${
+                                      delta !== 0 ? meta.textClass : 'text-[#0f2342]'
+                                    }`}
                                   >
-                                    NEP
-                                  </a>
-                                )}
-                                {p.housePdfUrl && (
-                                  <a
-                                    href={p.housePdfUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[#2E8B57] hover:underline"
-                                  >
-                                    House
-                                  </a>
-                                )}
-                                {p.detailUrl && (
-                                  <a
-                                    href={
-                                      p.detailUrl.startsWith('http')
-                                        ? p.detailUrl
-                                        : `https://budget.bettergov.ph${p.detailUrl}`
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-slate-600 hover:underline"
-                                  >
-                                    Details
-                                  </a>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
+                                    {formatPhp(p.housePhp ?? p.nepPhp)}
+                                  </div>
+                                  {delta !== 0 && (
+                                    <div
+                                      className={`font-mono-data text-[10px] font-bold tabular-nums ${meta.textClass}`}
+                                    >
+                                      {formatSignedCompactPhp(delta)}
+                                    </div>
+                                  )}
+                                  <i
+                                    className={`bi ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'} text-xs text-slate-400`}
+                                    aria-hidden="true"
+                                  />
+                                </div>
+                              </button>
+
+                              {isOpen && (
+                                <div className="px-2.5 pb-3 pt-2 bg-[#FAF7F2] border-t border-black/5 text-xs space-y-2">
+                                  {p.program && (
+                                    <div className="flex justify-between gap-2">
+                                      <span className="text-slate-500 shrink-0">Program</span>
+                                      <span className="font-medium text-[#0f2342] text-right">
+                                        {p.program}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {p.pap && (
+                                    <div className="flex justify-between gap-2">
+                                      <span className="text-slate-500 shrink-0">PAP Code</span>
+                                      <span className="font-mono-data text-[#0f2342] text-right">
+                                        {p.pap}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {p.office && (
+                                    <div className="flex justify-between gap-2">
+                                      <span className="text-slate-500 shrink-0">Office</span>
+                                      <span className="font-medium text-[#0f2342] text-right">
+                                        {p.office}
+                                      </span>
+                                    </div>
+                                  )}
+                                  <div className="flex justify-between gap-2">
+                                    <span className="text-slate-500">FY 2027 NEP</span>
+                                    <span className="font-mono-data tabular-nums text-[#0f2342]">
+                                      {formatPhp(p.nepPhp)}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between gap-2">
+                                    <span className="text-slate-500">House Bill</span>
+                                    <span
+                                      className={`font-mono-data tabular-nums font-bold ${
+                                        delta !== 0 ? meta.textClass : 'text-[#0f2342]'
+                                      }`}
+                                    >
+                                      {formatPhp(p.housePhp)}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between gap-2 border-t border-black/5 pt-1.5">
+                                    <span className="text-slate-500 font-semibold">Net Change</span>
+                                    <span className={`font-mono-data tabular-nums font-bold ${meta.textClass}`}>
+                                      {formatSignedPhp(delta)}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-3 pt-1 font-semibold">
+                                    {p.nepPdfUrl && (
+                                      <a
+                                        href={p.nepPdfUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-[#26489A] hover:underline"
+                                      >
+                                        NEP PDF{' '}
+                                        <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
+                                      </a>
+                                    )}
+                                    {p.housePdfUrl && (
+                                      <a
+                                        href={p.housePdfUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-[#2E8B57] hover:underline"
+                                      >
+                                        House PDF{' '}
+                                        <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
+                                      </a>
+                                    )}
+                                    {p.detailUrl && (
+                                      <a
+                                        href={
+                                          p.detailUrl.startsWith('http')
+                                            ? p.detailUrl
+                                            : `https://budget.bettergov.ph${p.detailUrl}`
+                                        }
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-slate-700 hover:underline"
+                                      >
+                                        Details{' '}
+                                        <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                         {filteredProjects.length === 0 && (
-                          <tr>
-                            <td colSpan={5} className="py-8 text-center text-slate-500">
-                              No FY 2027 projects match the current filter.
-                            </td>
-                          </tr>
+                          <div className="py-8 text-center text-xs text-slate-500">
+                            No FY 2027 projects match the current filter.
+                          </div>
                         )}
-                      </tbody>
-                      </table>
-                    </div>
-                    {filteredProjects.length > 100 && (
-                      <div className="bg-[#FAF7F2] px-4 py-2.5 text-xs text-slate-600 border-t border-black/10">
-                        Showing top 100 of {filteredProjects.length} projects — filter by keyword or
-                        export CSV to inspect all rows.
                       </div>
-                    )}
-                  </div>
+
+                      {/* Desktop Table */}
+                      <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                          <thead>
+                            <tr className="bg-[#FAF7F2] border-b border-black/10 text-[#0f2342]">
+                              <th className="py-3 px-3.5 font-bold">Program &amp; Project</th>
+                              <th className="py-3 px-3.5 font-bold whitespace-nowrap">Change</th>
+                              <th className="py-3 px-3.5 font-bold text-right whitespace-nowrap">
+                                FY 2027 NEP
+                              </th>
+                              <th className="py-3 px-3.5 font-bold text-right whitespace-nowrap">
+                                House Bill
+                              </th>
+                              <th className="py-3 px-3.5 font-bold text-right whitespace-nowrap">
+                                Net Change
+                              </th>
+                              <th className="py-3 px-3.5 font-bold whitespace-nowrap">Sources</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-black/5">
+                            {filteredProjects.slice(0, 100).map((p) => {
+                              const { kind, delta } = classifyChange(p);
+                              const meta = CHANGE_META[kind];
+                              return (
+                                <tr key={`${p.dataset}-${p.id}`} className="hover:bg-[#FAF7F2]/60">
+                                  <td className="py-3 px-3.5">
+                                    <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                                      <span className="font-mono-data text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#26489A]/10 text-[#26489A]">
+                                        {DATASET_LABELS[p.dataset]}
+                                      </span>
+                                      {p.office && (
+                                        <span className="text-[11px] text-slate-500">{p.office}</span>
+                                      )}
+                                      {p.pap && (
+                                        <span className="font-mono-data text-[10px] text-slate-400">
+                                          PAP {p.pap}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="font-medium text-[#0f2342] leading-snug">
+                                      {p.title}
+                                    </div>
+                                    {p.program && (
+                                      <div className="text-[11px] text-slate-500 mt-0.5">
+                                        {p.program}
+                                      </div>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-3.5 whitespace-nowrap">
+                                    <span
+                                      className={`inline-block rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${meta.badgeClass}`}
+                                    >
+                                      {meta.label}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-3.5 text-right font-mono-data tabular-nums whitespace-nowrap text-slate-700">
+                                    {formatPhp(p.nepPhp)}
+                                  </td>
+                                  <td
+                                    className={`py-3 px-3.5 text-right font-mono-data tabular-nums font-bold whitespace-nowrap ${
+                                      delta !== 0 ? meta.textClass : 'text-[#0f2342]'
+                                    }`}
+                                  >
+                                    {formatPhp(p.housePhp)}
+                                  </td>
+                                  <td
+                                    className={`py-3 px-3.5 text-right font-mono-data tabular-nums font-bold whitespace-nowrap ${meta.textClass}`}
+                                  >
+                                    {delta === 0 ? '—' : formatSignedPhp(delta)}
+                                  </td>
+                                  <td className="py-3 px-3.5 whitespace-nowrap">
+                                    <div className="flex items-center gap-2 text-[11px] font-semibold">
+                                      {p.nepPdfUrl && (
+                                        <a
+                                          href={p.nepPdfUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-[#26489A] hover:underline"
+                                        >
+                                          NEP
+                                        </a>
+                                      )}
+                                      {p.housePdfUrl && (
+                                        <a
+                                          href={p.housePdfUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-[#2E8B57] hover:underline"
+                                        >
+                                          House
+                                        </a>
+                                      )}
+                                      {p.detailUrl && (
+                                        <a
+                                          href={
+                                            p.detailUrl.startsWith('http')
+                                              ? p.detailUrl
+                                              : `https://budget.bettergov.ph${p.detailUrl}`
+                                          }
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-slate-600 hover:underline"
+                                        >
+                                          Details
+                                        </a>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                            {filteredProjects.length === 0 && (
+                              <tr>
+                                <td colSpan={6} className="py-8 text-center text-slate-500">
+                                  No FY 2027 projects match the current filter.
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                      {filteredProjects.length > 100 && (
+                        <div className="bg-[#FAF7F2] px-4 py-2.5 text-xs text-slate-600 border-t border-black/10">
+                          Showing top 100 of {filteredProjects.length} projects — filter by keyword or
+                          export CSV to inspect all rows.
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
 
                 {/* GAA 2020-2026: Mobile Stacked Cards + Desktop Table */}
