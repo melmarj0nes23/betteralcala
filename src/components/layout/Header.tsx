@@ -260,8 +260,8 @@ export default function Header() {
               </ul>
             </li>
             <li className={`has-dropdown ${openDropdown === 3 ? 'dropdown-open' : ''}`}>
-              <Link
-                to="/budget"
+              <a
+                href="https://budget.betteralcala.org/"
                 className={
                   pathname.startsWith('/budget') ||
                   pathname.startsWith('/tracker') ||
@@ -275,32 +275,32 @@ export default function Header() {
                 onClick={(e) => toggleDropdown(3, e)}
               >
                 {t('nav-transparency')}
-              </Link>
+              </a>
               <ul className="dropdown-menu">
                 <li>
-                  <Link to="/budget" onClick={closeMenu}>
+                  <a href="https://budget.betteralcala.org/" onClick={closeMenu}>
                     Overview Summary
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link to="/tracker" onClick={closeMenu}>
+                  <a href="https://budget.betteralcala.org/tracker" onClick={closeMenu}>
                     Barangay Tracker
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link to="/budgetdocs" onClick={closeMenu}>
+                  <a href="https://budget.betteralcala.org/budgetdocs" onClick={closeMenu}>
                     Municipal Budget &amp; Docs
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link to="/contracts" onClick={closeMenu}>
+                  <a href="https://budget.betteralcala.org/contracts" onClick={closeMenu}>
                     DPWH Contracts (12)
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link to="/transparency" onClick={closeMenu}>
-                    Transparency Portal
-                  </Link>
+                  <a href="https://budget.betteralcala.org/transparency" onClick={closeMenu}>
+                    Project Transparency
+                  </a>
                 </li>
               </ul>
             </li>
