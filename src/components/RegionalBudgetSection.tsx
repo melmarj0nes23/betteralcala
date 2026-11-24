@@ -20,6 +20,7 @@ function formatPhp(amount: number | null | undefined): string {
 }
 
 function formatCompactPhp(amount: number): string {
+  if (amount >= 1_000_000_000_000) return `₱${(amount / 1_000_000_000_000).toFixed(2)}T`;
   if (amount >= 1_000_000_000) return `₱${(amount / 1_000_000_000).toFixed(2)}B`;
   if (amount >= 1_000_000) return `₱${(amount / 1_000_000).toFixed(2)}M`;
   return `₱${amount.toLocaleString('en-PH')}`;
@@ -225,6 +226,115 @@ export default function RegionalBudgetSection() {
     [filteredGaa, gaaYear]
   );
 
+  const gaaKpis = useMemo(() => {
+    if (!data) {
+      return {
+        total: 0,
+        yoyPct: null as number | null,
+        yoyDelta: null as number | null,
+        largestLineDept: null as { name: string; amount: number; pct: number } | null,
+        lineItems: 0,
+        deptCount: 0,
+        topFundPct: 0,
+      };
+    }
+
+    const prevYearNum = Number(gaaYear) - 1;
+    const prevYear = prevYearNum >= 2020 ? String(prevYearNum) : null;
+
+    if (selectedProvinceCode === 'all' && data.gaaDepartments?.length) {
+      const activeDepts = data.gaaDepartments.filter(
+        (d) => (d.years[gaaYear]?.amount || 0) > 0
+      );
+      const total = activeDepts.reduce(
+        (sum, d) => sum + (d.years[gaaYear]?.amount || 0),
+        0
+      );
+      const lineItems = activeDepts.reduce(
+        (sum, d) => sum + (d.years[gaaYear]?.count || 0),
+        0
+      );
+      const prevTotal = prevYear
+        ? data.gaaDepartments.reduce(
+            (sum, d) => sum + (d.years[prevYear]?.amount || 0),
+            0
+          )
+        : 0;
+      const yoyDelta = prevYear && prevTotal > 0 ? total - prevTotal : null;
+      const yoyPct =
+        prevYear && prevTotal > 0 ? ((total - prevTotal) / prevTotal) * 100 : null;
+
+      const sortedAll = [...activeDepts].sort(
+        (a, b) => (b.years[gaaYear]?.amount || 0) - (a.years[gaaYear]?.amount || 0)
+      );
+      const topOverall = sortedAll[0];
+      const topFundAmt = topOverall?.years[gaaYear]?.amount || 0;
+      const topFundPct = total > 0 ? (topFundAmt / total) * 100 : 0;
+
+      const lineAgencies = sortedAll.filter((d) =>
+        d.slug.startsWith('department-of-')
+      );
+      const topLine = lineAgencies[0] || topOverall;
+      const topLineAmt = topLine?.years[gaaYear]?.amount || 0;
+
+      return {
+        total,
+        yoyPct,
+        yoyDelta,
+        largestLineDept: topLine
+          ? {
+              name: topLine.description,
+              amount: topLineAmt,
+              pct: total > 0 ? (topLineAmt / total) * 100 : 0,
+            }
+          : null,
+        lineItems,
+        deptCount: activeDepts.length,
+        topFundPct,
+      };
+    }
+
+    const yearRows = data.gaaRecords.filter((g) => (g.years[gaaYear] || 0) > 0);
+    const total = yearRows.reduce((sum, g) => sum + (g.years[gaaYear] || 0), 0);
+    const prevTotal = prevYear
+      ? data.gaaRecords.reduce((sum, g) => sum + (g.years[prevYear] || 0), 0)
+      : 0;
+    const yoyDelta = prevYear && prevTotal > 0 ? total - prevTotal : null;
+    const yoyPct =
+      prevYear && prevTotal > 0 ? ((total - prevTotal) / prevTotal) * 100 : null;
+
+    const deptTotals = new Map<string, number>();
+    for (const row of yearRows) {
+      const dept = row.department || 'National Government';
+      deptTotals.set(dept, (deptTotals.get(dept) || 0) + (row.years[gaaYear] || 0));
+    }
+
+    const sortedDepts = Array.from(deptTotals.entries()).sort((a, b) => b[1] - a[1]);
+    const topOverall = sortedDepts[0];
+    const topFundPct = topOverall && total > 0 ? (topOverall[1] / total) * 100 : 0;
+
+    const lineAgencies = sortedDepts.filter(([name]) =>
+      /^department of /i.test(name)
+    );
+    const topLine = lineAgencies[0] || topOverall;
+
+    return {
+      total,
+      yoyPct,
+      yoyDelta,
+      largestLineDept: topLine
+        ? {
+            name: topLine[0],
+            amount: topLine[1],
+            pct: total > 0 ? (topLine[1] / total) * 100 : 0,
+          }
+        : null,
+      lineItems: yearRows.length,
+      deptCount: sortedDepts.length,
+      topFundPct,
+    };
+  }, [data, gaaYear, selectedProvinceCode]);
+
   const exportCsv = () => {
     if (!data) return;
     const rows =
@@ -409,6 +519,88 @@ export default function RegionalBudgetSection() {
                     </div>
                     <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
                       GAA Programs
+                    </div>
+                  </div>
+                </div>
+                )}
+
+                {/* KPI Cards (FY 2020-2026 Enacted GAA) */}
+                {subView === 'gaa' && (
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-6">
+                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-3 sm:p-4">
+                    <div className="font-mono-data text-[10px] sm:text-[11px] font-bold uppercase text-[#26489A]">
+                      FY{gaaYear} Enacted Budget (GAA)
+                    </div>
+                    <div
+                      className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 leading-snug"
+                      title="Appropriation is the legal authority to spend enacted in the GAA; disbursement is actual cash released and spent."
+                    >
+                      Appropriation vs. Disbursement
+                    </div>
+                    <div className="text-2xl sm:text-4xl font-extrabold text-[#0f2342] font-mono-data tabular-nums mt-1">
+                      {gaaKpis.total > 0 ? formatCompactPhp(gaaKpis.total) : '—'}
+                    </div>
+                    <div className="text-[11px] text-slate-500 font-mono-data tabular-nums mt-0.5 leading-snug break-all">
+                      {formatPhp(gaaKpis.total)}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-3 sm:p-4">
+                    <div className="font-mono-data text-[10px] sm:text-[11px] font-bold uppercase text-[#2E8B57]">
+                      Year-over-Year Change
+                    </div>
+                    <div
+                      className={`text-2xl sm:text-4xl font-extrabold font-mono-data tabular-nums mt-1 ${
+                        gaaKpis.yoyPct === null
+                          ? 'text-slate-400'
+                          : gaaKpis.yoyPct >= 0
+                            ? 'text-[#2E8B57]'
+                            : 'text-[#D1432A]'
+                      }`}
+                    >
+                      {gaaKpis.yoyPct === null
+                        ? '—'
+                        : `${gaaKpis.yoyPct >= 0 ? '+' : '−'}${Math.abs(gaaKpis.yoyPct).toFixed(2)}%`}
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      {gaaKpis.yoyDelta !== null
+                        ? `${formatSignedCompactPhp(gaaKpis.yoyDelta)} · vs FY${Number(gaaYear) - 1} GAA`
+                        : 'No prior GAA baseline'}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-3 sm:p-4">
+                    <div className="font-mono-data text-[10px] sm:text-[11px] font-bold uppercase text-[#1976A8]">
+                      Largest Line-Agency Dept.
+                    </div>
+                    <div className="text-2xl sm:text-4xl font-extrabold text-[#0f2342] font-mono-data tabular-nums mt-1">
+                      {gaaKpis.largestLineDept
+                        ? formatCompactPhp(gaaKpis.largestLineDept.amount)
+                        : '—'}
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      {gaaKpis.largestLineDept
+                        ? `${gaaKpis.largestLineDept.name} (${gaaKpis.largestLineDept.pct.toFixed(1)}%)`
+                        : 'No agency data for scope'}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-[#FAF7F2] border border-black/10 p-3 sm:p-4">
+                    <div className="font-mono-data text-[10px] sm:text-[11px] font-bold uppercase text-[#0f2342]">
+                      Dataset Coverage
+                    </div>
+                    <div
+                      className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 leading-snug"
+                      title="Automatic Appropriations are standing expenditures mandated by existing laws (e.g., debt interest, NTA/IRA) that do not require annual congressional action."
+                    >
+                      Automatic Appropriations
+                    </div>
+                    <div className="text-2xl sm:text-4xl font-extrabold text-[#1976A8] font-mono-data tabular-nums mt-1">
+                      {gaaKpis.lineItems.toLocaleString()}
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      Line items across {gaaKpis.deptCount} departments/funds · Top fund:{' '}
+                      {gaaKpis.topFundPct.toFixed(1)}%
                     </div>
                   </div>
                 </div>

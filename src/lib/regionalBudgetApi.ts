@@ -47,6 +47,13 @@ export interface RegionalGaaRow {
   years: Record<string, number>;
 }
 
+export interface GaaDepartmentSummary {
+  id: string;
+  slug: string;
+  description: string;
+  years: Record<string, { count: number; amount: number }>;
+}
+
 export interface RegionalBudgetResult {
   scopeLabel: string;
   scopeKind: 'province' | 'city' | 'municipality';
@@ -54,6 +61,7 @@ export interface RegionalBudgetResult {
   offices: string[];
   projects: RegionalProjectRow[];
   gaaRecords: RegionalGaaRow[];
+  gaaDepartments?: GaaDepartmentSummary[];
   notice: string;
   truncatedProjects: boolean;
   summaryTotals?: {
@@ -321,11 +329,19 @@ export async function fetchRegionalBudget(selectionKey: string): Promise<Regiona
       }>(`${API_BASE}/hgab/2027/datasets`).catch(() => null)
     : Promise.resolve(null);
 
-  const [projectResponses, gaaResponses, nationwideSummaryRes] = await Promise.all([
-    Promise.all([...placePromises, ...officePromises]),
-    Promise.all(gaaPromises),
-    nationwideSummaryPromise,
-  ]);
+  const nationwideGaaDeptsPromise = isNationwide
+    ? fetchCachedJson<{
+        data?: GaaDepartmentSummary[];
+      }>(`${API_BASE}/gaa/departments`).catch(() => null)
+    : Promise.resolve(null);
+
+  const [projectResponses, gaaResponses, nationwideSummaryRes, nationwideGaaDeptsRes] =
+    await Promise.all([
+      Promise.all([...placePromises, ...officePromises]),
+      Promise.all(gaaPromises),
+      nationwideSummaryPromise,
+      nationwideGaaDeptsPromise,
+    ]);
 
   let notice =
     'Independent and unofficial reading of published GAA/NEP/House bill documents. Figures are published allocations, not actual spending.';
@@ -405,6 +421,7 @@ export async function fetchRegionalBudget(selectionKey: string): Promise<Regiona
     offices: discoveredOffices,
     projects: Array.from(projectByKey.values()),
     gaaRecords,
+    gaaDepartments: isNationwide ? nationwideGaaDeptsRes?.data : undefined,
     notice,
     truncatedProjects,
     summaryTotals,
