@@ -259,7 +259,7 @@ export default function Header() {
                 </li>
               </ul>
             </li>
-            <li className={`has-dropdown ${openDropdown === 3 ? 'dropdown-open' : ''}`}>
+            <li>
               <a
                 href="https://budget.betteralcala.org/"
                 className={
@@ -270,39 +270,10 @@ export default function Header() {
                     ? 'active'
                     : ''
                 }
-                aria-haspopup="true"
-                aria-expanded={openDropdown === 3 ? 'true' : 'false'}
-                onClick={(e) => toggleDropdown(3, e)}
+                onClick={closeMenu}
               >
                 {t('nav-transparency')}
               </a>
-              <ul className="dropdown-menu">
-                <li>
-                  <a href="https://budget.betteralcala.org/" onClick={closeMenu}>
-                    Overview Summary
-                  </a>
-                </li>
-                <li>
-                  <a href="https://budget.betteralcala.org/tracker" onClick={closeMenu}>
-                    Barangay Tracker
-                  </a>
-                </li>
-                <li>
-                  <a href="https://budget.betteralcala.org/budgetdocs" onClick={closeMenu}>
-                    Municipal Budget &amp; Docs
-                  </a>
-                </li>
-                <li>
-                  <a href="https://budget.betteralcala.org/contracts" onClick={closeMenu}>
-                    DPWH Contracts (12)
-                  </a>
-                </li>
-                <li>
-                  <a href="https://budget.betteralcala.org/transparency" onClick={closeMenu}>
-                    Project Transparency
-                  </a>
-                </li>
-              </ul>
             </li>
             <li>
               <Link
