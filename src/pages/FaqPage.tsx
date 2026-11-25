@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import { useLanguage } from '../contexts/LanguageContext';
 import { FAQ_ITEMS } from '../data/communityData';
 
 export default function FaqPage() {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(() => searchParams.get('q') || '');
   const [openId, setOpenId] = useState<string | null>(FAQ_ITEMS[0]?.id || null);
@@ -41,13 +43,10 @@ export default function FaqPage() {
         <div className="container">
           <div className="page-header-content">
             <span className="page-header-badge">
-              <i className="bi bi-question-circle-fill" aria-hidden="true" /> <span>Help &amp; FAQ</span>
+              <i className="bi bi-question-circle-fill" aria-hidden="true" /> <span>{t('faq-badge')}</span>
             </span>
-            <h1>Frequently Asked Questions</h1>
-            <p className="page-header-desc">
-              Answers on BetterAlcala’s data verification standards, municipal services, budgets,
-              and offline PWA access
-            </p>
+            <h1>{t('faq-title')}</h1>
+            <p className="page-header-desc">{t('faq-desc')}</p>
           </div>
         </div>
       </section>

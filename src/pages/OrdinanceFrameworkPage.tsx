@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import Layout from '../components/layout/Layout';
+import { useLanguage } from '../contexts/LanguageContext';
 import { VerificationBadge } from '../components/VerificationBadge';
 import { useAuth } from '../contexts/AuthContext';
 import { ORDINANCES_DATA } from '../data/transparencyData';
@@ -27,6 +28,7 @@ function isValidOrdinance(item: unknown): item is OrdinanceRecord {
 }
 
 export default function OrdinanceFrameworkPage() {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const { user, isAdmin } = useAuth();
   const ordinances = useCivicDataset(
@@ -118,13 +120,10 @@ export default function OrdinanceFrameworkPage() {
         <div className="container">
           <div className="page-header-content">
             <span className="page-header-badge">
-              <i className="bi bi-journal-text" aria-hidden="true" /> <span>Legislative</span>
+              <i className="bi bi-journal-text" aria-hidden="true" /> <span>{t('ord-badge')}</span>
             </span>
-            <h1>Ordinance Framework</h1>
-            <p className="page-header-desc">
-              Verified Municipal Ordinances enacted by the Sangguniang Bayan of Alcala, Pangasinan
-              and reviewed by the Sangguniang Panlalawigan
-            </p>
+            <h1>{t('ord-title')}</h1>
+            <p className="page-header-desc">{t('ord-desc')}</p>
           </div>
         </div>
       </section>

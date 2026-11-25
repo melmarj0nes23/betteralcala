@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import Layout from '../components/layout/Layout';
+import { useLanguage } from '../contexts/LanguageContext';
 import { VerificationBadge } from '../components/VerificationBadge';
 import { RESOLUTIONS_DATA } from '../data/transparencyData';
 import { isValidCitation, useCivicDataset } from '../hooks/useCivicDataset';
@@ -17,6 +18,7 @@ function isValidResolution(item: unknown): item is ResolutionRecord {
 }
 
 export default function ResolutionFrameworkPage() {
+  const { t } = useLanguage();
   const resolutions = useCivicDataset(
     'resolutions.json',
     'resolutions',
@@ -49,13 +51,10 @@ export default function ResolutionFrameworkPage() {
           <div className="page-header-content">
             <span className="page-header-badge">
               <i className="bi bi-file-earmark-ruled-fill" aria-hidden="true" />{' '}
-              <span>Legislative</span>
+              <span>{t('res-badge')}</span>
             </span>
-            <h1>Resolution Framework</h1>
-            <p className="page-header-desc">
-              Provincial review resolutions on Alcala budgets and Sangguniang Bayan resolution
-              tracking
-            </p>
+            <h1>{t('res-title')}</h1>
+            <p className="page-header-desc">{t('res-desc')}</p>
           </div>
         </div>
       </section>

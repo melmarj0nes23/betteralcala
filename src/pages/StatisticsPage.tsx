@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import { useLanguage } from '../contexts/LanguageContext';
 import BarangayEmblem, { slugifyBarangay } from '../components/BarangayEmblem';
 import { AlcalaWovenStrip } from '../components/AlcalaWovenStrip';
 import { VerificationBadge } from '../components/VerificationBadge';
@@ -10,6 +11,7 @@ import { INFRASTRUCTURE_PROJECTS } from '../data/transparencyData';
 type BarangayTab = 'overview' | 'projects' | 'all';
 
 export default function StatisticsPage() {
+  const { t } = useLanguage();
   const { barangay: barangaySlug } = useParams<{ barangay?: string }>();
   const [searchParams] = useSearchParams();
   const showOverview = searchParams.get('view') === 'overview';
@@ -730,19 +732,16 @@ export default function StatisticsPage() {
   // 3. DEFAULT BARANGAY SELECTOR HUB (/statistics)
   // ---------------------------------------------------------------------------
   return (
-    <Layout breadcrumbs={[{ label: 'Statistics' }]}>
+    <Layout breadcrumbs={[{ label: t('nav-statistics') }]}>
       <section className="page-header">
         <div className="container">
           <div className="page-header-content">
             <span className="page-header-badge">
               <i className="bi bi-geo-alt-fill" aria-hidden="true" />{' '}
-              <span>21 Barangays &amp; Municipal Data</span>
+              <span>{t('stats-badge')}</span>
             </span>
-            <h1>Explore Alcala by Barangay</h1>
-            <p className="page-header-desc">
-              Select any of Alcala’s 21 barangays to view its population, municipal share, PSGC
-              profile, and infrastructure records—or open the entire municipal overview.
-            </p>
+            <h1>{t('stats-title')}</h1>
+            <p className="page-header-desc">{t('stats-desc')}</p>
           </div>
         </div>
       </section>

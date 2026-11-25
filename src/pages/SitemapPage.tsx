@@ -1,20 +1,20 @@
 import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import { useLanguage } from '../contexts/LanguageContext';
 import { SERVICE_CATEGORIES, SERVICES_DATA } from '../data/servicesData';
 
 export default function SitemapPage() {
+  const { t } = useLanguage();
   return (
-    <Layout breadcrumbs={[{ label: 'Sitemap' }]}>
+    <Layout breadcrumbs={[{ label: t('sitemap-title') }]}>
       <section className="page-header">
         <div className="container">
           <div className="page-header-content">
             <span className="page-header-badge">
-              <i className="bi bi-diagram-3-fill" aria-hidden="true" /> <span>Navigation</span>
+              <i className="bi bi-diagram-3-fill" aria-hidden="true" /> <span>{t('sitemap-badge')}</span>
             </span>
-            <h1>Sitemap</h1>
-            <p className="page-header-desc">
-              Navigate all pages, service guides, and civic transparency sections of BetterAlcala
-            </p>
+            <h1>{t('sitemap-title')}</h1>
+            <p className="page-header-desc">{t('sitemap-desc')}</p>
           </div>
         </div>
       </section>

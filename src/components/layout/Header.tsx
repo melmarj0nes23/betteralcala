@@ -290,7 +290,7 @@ export default function Header() {
                 className={pathname.startsWith('/weather') ? 'active' : ''}
                 onClick={closeMenu}
               >
-                Weather
+                {t('nav-weather')}
               </Link>
             </li>
             <li>

@@ -17,14 +17,45 @@ import {
   Wind,
 } from 'lucide-react';
 import Layout from '../components/layout/Layout';
+import { useLanguage } from '../contexts/LanguageContext';
 import {
   degreesToCompass,
   describeAqi,
   describeUvRisk,
-  describeWmoCode,
   useDetailedWeather,
+  type HeatIndexTier,
   type HourlyPoint,
 } from '../hooks/useDetailedWeather';
+
+function getWmoKey(code: number): string {
+  if (code === 0) return 'weather-wmo-0';
+  if (code === 1) return 'weather-wmo-1';
+  if (code === 2) return 'weather-wmo-2';
+  if (code === 3) return 'weather-wmo-3';
+  if (code <= 48) return 'weather-wmo-fog';
+  if (code <= 57) return 'weather-wmo-drizzle';
+  if (code <= 63) return 'weather-wmo-rain';
+  if (code <= 67) return 'weather-wmo-heavy-rain';
+  if (code <= 80) return 'weather-wmo-showers';
+  if (code <= 82) return 'weather-wmo-heavy-showers';
+  if (code <= 99) return 'weather-wmo-thunder';
+  return 'weather-wmo-var';
+}
+
+function getHeatKeys(label: HeatIndexTier['label']): { labelKey: string; advKey: string } {
+  switch (label) {
+    case 'Extreme Danger':
+      return { labelKey: 'weather-heat-extreme-danger', advKey: 'weather-heat-adv-extreme-danger' };
+    case 'Danger':
+      return { labelKey: 'weather-heat-danger', advKey: 'weather-heat-adv-danger' };
+    case 'Extreme Caution':
+      return { labelKey: 'weather-heat-extreme-caution', advKey: 'weather-heat-adv-extreme-caution' };
+    case 'Caution':
+      return { labelKey: 'weather-heat-caution', advKey: 'weather-heat-adv-caution' };
+    default:
+      return { labelKey: 'weather-heat-normal', advKey: 'weather-heat-adv-normal' };
+  }
+}
 
 function formatDayLabel(iso: string): string {
   const d = new Date(`${iso}T00:00:00+08:00`);
@@ -82,7 +113,7 @@ const OFFICIAL_WEATHER_LINKS = [
   },
 ];
 
-function HourlyMobileRow({ hr }: { hr: HourlyPoint }) {
+function HourlyMobileRow({ hr, t }: { hr: HourlyPoint; t: (key: string, fallback?: string) => string }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -97,7 +128,7 @@ function HourlyMobileRow({ hr }: { hr: HourlyPoint }) {
           <span className="shrink-0 font-mono text-xs font-semibold text-[#0f2342]">
             {formatDayLabel(hr.time.slice(0, 10)).split(',')[0]} {formatHourLabel(hr.time)}
           </span>
-          <span className="truncate text-sm text-slate-700">{describeWmoCode(hr.weatherCode)}</span>
+          <span className="truncate text-sm text-slate-700">{t(getWmoKey(hr.weatherCode))}</span>
         </div>
         <div className="flex shrink-0 items-center gap-2.5 font-mono text-sm tabular-nums">
           <span>
@@ -114,33 +145,33 @@ function HourlyMobileRow({ hr }: { hr: HourlyPoint }) {
       {expanded && (
         <div className="grid grid-cols-2 gap-2.5 bg-[#faf7f2]/80 px-3.5 pb-3.5 pt-2 text-xs">
           <div>
-            <span className="text-slate-500">Sky:</span>{' '}
-            <strong className="text-[#0f2342]">{describeWmoCode(hr.weatherCode)}</strong>
+            <span className="text-slate-500">{t('weather-col-sky')}:</span>{' '}
+            <strong className="text-[#0f2342]">{t(getWmoKey(hr.weatherCode))}</strong>
           </div>
           <div>
-            <span className="text-slate-500">Temp / Feels:</span>{' '}
+            <span className="text-slate-500">{t('weather-col-temp')}:</span>{' '}
             <strong className="font-mono text-[#0f2342]">
               {hr.tempC.toFixed(1)}°C / {hr.apparentC.toFixed(1)}°C
             </strong>
           </div>
           <div>
-            <span className="text-slate-500">Rain:</span>{' '}
+            <span className="text-slate-500">{t('weather-col-rain')}:</span>{' '}
             <strong className="font-mono text-[#1976a8]">
               {hr.precipMm.toFixed(1)} mm ({hr.precipProbPct}%)
             </strong>
           </div>
           <div>
-            <span className="text-slate-500">Humidity:</span>{' '}
+            <span className="text-slate-500">{t('weather-humidity')}:</span>{' '}
             <strong className="font-mono text-[#0f2342]">{hr.humidityPct}%</strong>
           </div>
           <div>
-            <span className="text-slate-500">Wind / Gust:</span>{' '}
+            <span className="text-slate-500">{t('weather-col-wind')}:</span>{' '}
             <strong className="font-mono text-[#0f2342]">
               {hr.windKmh.toFixed(0)} / {hr.gustKmh.toFixed(0)} km/h
             </strong>
           </div>
           <div>
-            <span className="text-slate-500">UV Index:</span>{' '}
+            <span className="text-slate-500">{t('weather-col-uv')}:</span>{' '}
             <strong className="font-mono text-[#0f2342]">{hr.uvIndex.toFixed(1)}</strong>
           </div>
         </div>
@@ -149,12 +180,12 @@ function HourlyMobileRow({ hr }: { hr: HourlyPoint }) {
   );
 }
 
-function WeatherSplashScreen() {
+function WeatherSplashScreen({ t }: { t: (key: string, fallback?: string) => string }) {
   return (
     <div
       className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-[#0f2342]/10 bg-white px-6 py-12 text-center shadow-sm"
       aria-busy="true"
-      aria-label="Loading Alcala weather data"
+      aria-label={t('weather-splash-msg')}
     >
       <div className="relative flex items-center justify-center">
         <span
@@ -179,18 +210,19 @@ function WeatherSplashScreen() {
         <span className="text-[#f77f00]">Alcala</span>
       </div>
       <div className="mt-1 text-xs font-semibold uppercase tracking-widest text-slate-500">
-        Weather &amp; River Watch
+        {t('weather-splash-sub')}
       </div>
 
       <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#edf2fa] px-4 py-1.5 text-xs font-semibold text-[#26489a]">
         <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-        <span>Loading live weather, Heat Index &amp; Agno River telemetry…</span>
+        <span>{t('weather-splash-msg')}</span>
       </div>
     </div>
   );
 }
 
 export default function WeatherPage() {
+  const { t } = useLanguage();
   const { data, loading, error, lastFetched, refresh } = useDetailedWeather();
   const [hourlyWindow, setHourlyWindow] = useState<24 | 48>(24);
 
@@ -218,19 +250,19 @@ export default function WeatherPage() {
     data?.riverDischarge[0]?.discharge ??
     null;
 
+  const heatKeys = data ? getHeatKeys(data.current.heatTier.label) : null;
+
   return (
-    <Layout breadcrumbs={[{ label: 'Weather' }]}>
+    <Layout breadcrumbs={[{ label: t('nav-weather') }]}>
       <section className="page-header">
         <div className="container">
           <div className="page-header-content">
             <span className="page-header-badge">
               <i className="bi bi-cloud-sun-fill" aria-hidden="true" />{' '}
-              <span>Meteorology &amp; River Watch</span>
+              <span>{t('weather-badge')}</span>
             </span>
-            <h1>Alcala Weather &amp; River Watch</h1>
-            <p className="page-header-desc">
-              Live surface conditions, PAGASA Heat Index tiers, 48h hourly &amp; 6-day forecast, air quality, and Agno River discharge.
-            </p>
+            <h1>{t('weather-title')}</h1>
+            <p className="page-header-desc">{t('weather-desc')}</p>
           </div>
         </div>
       </section>
@@ -238,7 +270,7 @@ export default function WeatherPage() {
       <section className="section py-6 sm:py-8">
         <div className="container space-y-5 sm:space-y-6">
           {loading && !data ? (
-            <WeatherSplashScreen />
+            <WeatherSplashScreen t={t} />
           ) : (
             <>
           {/* Current Conditions & 8 Telemetry Cards */}
@@ -247,7 +279,7 @@ export default function WeatherPage() {
               <div className="inline-flex items-start sm:items-center gap-2 text-xs font-semibold text-[#2e8b57] sm:rounded-full sm:bg-[#eaf5ef] sm:px-3 sm:py-1">
                 <span className="mt-1 sm:mt-0 h-2 w-2 shrink-0 rounded-full bg-[#2e8b57]" />
                 <div className="leading-snug sm:flex sm:items-center sm:gap-1">
-                  <span>Live · Alcala, Pangasinan</span>
+                  <span>{t('weather-live-label')}</span>
                   <span className="block font-mono text-[11px] text-[#2e8b57]/90 sm:inline sm:font-sans sm:text-xs sm:text-[#2e8b57]">
                     (15.8472° N, 120.5214° E)
                   </span>
@@ -261,7 +293,7 @@ export default function WeatherPage() {
                 className="btn btn-secondary btn-sm inline-flex shrink-0 items-center gap-1.5"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-                {lastFetched ? `Updated ${lastFetched}` : 'Refresh'}
+                {lastFetched ? `${t('weather-updated')} ${lastFetched}` : t('weather-refresh')}
               </button>
             </div>
 
@@ -278,10 +310,10 @@ export default function WeatherPage() {
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wide text-[#26489a]">
-                      Now in Alcala
+                      {t('weather-now-title')}
                     </span>
                     <span className="text-xs font-medium text-slate-500">
-                      {data ? `Elev. ${data.elevationM} m` : ''}
+                      {data ? `${t('weather-elev')} ${data.elevationM} m` : ''}
                     </span>
                   </div>
                   <div className="mt-2 flex items-baseline gap-3">
@@ -289,11 +321,11 @@ export default function WeatherPage() {
                       {data ? `${data.current.tempC.toFixed(1)}°C` : '—'}
                     </span>
                     <span className="text-base font-semibold text-slate-700">
-                      {data ? describeWmoCode(data.current.weatherCode) : 'Loading…'}
+                      {data ? t(getWmoKey(data.current.weatherCode)) : 'Loading…'}
                     </span>
                   </div>
                   <div className="mt-1.5 text-sm text-slate-600">
-                    {data ? `Feels like ${data.current.apparentC.toFixed(1)}°C` : 'Fetching telemetry…'}
+                    {data ? `${t('weather-feels-like')} ${data.current.apparentC.toFixed(1)}°C` : '—'}
                   </div>
                 </div>
                 {todayDaily && (
@@ -314,35 +346,35 @@ export default function WeatherPage() {
               <div className="grid grid-cols-2 gap-3 lg:col-span-2 lg:grid-cols-4">
                 <div className="rounded-xl border border-[#d1432a]/20 bg-[#fdf0ed]/60 p-3.5">
                   <div className="flex items-center justify-between text-xs font-semibold text-[#d1432a]">
-                    <span>Heat Index</span>
+                    <span>{t('weather-heat-index')}</span>
                     <ThermometerSun className="h-4 w-4" />
                   </div>
                   <div className="mt-1.5 font-mono text-xl font-bold tabular-nums text-[#0f2342]">
                     {data ? `${data.current.heatIndexC.toFixed(1)}°C` : '—'}
                   </div>
-                  {data && (
+                  {data && heatKeys && (
                     <span className={`mt-1 inline-block rounded border px-1.5 py-0.5 text-xs font-semibold ${data.current.heatTier.badgeClass}`}>
-                      {data.current.heatTier.label}
+                      {t(heatKeys.labelKey)}
                     </span>
                   )}
                 </div>
 
                 <div className="rounded-xl border border-[#1976a8]/20 bg-[#e8f3f8]/60 p-3.5">
                   <div className="flex items-center justify-between text-xs font-semibold text-[#1976a8]">
-                    <span>24h Rain</span>
+                    <span>{t('weather-24h-rain')}</span>
                     <CloudRain className="h-4 w-4" />
                   </div>
                   <div className="mt-1.5 font-mono text-xl font-bold tabular-nums text-[#0f2342]">
                     {data ? `${data.next24hRainMm.toFixed(1)} mm` : '—'}
                   </div>
                   <div className="mt-1 text-xs text-slate-600">
-                    {data ? `Prob: ${data.next24hMaxProbPct}%` : '—'}
+                    {data ? `${t('weather-prob')}: ${data.next24hMaxProbPct}%` : '—'}
                   </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                    <span>Wind</span>
+                    <span>{t('weather-wind')}</span>
                     <Wind className="h-4 w-4 text-[#26489a]" />
                   </div>
                   <div className="mt-1.5 font-mono text-xl font-bold tabular-nums text-[#0f2342]">
@@ -350,26 +382,26 @@ export default function WeatherPage() {
                   </div>
                   <div className="mt-1 flex items-center gap-1 text-xs text-slate-600">
                     <Compass className="h-3.5 w-3.5 shrink-0" />
-                    {data ? `${degreesToCompass(data.current.windDirDeg)} · Gust ${data.current.gustKmh.toFixed(0)}` : '—'}
+                    {data ? `${degreesToCompass(data.current.windDirDeg)} · ${t('weather-gust')} ${data.current.gustKmh.toFixed(0)}` : '—'}
                   </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                    <span>Humidity</span>
+                    <span>{t('weather-humidity')}</span>
                     <Droplets className="h-4 w-4 text-[#1976a8]" />
                   </div>
                   <div className="mt-1.5 font-mono text-xl font-bold tabular-nums text-[#0f2342]">
                     {data ? `${data.current.humidityPct}%` : '—'}
                   </div>
                   <div className="mt-1 text-xs text-slate-600">
-                    {data?.hourly[0] ? `Dew ${data.hourly[0].dewPointC.toFixed(1)}°C` : '—'}
+                    {data?.hourly[0] ? `${t('weather-dew')} ${data.hourly[0].dewPointC.toFixed(1)}°C` : '—'}
                   </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                    <span>UV Peak</span>
+                    <span>{t('weather-uv-peak')}</span>
                     <Sun className="h-4 w-4 text-amber-600" />
                   </div>
                   <div className="mt-1.5 font-mono text-xl font-bold tabular-nums text-[#0f2342]">
@@ -382,7 +414,7 @@ export default function WeatherPage() {
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                    <span>Pressure</span>
+                    <span>{t('weather-pressure')}</span>
                     <Gauge className="h-4 w-4 text-slate-600" />
                   </div>
                   <div className="mt-1.5 font-mono text-xl font-bold tabular-nums text-[#0f2342]">
@@ -390,13 +422,13 @@ export default function WeatherPage() {
                   </div>
                   <div className="mt-1 flex items-center gap-1 text-xs text-slate-600">
                     <Cloud className="h-3.5 w-3.5 shrink-0" />
-                    {data ? `Cloud ${data.current.cloudCoverPct}%` : '—'}
+                    {data ? `${t('weather-cloud')} ${data.current.cloudCoverPct}%` : '—'}
                   </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                    <span>Air Quality</span>
+                    <span>{t('weather-air-quality')}</span>
                     <Wind className="h-4 w-4 text-[#2e8b57]" />
                   </div>
                   <div className="mt-1.5 font-mono text-xl font-bold tabular-nums text-[#0f2342]">
@@ -409,21 +441,21 @@ export default function WeatherPage() {
 
                 <div className="rounded-xl border border-[#2e8b57]/20 bg-[#eaf5ef]/60 p-3.5">
                   <div className="flex items-center justify-between text-xs font-semibold text-[#2e8b57]">
-                    <span>Agno River</span>
+                    <span>{t('weather-agno-river')}</span>
                     <Waves className="h-4 w-4" />
                   </div>
                   <div className="mt-1.5 font-mono text-xl font-bold tabular-nums text-[#0f2342]">
                     {todayDischarge !== null ? `${todayDischarge.toFixed(2)} m³/s` : '—'}
                   </div>
-                  <div className="mt-1 text-xs text-slate-600">GloFAS grid</div>
+                  <div className="mt-1 text-xs text-slate-600">{t('weather-glofas-grid')}</div>
                 </div>
               </div>
             </div>
 
-            {data && (
+            {data && heatKeys && (
               <div className="mt-4 rounded-xl border border-slate-200 bg-[#faf7f2] px-4 py-3 text-sm text-slate-700">
-                <strong className="text-[#0f2342]">Heat Advisory ({data.current.heatTier.label}):</strong>{' '}
-                {data.current.heatTier.advisory}
+                <strong className="text-[#0f2342]">{t('weather-heat-advisory')} ({t(heatKeys.labelKey)}):</strong>{' '}
+                {t(heatKeys.advKey)}
               </div>
             )}
           </div>
@@ -434,10 +466,10 @@ export default function WeatherPage() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <h2 className="font-serif text-xl font-bold text-[#0f2342] sm:text-2xl">
-                    Hourly Weather &amp; Rain
+                    {t('weather-hourly-title')}
                   </h2>
                   <p className="text-sm text-slate-600">
-                    Next {hourlyWindow}h · Tap any hour on mobile for full metrics
+                    {t('weather-next')} {hourlyWindow}h · {t('weather-hourly-sub')}
                   </p>
                 </div>
                 <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs font-semibold">
@@ -461,7 +493,7 @@ export default function WeatherPage() {
               {/* Mobile: Per-hour accordion list (zero horizontal swipe) */}
               <div className="mt-4 max-h-96 overflow-y-auto rounded-xl border border-slate-200 md:hidden">
                 {visibleHourly.map((hr) => (
-                  <HourlyMobileRow key={hr.time} hr={hr} />
+                  <HourlyMobileRow key={hr.time} hr={hr} t={t} />
                 ))}
               </div>
 
@@ -470,13 +502,13 @@ export default function WeatherPage() {
                 <table className="w-full text-left text-sm">
                   <thead className="sticky top-0 bg-[#faf7f2] text-xs font-bold uppercase tracking-wide text-slate-600">
                     <tr>
-                      <th className="px-3.5 py-2.5">Time</th>
-                      <th className="px-3.5 py-2.5">Sky</th>
-                      <th className="px-3.5 py-2.5">Temp / Feels</th>
-                      <th className="px-3.5 py-2.5">Rain</th>
-                      <th className="px-3.5 py-2.5">RH</th>
-                      <th className="px-3.5 py-2.5">Wind / Gust</th>
-                      <th className="px-3.5 py-2.5">UV</th>
+                      <th className="px-3.5 py-2.5">{t('weather-col-time')}</th>
+                      <th className="px-3.5 py-2.5">{t('weather-col-sky')}</th>
+                      <th className="px-3.5 py-2.5">{t('weather-col-temp')}</th>
+                      <th className="px-3.5 py-2.5">{t('weather-col-rain')}</th>
+                      <th className="px-3.5 py-2.5">{t('weather-col-rh')}</th>
+                      <th className="px-3.5 py-2.5">{t('weather-col-wind')}</th>
+                      <th className="px-3.5 py-2.5">{t('weather-col-uv')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -485,7 +517,7 @@ export default function WeatherPage() {
                         <td className="px-3.5 py-2 font-mono text-xs font-medium text-[#0f2342]">
                           {formatDayLabel(hr.time.slice(0, 10)).split(',')[0]} {formatHourLabel(hr.time)}
                         </td>
-                        <td className="px-3.5 py-2 text-slate-700">{describeWmoCode(hr.weatherCode)}</td>
+                        <td className="px-3.5 py-2 text-slate-700">{t(getWmoKey(hr.weatherCode))}</td>
                         <td className="px-3.5 py-2 font-mono tabular-nums">
                           <span className="font-semibold text-[#0f2342]">{hr.tempC.toFixed(0)}°</span>
                           <span className="text-slate-500">/{hr.apparentC.toFixed(0)}°</span>
@@ -512,9 +544,9 @@ export default function WeatherPage() {
             <div className="rounded-2xl border border-[#0f2342]/10 bg-white p-4 shadow-sm sm:p-6">
               <div className="flex items-baseline justify-between gap-2">
                 <h2 className="font-serif text-xl font-bold text-[#0f2342] sm:text-2xl">
-                  6-Day Forecast
+                  {t('weather-6day-title')}
                 </h2>
-                <span className="text-xs font-medium text-slate-500">Next 6 days</span>
+                <span className="text-xs font-medium text-slate-500">{t('weather-6day-sub')}</span>
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -524,12 +556,12 @@ export default function WeatherPage() {
                     className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5"
                   >
                     <div className="text-sm font-bold text-[#0f2342]">{formatDayLabel(day.date)}</div>
-                    <div className="mt-0.5 truncate text-xs text-slate-600">{describeWmoCode(day.weatherCode)}</div>
+                    <div className="mt-0.5 truncate text-xs text-slate-600">{t(getWmoKey(day.weatherCode))}</div>
                     <div className="mt-2 font-mono text-base font-bold tabular-nums text-[#0f2342]">
                       {day.tempMaxC.toFixed(0)}° / {day.tempMinC.toFixed(0)}°
                     </div>
                     <div className="text-xs font-semibold text-[#d1432a]">
-                      Feels {day.apparentMaxC.toFixed(0)}°C
+                      {t('weather-feels')} {day.apparentMaxC.toFixed(0)}°C
                     </div>
                     <div className="mt-2 border-t border-slate-200/80 pt-2 text-xs text-slate-600">
                       <div className="font-mono text-[#1976a8]">
@@ -551,11 +583,9 @@ export default function WeatherPage() {
               <div className="flex h-full flex-col justify-between rounded-2xl border border-[#0f2342]/10 bg-white p-4 shadow-sm sm:p-6 lg:col-span-3">
                 <div>
                   <h2 className="font-serif text-xl font-bold text-[#0f2342] sm:text-2xl">
-                    Agno River Discharge
+                    {t('weather-river-title')}
                   </h2>
-                  <p className="mt-1 text-sm text-slate-600">
-                    GloFAS 10-day discharge (m³/s) for Alcala. Cross-check San Roque Dam (280.00 masl NHWL) &amp; Carmen Station during heavy rain.
-                  </p>
+                  <p className="mt-1 text-sm text-slate-600">{t('weather-river-desc')}</p>
                 </div>
 
                 <div className="mt-5 flex items-end gap-1.5 sm:gap-2">
@@ -591,11 +621,9 @@ export default function WeatherPage() {
             <div className="flex h-full flex-col justify-between rounded-2xl border border-[#0f2342]/10 bg-white p-4 shadow-sm sm:p-6 lg:col-span-2">
               <div>
                 <h2 className="font-serif text-xl font-bold text-[#0f2342] sm:text-2xl">
-                  Official Hazard Portals
+                  {t('weather-portals-title')}
                 </h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  PAGASA, NAPOCOR, UP NOAH &amp; HazardHunterPH.
-                </p>
+                <p className="mt-1 text-sm text-slate-600">{t('weather-portals-sub')}</p>
               </div>
               <div className="mt-4 space-y-2.5">
                 {OFFICIAL_WEATHER_LINKS.map((link) => (

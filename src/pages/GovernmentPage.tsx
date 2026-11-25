@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import { useLanguage } from '../contexts/LanguageContext';
 import { SourceCitationBox, VerificationBadge } from '../components/VerificationBadge';
 import {
   MUNICIPAL_OFFICES,
@@ -9,6 +10,7 @@ import {
 } from '../data/municipalInfo';
 
 export default function GovernmentPage() {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const focusedOfficeId = searchParams.get('office') || '';
   const [expandedOffices, setExpandedOffices] = useState<Record<string, boolean>>({});
@@ -23,18 +25,15 @@ export default function GovernmentPage() {
   );
 
   return (
-    <Layout breadcrumbs={[{ label: 'Government' }]}>
+    <Layout breadcrumbs={[{ label: t('gov-badge') }]}>
       <section className="page-header">
         <div className="container">
           <div className="page-header-content">
             <span className="page-header-badge">
-              <i className="bi bi-building-fill" aria-hidden="true" /> <span>Government</span>
+              <i className="bi bi-building-fill" aria-hidden="true" /> <span>{t('gov-badge')}</span>
             </span>
-            <h1>Government Structure &amp; Municipal Officials</h1>
-            <p className="page-header-desc">
-              Verified municipal leadership (2025–2028 term) and executive offices of Alcala,
-              Pangasinan
-            </p>
+            <h1>{t('gov-title')}</h1>
+            <p className="page-header-desc">{t('gov-desc')}</p>
           </div>
         </div>
       </section>
