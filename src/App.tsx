@@ -16,6 +16,7 @@ const OrdinanceFrameworkPage = lazy(() => import('./pages/OrdinanceFrameworkPage
 const ResolutionFrameworkPage = lazy(() => import('./pages/ResolutionFrameworkPage'));
 const NewsPage = lazy(() => import('./pages/NewsPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const WeatherPage = lazy(() => import('./pages/WeatherPage'));
 const FaqPage = lazy(() => import('./pages/FaqPage'));
 const SitemapPage = lazy(() => import('./pages/SitemapPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
@@ -125,6 +126,7 @@ export default function App() {
                 <Route path="/contacts" element={<Navigate to="/contracts" replace />} />
                 <Route path="/transparency" element={<BudgetPage />} />
                 <Route path="/news" element={<NewsPage />} />
+                <Route path="/weather" element={<WeatherPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/faq" element={<FaqPage />} />
                 <Route path="/sitemap" element={<SitemapPage />} />

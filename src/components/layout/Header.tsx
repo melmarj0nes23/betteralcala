@@ -286,6 +286,15 @@ export default function Header() {
             </li>
             <li>
               <Link
+                to="/weather"
+                className={pathname.startsWith('/weather') ? 'active' : ''}
+                onClick={closeMenu}
+              >
+                Weather
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/contact"
                 className={pathname.startsWith('/contact') ? 'active' : ''}
                 onClick={closeMenu}
