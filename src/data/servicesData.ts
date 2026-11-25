@@ -631,7 +631,7 @@ export const SERVICES_DATA: ServiceRecord[] = [
     feesStatus: 'Needs Review',
     office: 'Municipal Disaster Risk Reduction & Management Office (MDRRMO) / RHU',
     officeAddress: 'Municipal Hall Compound, Poblacion East, Alcala, 2425 Pangasinan',
-    officePhones: ['0920-9817724', '0968-4448920', '0946-798-0534', '(075) 632-5938', '(075) 593-4992', '911'],
+    officePhones: ['0920-9817724', '0968-4448920', '0955 021 1700', '(075) 632-5938', '(075) 593-4992', '911'],
     officeHours: '24/7 MDRRMO & Ambulance Hotlines · Office Mon–Fri: 8:00 AM – 5:00 PM',
     downloadableForms: [
       { label: 'Ordinance No. 2026-05 Ambulance Use Guidelines', status: 'Needs Review', note: 'Summary available on Legislative page' },
