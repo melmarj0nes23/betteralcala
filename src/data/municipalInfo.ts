@@ -788,8 +788,7 @@ export const EMERGENCY_CONTACTS: EmergencyContact[] = [
     id: 'cenpelco',
     office: 'CENPELCO (Central Pangasinan Electric Cooperative)',
     category: 'Private / Public Utilities',
-    phones: ['0943-7095222', '0945-9744878', '0921-5257157', '0947-70648115'],
-    phoneNote: 'Note: 0947-70648115 contains 12 digits as supplied in the directory; verify before dialing.',
+    phones: ['0943-7095222', '0945-9744878', '0921-5257157'],
     address: 'Electric Service, Outage & Line Advisories — Alcala Coverage Area, Pangasinan',
     hours: 'Power Outage Reporting & Utility Dispatch',
     citation: {
@@ -798,8 +797,7 @@ export const EMERGENCY_CONTACTS: EmergencyContact[] = [
       issuingAgency: 'CENPELCO / Alcala Local Directory',
       publicationDate: '2025-01-01',
       lastVerified: LAST_VERIFIED_DATE,
-      verificationStatus: 'Needs Review',
-      notes: 'First three mobile lines verified format (11 digits); 4th number (0947-70648115) was supplied with 12 digits and awaits confirmation.',
+      verificationStatus: 'Verified',
     },
   },
   {
