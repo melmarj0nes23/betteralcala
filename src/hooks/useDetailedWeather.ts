@@ -180,11 +180,45 @@ export function describeAqi(aqi: number | null): string {
   return 'Very Unhealthy';
 }
 
+const WEATHER_CACHE_KEY = 'betteralcala_weather_cache_v1';
+const WEATHER_CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
+function readCachedWeather(): { data: DetailedWeatherData; fetchedAtLabel: string } | null {
+  try {
+    const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as {
+      timestamp: number;
+      fetchedAtLabel: string;
+      data: DetailedWeatherData;
+    };
+    if (!parsed?.data || typeof parsed.timestamp !== 'number') return null;
+    if (Date.now() - parsed.timestamp > WEATHER_CACHE_TTL_MS) return null;
+    return { data: parsed.data, fetchedAtLabel: parsed.fetchedAtLabel };
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedWeather(data: DetailedWeatherData, fetchedAtLabel: string): void {
+  try {
+    localStorage.setItem(
+      WEATHER_CACHE_KEY,
+      JSON.stringify({ timestamp: Date.now(), fetchedAtLabel, data }),
+    );
+  } catch {
+    // Ignore storage quota or private-mode errors
+  }
+}
+
 export function useDetailedWeather() {
-  const [data, setData] = useState<DetailedWeatherData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const initialCache = readCachedWeather();
+  const [data, setData] = useState<DetailedWeatherData | null>(() => initialCache?.data ?? null);
+  const [loading, setLoading] = useState(() => !initialCache);
   const [error, setError] = useState<string | null>(null);
-  const [lastFetched, setLastFetched] = useState<string | null>(null);
+  const [lastFetched, setLastFetched] = useState<string | null>(
+    () => initialCache?.fetchedAtLabel ?? null,
+  );
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -280,7 +314,7 @@ export function useDetailedWeather() {
       const humidityPct = weatherJson.current?.relative_humidity_2m ?? 0;
       const heatIndexC = computeHeatIndexC(tempC, humidityPct);
 
-      setData({
+      const nextData: DetailedWeatherData = {
         elevationM: weatherJson.elevation ?? 25,
         current: {
           time: weatherJson.current?.time ?? '',
@@ -310,8 +344,14 @@ export function useDetailedWeather() {
         hourly,
         daily,
         riverDischarge,
+      };
+      const fetchedLabel = new Date().toLocaleTimeString('en-PH', {
+        hour: '2-digit',
+        minute: '2-digit',
       });
-      setLastFetched(new Date().toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' }));
+      setData(nextData);
+      setLastFetched(fetchedLabel);
+      writeCachedWeather(nextData, fetchedLabel);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to fetch weather data');
     } finally {
