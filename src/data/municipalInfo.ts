@@ -673,7 +673,7 @@ export const EMERGENCY_CONTACTS: EmergencyContact[] = [
     id: 'alcala-mps',
     office: 'Alcala Police Station (Municipal Police Station)',
     category: 'Police',
-    phones: ['+63 905 371 2249'],
+    phones: ['0905-3712249'],
     email: 'alcala.mps.pppo_r01@pnp.gov.ph',
     address: 'Poblacion East, Alcala, 2425 Pangasinan',
     hours: '24/7 Police Assistance & Emergency Response',

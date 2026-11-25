@@ -1,5 +1,5 @@
 const hotlines = [
-  { icon: 'bi-shield-fill', label: 'Alcala Police', number: '+63 905 371 2249', tel: '+639053712249' },
+  { icon: 'bi-shield-fill', label: 'Alcala Police', number: '0905-3712249', tel: '09053712249' },
   { icon: 'bi-fire', label: 'Alcala Fire (BFP)', number: '0917-1893611', tel: '09171893611' },
   { icon: 'bi-truck-front-fill', label: 'Ambulance', number: '0955 021 1700', tel: '09550211700' },
   { icon: 'bi-exclamation-triangle-fill', label: 'MDRRMO', number: '0920-9817724', tel: '09209817724' },
