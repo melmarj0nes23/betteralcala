@@ -79,6 +79,12 @@ const ROUTES = [
       'Public advisories, civic updates, and community announcements for Alcala, Pangasinan.',
   },
   {
+    path: '/weather',
+    title: 'Alcala Weather & River Watch | BetterAlcala',
+    description:
+      'Live weather, PAGASA Heat Index tiers, 48-hour & 6-day forecast, air quality, and Agno River discharge for Alcala, Pangasinan.',
+  },
+  {
     path: '/contact',
     title: 'Contact & Emergency Hotlines | BetterAlcala',
     description:

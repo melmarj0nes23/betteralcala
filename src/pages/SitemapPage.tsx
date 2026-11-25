@@ -68,6 +68,9 @@ export default function SitemapPage() {
               <Link to="/news" className="sitemap-link-item">
                 <i className="bi bi-arrow-right" aria-hidden="true" /> News &amp; Announcements
               </Link>
+              <Link to="/weather" className="sitemap-link-item">
+                <i className="bi bi-arrow-right" aria-hidden="true" /> Weather &amp; River Watch
+              </Link>
               <Link to="/contact" className="sitemap-link-item">
                 <i className="bi bi-arrow-right" aria-hidden="true" /> Contact &amp; Emergency Hotlines
               </Link>
