@@ -108,14 +108,15 @@ export default function OfficialsPage() {
       pageTitle="Barangay Officials Directory"
       pageDescription="Complete directory of Punong Barangays, Sangguniang Barangay Members, SK Chairpersons, and Barangay Secretaries across all 21 barangays of Alcala, Pangasinan."
     >
-      <section className="page-header-v3">
+      <section className="page-header">
         <div className="container">
           <div className="page-header-content">
-            <span className="section-label">
-              <i className="bi bi-people-fill" aria-hidden="true" /> 21 Barangays · DILG Directory
+            <span className="page-header-badge">
+              <i className="bi bi-people-fill" aria-hidden="true" />{' '}
+              <span>21 Barangays · DILG Directory</span>
             </span>
             <h1>Barangay Officials Directory</h1>
-            <p>
+            <p className="page-header-desc">
               Punong Barangays, Sangguniang Barangay Members, SK Chairpersons, and Barangay
               Secretaries across all 21 barangays of Alcala, Pangasinan.
             </p>
