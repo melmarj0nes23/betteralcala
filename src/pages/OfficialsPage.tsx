@@ -268,7 +268,7 @@ export default function OfficialsPage() {
               </button>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {filteredGroups.map((group) => {
                 const hasPrimary = group.officials.some((o) => isPrimaryRole(o.role));
                 const otherCount = group.officials.filter((o) => !isPrimaryRole(o.role)).length;
@@ -278,118 +278,163 @@ export default function OfficialsPage() {
                   autoExpandForFilter || Boolean(expandedBarangays[group.barangay]);
 
                 return (
-                  <article
+                  <section
                     key={group.barangay}
-                    className="bg-white border border-black/10 rounded-2xl overflow-hidden shadow-xs"
+                    aria-label={group.heading}
+                    className="border-b border-black/15 pb-5 last:border-b-0"
                   >
-                    <div className="flex items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-3.5 bg-[#FAF7F2] border-b border-black/10">
-                      <div className="min-w-0">
-                        <h2 className="text-sm sm:text-base font-extrabold text-[#0f2342] m-0 leading-snug">
-                          {group.heading}
-                        </h2>
-                        <p className="text-[11px] sm:text-xs text-slate-500 m-0 mt-0.5">
-                          {group.subtitle}
-                        </p>
-                      </div>
+                    <div className="flex items-baseline justify-between gap-2 pb-2.5 border-b-2 border-[#0032a0]/20">
+                      <h2 className="text-base sm:text-lg font-extrabold text-[#0f2342] m-0">
+                        {group.heading}
+                      </h2>
+                      <span className="font-mono-data text-[11px] font-semibold text-slate-500 shrink-0">
+                        {group.officials.length} official{group.officials.length === 1 ? '' : 's'}
+                      </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 sm:gap-3 p-3 sm:p-4">
+                    {/* Desktop Directory Table */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-sm">
+                        <thead>
+                          <tr className="border-b border-black/10 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                            <th className="py-2.5 pr-4">Official Name</th>
+                            <th className="py-2.5 px-3">Position / Role</th>
+                            <th className="py-2.5 px-3">Email</th>
+                            <th className="py-2.5 pl-3 text-right">Contact No.</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-black/10">
+                          {group.officials.map((off, idx) => {
+                            const hasValidEmail =
+                              Boolean(off.email) && off.email!.toLowerCase() !== 'none@gmail.com';
+                            const cleanTel = off.contactNo
+                              ? off.contactNo.replace(/[^\d+]/g, '')
+                              : '';
+                            const primary = isPrimaryRole(off.role);
+
+                            return (
+                              <tr
+                                key={`${group.barangay}-${off.role}-${off.name}-${idx}`}
+                                className={primary ? 'bg-[#0032a0]/[0.03]' : ''}
+                              >
+                                <td className="py-2.5 pr-4 font-bold text-[#0f2342]">
+                                  {off.name}
+                                </td>
+                                <td
+                                  className={`py-2.5 px-3 text-xs font-semibold ${getRoleLabelClass(
+                                    off.role
+                                  )}`}
+                                >
+                                  {off.role}
+                                </td>
+                                <td className="py-2.5 px-3 text-xs">
+                                  {hasValidEmail ? (
+                                    <a
+                                      href={`mailto:${off.email}`}
+                                      className="text-[#0032a0] hover:underline"
+                                    >
+                                      {off.email}
+                                    </a>
+                                  ) : (
+                                    <span className="text-slate-400">—</span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 pl-3 text-right font-mono-data text-xs">
+                                  {off.contactNo ? (
+                                    <a
+                                      href={`tel:${cleanTel}`}
+                                      className="font-semibold text-[#0f2342] hover:text-[#0032a0] hover:underline"
+                                    >
+                                      {off.contactNo}
+                                    </a>
+                                  ) : (
+                                    <span className="text-slate-400">—</span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Compact Directory List */}
+                    <div className="md:hidden divide-y divide-black/10">
                       {group.officials.map((off, idx) => {
                         const hasValidEmail =
                           Boolean(off.email) && off.email!.toLowerCase() !== 'none@gmail.com';
-                        const hasPhone = Boolean(off.contactNo);
                         const cleanTel = off.contactNo ? off.contactNo.replace(/[^\d+]/g, '') : '';
-                        const isHiddenOnMobile =
-                          !isPrimaryRole(off.role) && !isMobileExpanded;
-                        const singleMobileHighlight =
-                          !isMobileExpanded &&
-                          isPrimaryRole(off.role) &&
-                          group.officials.filter((o) => isPrimaryRole(o.role)).length === 1;
+                        const isHiddenOnMobile = !isPrimaryRole(off.role) && !isMobileExpanded;
+                        if (isHiddenOnMobile) return null;
 
                         return (
                           <div
-                            key={`${group.barangay}-${off.role}-${off.name}-${idx}`}
-                            className={`rounded-xl border p-2.5 sm:p-3.5 flex-col justify-between gap-1.5 min-w-0 ${
-                              isHiddenOnMobile ? 'hidden md:flex' : 'flex'
-                            } ${singleMobileHighlight ? 'col-span-2 md:col-span-1' : ''} ${
-                              isPrimaryRole(off.role)
-                                ? 'bg-[#0032a0]/[0.03] border-[#0032a0]/25'
-                                : 'bg-white border-black/10'
+                            key={`${group.barangay}-m-${off.role}-${off.name}-${idx}`}
+                            className={`py-2.5 flex items-start justify-between gap-3 ${
+                              isPrimaryRole(off.role) ? 'bg-[#0032a0]/[0.03] px-2 -mx-2 rounded-lg' : ''
                             }`}
                           >
-                            <div className="flex flex-col items-start gap-0.5 min-w-0">
+                            <div className="min-w-0">
                               <span
-                                className={`text-[10px] font-bold uppercase tracking-wider leading-tight ${getRoleLabelClass(
+                                className={`block text-[10px] font-bold uppercase tracking-wider leading-tight ${getRoleLabelClass(
                                   off.role
                                 )}`}
                               >
                                 {off.role}
                               </span>
-                              <h3 className="text-xs sm:text-sm font-bold text-[#0f2342] m-0 leading-snug break-words w-full">
+                              <div className="text-[13px] font-bold text-[#0f2342] leading-snug">
                                 {off.name}
-                              </h3>
+                              </div>
+                              {hasValidEmail && (
+                                <a
+                                  href={`mailto:${off.email}`}
+                                  className="block text-[11px] text-[#0032a0] hover:underline truncate max-w-[200px] mt-0.5"
+                                >
+                                  {off.email}
+                                </a>
+                              )}
                             </div>
 
-                            {hasValidEmail || hasPhone ? (
-                              <div className="flex flex-col gap-1 text-[11px] sm:text-xs text-slate-600 pt-0.5 min-w-0">
-                                {hasValidEmail && (
-                                  <div className="flex items-center gap-1 min-w-0">
-                                    <i className="bi bi-envelope text-[#0032a0] shrink-0 text-[10px]" aria-hidden="true" />
-                                    <a
-                                      href={`mailto:${off.email}`}
-                                      className="text-[#0032a0] hover:underline truncate"
-                                      title={off.email || undefined}
-                                    >
-                                      {off.email}
-                                    </a>
-                                  </div>
-                                )}
-
-                                {hasPhone && (
-                                  <div className="flex items-center gap-1 min-w-0">
-                                    <i className="bi bi-telephone text-[#0032a0] shrink-0 text-[10px]" aria-hidden="true" />
-                                    <a
-                                      href={`tel:${cleanTel}`}
-                                      className="font-mono-data font-semibold text-[#0f2342] hover:text-[#0032a0] hover:underline truncate"
-                                    >
-                                      {off.contactNo}
-                                    </a>
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <p className="text-[11px] text-slate-400 m-0 pt-0.5">
-                                No direct contact
-                              </p>
-                            )}
+                            <div className="text-right shrink-0 pt-0.5">
+                              {off.contactNo ? (
+                                <a
+                                  href={`tel:${cleanTel}`}
+                                  className="font-mono-data text-[11px] font-semibold text-[#0f2342] hover:text-[#0032a0] hover:underline"
+                                >
+                                  {off.contactNo}
+                                </a>
+                              ) : (
+                                <span className="text-[11px] text-slate-400">—</span>
+                              )}
+                            </div>
                           </div>
                         );
                       })}
-                    </div>
 
-                    {!autoExpandForFilter && otherCount > 0 && (
-                      <div className="md:hidden px-4 pb-4">
-                        <button
-                          type="button"
-                          onClick={() => toggleBarangay(group.barangay)}
-                          aria-expanded={isMobileExpanded}
-                          className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-[#FAF7F2] px-4 py-2.5 text-xs font-bold text-[#0032a0] hover:border-[#0032a0] transition-colors cursor-pointer"
-                        >
-                          <span>
-                            {isMobileExpanded
-                              ? 'Hide other officials'
-                              : `Show ${otherCount} more official${otherCount === 1 ? '' : 's'}`}
-                          </span>
-                          <i
-                            className={`bi ${
-                              isMobileExpanded ? 'bi-chevron-up' : 'bi-chevron-down'
-                            }`}
-                            aria-hidden="true"
-                          />
-                        </button>
-                      </div>
-                    )}
-                  </article>
+                      {!autoExpandForFilter && otherCount > 0 && (
+                        <div className="pt-2.5">
+                          <button
+                            type="button"
+                            onClick={() => toggleBarangay(group.barangay)}
+                            aria-expanded={isMobileExpanded}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0032a0] hover:underline cursor-pointer"
+                          >
+                            <span>
+                              {isMobileExpanded
+                                ? 'Hide other officials'
+                                : `Show ${otherCount} more official${otherCount === 1 ? '' : 's'}`}
+                            </span>
+                            <i
+                              className={`bi ${
+                                isMobileExpanded ? 'bi-chevron-up' : 'bi-chevron-down'
+                              }`}
+                              aria-hidden="true"
+                            />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </section>
                 );
               })}
             </div>
