@@ -68,9 +68,9 @@ const ROUTES = [
   },
   {
     path: '/government',
-    title: 'Municipal Officials & Offices | BetterAlcala',
+    title: 'Government Structure & Municipal Offices | BetterAlcala',
     description:
-      'Directory of elected officials, municipal department heads, and local government offices in Alcala, Pangasinan.',
+      'Directory of municipal department offices, services, and local government structure in Alcala, Pangasinan.',
   },
   {
     path: '/officials',

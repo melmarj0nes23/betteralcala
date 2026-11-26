@@ -212,7 +212,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Government, Statistics, Legislative, FAQ, Sitemap
     'gov-badge': 'Government',
-    'gov-title': 'Government Structure & Municipal Officials',
+    'gov-title': 'Government Structure & Municipal Offices',
     'gov-desc':
       'Verified municipal leadership (2025–2028 term) and executive offices of Alcala, Pangasinan',
     'stats-badge': '21 Barangays & Municipal Data',
@@ -447,7 +447,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Government, Statistics, Legislative, FAQ, Sitemap
     'gov-badge': 'Pamahalaan',
-    'gov-title': 'Estruktura ng Pamahalaan at mga Opisyal',
+    'gov-title': 'Estruktura ng Pamahalaan at mga Tanggapan',
     'gov-desc':
       'Mga beripikadong pinuno ng munisipyo (2025–2028) at tanggapan ng ehekutibo sa Alcala, Pangasinan',
     'stats-badge': '21 Barangay at Datos ng Munisipyo',
@@ -682,7 +682,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Government, Statistics, Legislative, FAQ, Sitemap
     'gov-badge': 'Gobierno',
-    'gov-title': 'Estruktura ti Gobierno ken Opisiales',
+    'gov-title': 'Estruktura ti Gobierno ken Opisina',
     'gov-desc':
       'Beripikado a liderato ti munisipio (2025–2028) ken opisina ti ehekutibo iti Alcala, Pangasinan',
     'stats-badge': '21 a Barangay ken Datos ti Munisipio',
