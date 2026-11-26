@@ -1,17 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import { SourceCitationBox } from '../components/VerificationBadge';
+import { OFFICIALS_DATA } from '../data/municipalInfo';
 
-interface BarangayOfficial {
+interface OfficialEntry {
   name: string;
   role: string;
   email: string | null;
   contactNo: string | null;
 }
 
-interface BarangayOfficialsGroup {
+interface OfficialsGroup {
   barangay: string;
-  officials: BarangayOfficial[];
+  heading: string;
+  subtitle: string;
+  badge: string;
+  officials: OfficialEntry[];
 }
 
 interface BarangayOfficialsPayload {
@@ -20,25 +24,36 @@ interface BarangayOfficialsPayload {
   province: string;
   region: string;
   lastUpdated: string;
-  barangays: BarangayOfficialsGroup[];
+  barangays: { barangay: string; officials: OfficialEntry[] }[];
 }
 
 const ROLE_FILTERS = [
   'All Roles',
+  'Municipal Mayor',
+  'Municipal Vice Mayor',
+  'Sangguniang Bayan Member',
   'Punong Barangay',
   'Sangguniang Barangay Member',
   'SK Chairperson',
   'Barangay Secretary',
 ] as const;
 
+function isPrimaryRole(role: string): boolean {
+  return (
+    role === 'Punong Barangay' ||
+    role === 'Municipal Mayor' ||
+    role === 'Municipal Vice Mayor'
+  );
+}
+
 function getRoleBadgeClass(role: string): string {
-  if (role === 'Punong Barangay') {
+  if (isPrimaryRole(role)) {
     return 'bg-[#0032a0] text-white';
   }
   if (role === 'SK Chairperson') {
     return 'bg-[#2E8B57]/12 text-[#2E8B57] border border-[#2E8B57]/25';
   }
-  if (role === 'Barangay Secretary') {
+  if (role === 'Barangay Secretary' || role === 'Ex-Officio Sangguniang Bayan Members') {
     return 'bg-amber-100 text-amber-900 border border-amber-300/60';
   }
   return 'bg-slate-100 text-[#0f2342] border border-black/10';
@@ -74,16 +89,40 @@ export default function OfficialsPage() {
     };
   }, []);
 
+  const allGroups = useMemo<OfficialsGroup[]>(() => {
+    const municipalGroup: OfficialsGroup = {
+      barangay: 'Municipal Officials',
+      heading: 'Municipality of Alcala (Municipal Officials)',
+      subtitle: `Alcala, Pangasinan · 2025–2028 Term · ${OFFICIALS_DATA.length} officials listed`,
+      badge: 'COMELEC / LGU',
+      officials: OFFICIALS_DATA.map((o) => ({
+        name: o.name,
+        role: o.title,
+        email: o.email ?? null,
+        contactNo: o.phone ?? null,
+      })),
+    };
+
+    const barangayGroups: OfficialsGroup[] = (payload?.barangays || []).map((b) => ({
+      barangay: b.barangay,
+      heading: `Barangay ${b.barangay}`,
+      subtitle: `Alcala, Pangasinan · ${b.officials.length} official${b.officials.length === 1 ? '' : 's'} listed`,
+      badge: 'DILG Directory',
+      officials: b.officials,
+    }));
+
+    return [municipalGroup, ...barangayGroups];
+  }, [payload]);
+
   const barangayNames = useMemo(
     () => (payload?.barangays || []).map((b) => b.barangay),
     [payload]
   );
 
   const filteredGroups = useMemo(() => {
-    if (!payload) return [];
     const q = searchQuery.trim().toLowerCase();
 
-    return payload.barangays
+    return allGroups
       .filter((group) => selectedBarangay === 'all' || group.barangay === selectedBarangay)
       .map((group) => {
         const officials = group.officials.filter((off) => {
@@ -92,7 +131,7 @@ export default function OfficialsPage() {
           return (
             off.name.toLowerCase().includes(q) ||
             off.role.toLowerCase().includes(q) ||
-            group.barangay.toLowerCase().includes(q) ||
+            group.heading.toLowerCase().includes(q) ||
             (off.email || '').toLowerCase().includes(q) ||
             (off.contactNo || '').toLowerCase().includes(q)
           );
@@ -100,7 +139,7 @@ export default function OfficialsPage() {
         return { ...group, officials };
       })
       .filter((group) => group.officials.length > 0);
-  }, [payload, selectedBarangay, selectedRole, searchQuery]);
+  }, [allGroups, selectedBarangay, selectedRole, searchQuery]);
 
   const totalMatchingOfficials = useMemo(
     () => filteredGroups.reduce((sum, g) => sum + g.officials.length, 0),
@@ -118,12 +157,12 @@ export default function OfficialsPage() {
           <div className="page-header-content">
             <span className="page-header-badge">
               <i className="bi bi-people-fill" aria-hidden="true" />{' '}
-              <span>21 Barangays · DILG Directory</span>
+              <span>Municipal &amp; 21 Barangays</span>
             </span>
-            <h1>Barangay Officials Directory</h1>
+            <h1>Alcala Officials Directory</h1>
             <p className="page-header-desc">
-              Punong Barangays, Sangguniang Barangay Members, SK Chairpersons, and Barangay
-              Secretaries across all 21 barangays of Alcala, Pangasinan.
+              Municipal Mayor, Vice Mayor, Sangguniang Bayan Members, Punong Barangays, Sangguniang
+              Barangay Members, SK Chairpersons, and Barangay Secretaries of Alcala, Pangasinan.
             </p>
           </div>
         </div>
@@ -153,10 +192,11 @@ export default function OfficialsPage() {
                 <select
                   value={selectedBarangay}
                   onChange={(e) => setSelectedBarangay(e.target.value)}
-                  aria-label="Filter by barangay"
+                  aria-label="Filter by jurisdiction or barangay"
                   className="w-full rounded-xl border border-black/15 bg-[#FAF7F2] px-3.5 py-2.5 text-sm font-medium text-[#0f2342] focus:border-[#0032a0] focus:bg-white focus:outline-none"
                 >
-                  <option value="all">All 21 Barangays</option>
+                  <option value="all">All (Municipal &amp; 21 Barangays)</option>
+                  <option value="Municipal Officials">Municipality of Alcala (Municipal Officials)</option>
                   {barangayNames.map((name) => (
                     <option key={name} value={name}>
                       Barangay {name}
@@ -186,7 +226,7 @@ export default function OfficialsPage() {
 
               <span className="font-mono-data text-xs font-semibold text-slate-500">
                 Showing {totalMatchingOfficials} official{totalMatchingOfficials === 1 ? '' : 's'} across{' '}
-                {filteredGroups.length} barangay{filteredGroups.length === 1 ? '' : 's'}
+                {filteredGroups.length} group{filteredGroups.length === 1 ? '' : 's'}
               </span>
             </div>
           </div>
@@ -215,12 +255,10 @@ export default function OfficialsPage() {
           ) : (
             <div className="space-y-6">
               {filteredGroups.map((group) => {
-                const hasPunong = group.officials.some((o) => o.role === 'Punong Barangay');
-                const otherCount = group.officials.filter(
-                  (o) => o.role !== 'Punong Barangay'
-                ).length;
+                const hasPrimary = group.officials.some((o) => isPrimaryRole(o.role));
+                const otherCount = group.officials.filter((o) => !isPrimaryRole(o.role)).length;
                 const autoExpandForFilter =
-                  Boolean(searchQuery.trim()) || selectedRole !== 'All Roles' || !hasPunong;
+                  Boolean(searchQuery.trim()) || selectedRole !== 'All Roles' || !hasPrimary;
                 const isMobileExpanded =
                   autoExpandForFilter || Boolean(expandedBarangays[group.barangay]);
 
@@ -232,15 +270,14 @@ export default function OfficialsPage() {
                     <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 bg-[#FAF7F2] border-b border-black/10">
                       <div>
                         <h2 className="text-lg font-bold text-[#0f2342] m-0">
-                          Barangay {group.barangay}
+                          {group.heading}
                         </h2>
                         <p className="text-xs text-slate-500 m-0">
-                          Alcala, Pangasinan · {group.officials.length} official
-                          {group.officials.length === 1 ? '' : 's'} listed
+                          {group.subtitle}
                         </p>
                       </div>
                       <span className="font-mono-data text-xs font-bold text-[#0032a0] bg-[#0032a0]/10 px-3 py-1 rounded-full">
-                        DILG Directory
+                        {group.badge}
                       </span>
                     </div>
 
@@ -250,7 +287,7 @@ export default function OfficialsPage() {
                           Boolean(off.email) && off.email!.toLowerCase() !== 'none@gmail.com';
                         const cleanTel = off.contactNo ? off.contactNo.replace(/[^\d+]/g, '') : '';
                         const isHiddenOnMobile =
-                          off.role !== 'Punong Barangay' && !isMobileExpanded;
+                          !isPrimaryRole(off.role) && !isMobileExpanded;
 
                         return (
                           <div
@@ -258,7 +295,7 @@ export default function OfficialsPage() {
                             className={`rounded-xl border p-4 flex-col justify-between gap-2.5 ${
                               isHiddenOnMobile ? 'hidden md:flex' : 'flex'
                             } ${
-                              off.role === 'Punong Barangay'
+                              isPrimaryRole(off.role)
                                 ? 'border-[#0032a0]/25 bg-[#0032a0]/[0.03]'
                                 : 'border-black/10 bg-white'
                             }`}
