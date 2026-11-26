@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { ChevronDownIcon, SearchIcon } from 'lucide-react';
 import Layout from '../components/layout/Layout';
+import PageMasthead from '../components/v2/layout/PageMasthead';
+import Container from '../components/v2/ui/Container';
+import SectionHeader from '../components/v2/ui/SectionHeader';
+import Button from '../components/v2/ui/Button';
 import { useLanguage } from '../contexts/LanguageContext';
 import { FAQ_ITEMS } from '../data/communityData';
+import { cn } from '../lib/utils';
 
 export default function FaqPage() {
   const { t } = useLanguage();
@@ -39,76 +45,62 @@ export default function FaqPage() {
 
   return (
     <Layout breadcrumbs={[{ label: 'FAQ' }]}>
-      <section className="page-header">
-        <div className="container">
-          <div className="page-header-content">
-            <span className="page-header-badge">
-              <i className="bi bi-question-circle-fill" aria-hidden="true" /> <span>{t('faq-badge')}</span>
-            </span>
-            <h1>{t('faq-title')}</h1>
-            <p className="page-header-desc">{t('faq-desc')}</p>
-          </div>
-        </div>
-      </section>
+      <PageMasthead title={t('faq-title')} lede={t('faq-desc')} />
 
-      <section className="section">
-        <div className="container max-w-4xl">
-          <div className="mb-6">
+      <section className="py-12 max-md:py-8">
+        <Container narrow>
+          <div className="relative mb-10">
+            <SearchIcon
+              size={16}
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ed-ink-3"
+            />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search questions..."
               aria-label="Search FAQ"
-              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-[#0032a0] focus:outline-none"
+              className="h-11 w-full border border-ed-ink bg-white pl-10 pr-4 font-sans-ed text-[15px] text-ed-ink outline-none placeholder:text-ed-ink-4 focus:border-ed-navy"
             />
           </div>
 
           {filtered.length === 0 ? (
-            <div className="bg-white border border-black/10 rounded-xl p-8 text-center">
-              <p className="text-sm font-semibold text-slate-900 mb-1">
-                No questions matched "{query}".
+            <div className="border border-dashed border-ed-rule py-14 text-center">
+              <p className="font-serif-ed text-xl text-ed-ink-2">
+                No questions matched &ldquo;{query}&rdquo;.
               </p>
-              <p className="text-xs text-slate-600 mb-4">
-                Try a different keyword or clear the search box to browse all topics.
-              </p>
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={() => setQuery('')}
-              >
-                Clear Search
-              </button>
+              <div className="mt-4">
+                <Button type="button" variant="ghost" size="sm" onClick={() => setQuery('')}>
+                  Clear Search
+                </Button>
+              </div>
             </div>
           ) : (
             categories.map((cat) => {
               const items = filtered.filter((i) => i.category === cat);
               if (items.length === 0) return null;
               return (
-                <div key={cat} className="mb-8">
-                  <h2 className="text-lg font-bold text-[#0032a0] mb-3">{cat}</h2>
-                  <div className="space-y-3">
+                <div key={cat} className="mb-12">
+                  <SectionHeader label={cat} meta={`${items.length} questions`} />
+                  <div className="divide-y divide-ed-rule border-y border-ed-rule">
                     {items.map((item) => {
                       const isOpen = openId === item.id;
                       return (
-                        <div
-                          key={item.id}
-                          className="bg-white border border-black/10 rounded-xl overflow-hidden"
-                        >
+                        <div key={item.id}>
                           <button
                             type="button"
                             onClick={() => setOpenId(isOpen ? null : item.id)}
                             aria-expanded={isOpen}
-                            className="w-full text-left px-5 py-4 flex items-center justify-between gap-4 font-semibold text-slate-900 hover:bg-slate-50"
+                            className="flex w-full cursor-pointer items-center justify-between gap-4 border-0 bg-transparent px-0 py-4 text-left font-serif-ed text-lg font-semibold text-ed-ink hover:text-ed-navy"
                           >
                             <span>{item.question}</span>
-                            <i
-                              className={`bi ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'} text-[#0032a0]`}
-                              aria-hidden="true"
+                            <ChevronDownIcon
+                              size={16}
+                              className={cn('shrink-0 text-ed-navy transition-transform', isOpen && 'rotate-180')}
                             />
                           </button>
                           {isOpen && (
-                            <div className="px-5 pb-4 pt-1 text-sm text-slate-700 leading-relaxed border-t border-black/5">
+                            <div className="pb-5 font-sans-ed text-[15px] leading-relaxed text-ed-ink-2">
                               {item.answer}
                             </div>
                           )}
@@ -120,7 +112,7 @@ export default function FaqPage() {
               );
             })
           )}
-        </div>
+        </Container>
       </section>
     </Layout>
   );

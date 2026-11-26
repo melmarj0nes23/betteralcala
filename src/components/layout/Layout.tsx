@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import HotlineBar from './HotlineBar';
 import Header from './Header';
 import Footer from './Footer';
 import PWAManager from '../PWAManager';
@@ -61,35 +60,49 @@ export default function Layout({
       descEl.setAttribute('content', pageDescription || DEFAULT_DESCRIPTION);
     }
   }, [pathname, breadcrumbs, pageTitle, pageDescription]);
+
   return (
-    <>
-      <a href="#main-content" className="skip-link">
+    <div className="min-h-svh flex flex-col bg-white font-sans-ed text-ed-ink antialiased">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:bg-ed-navy focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
+      >
         Skip to main content
       </a>
-      <HotlineBar />
       <Header />
-      <main id="main-content">
+      <main id="main-content" className="grow">
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <div className="container">
-            <nav className="breadcrumbs" aria-label="Breadcrumb">
-              <Link to="/">Home</Link>
-              {breadcrumbs.map((crumb, idx) => (
-                <React.Fragment key={crumb.label + idx}>
-                  <span>/</span>
-                  {crumb.to ? (
-                    <Link to={crumb.to}>{crumb.label}</Link>
-                  ) : (
-                    <span aria-current="page">{crumb.label}</span>
-                  )}
-                </React.Fragment>
-              ))}
-            </nav>
+          <div className="border-b border-ed-rule bg-ed-paper-2 py-3">
+            <div className="mx-auto w-full max-w-page px-4 md:px-6 xl:px-8">
+              <nav
+                className="flex flex-wrap items-center gap-1.5 font-mono-ed text-[11px] uppercase tracking-[0.12em] text-ed-ink-3 max-md:text-[10px]"
+                aria-label="Breadcrumb"
+              >
+                <Link to="/" className="text-ed-ink-3 no-underline hover:text-ed-navy">
+                  Home
+                </Link>
+                {breadcrumbs.map((crumb, idx) => (
+                  <React.Fragment key={crumb.label + idx}>
+                    <span aria-hidden="true">/</span>
+                    {crumb.to ? (
+                      <Link to={crumb.to} className="text-ed-ink-3 no-underline hover:text-ed-navy">
+                        {crumb.label}
+                      </Link>
+                    ) : (
+                      <span aria-current="page" className="text-ed-ink">
+                        {crumb.label}
+                      </span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </nav>
+            </div>
           </div>
         )}
         {children}
       </main>
       <Footer />
       <PWAManager />
-    </>
+    </div>
   );
 }

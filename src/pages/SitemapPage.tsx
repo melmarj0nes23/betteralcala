@@ -1,126 +1,70 @@
-import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import PageMasthead from '../components/v2/layout/PageMasthead';
+import Container from '../components/v2/ui/Container';
+import SectionHeader from '../components/v2/ui/SectionHeader';
+import ArrowLink from '../components/v2/ui/ArrowLink';
 import { useLanguage } from '../contexts/LanguageContext';
 import { SERVICE_CATEGORIES, SERVICES_DATA } from '../data/servicesData';
+
+const MAIN_LINKS = [
+  { label: 'Home', to: '/' },
+  { label: 'Services Directory', to: '/services' },
+  { label: 'Government & 21 Barangays', to: '/government' },
+  { label: 'Elected & Barangay Officials', to: '/officials' },
+  { label: 'Municipal Statistics', to: '/statistics' },
+  { label: 'Legislative Hub', to: '/legislative' },
+  { label: 'Ordinance Framework', to: '/legislative/ordinance-framework' },
+  { label: 'Resolution Framework', to: '/legislative/resolution-framework' },
+  { label: 'News & Announcements', to: '/news' },
+  { label: 'Weather & River Watch', to: '/weather' },
+  { label: 'Contact & Emergency Hotlines', to: '/contact' },
+  { label: 'FAQ', to: '/faq' },
+  { label: 'Accessibility', to: '/accessibility' },
+  { label: 'Privacy Policy', to: '/privacy' },
+  { label: 'Terms of Use', to: '/terms' },
+];
 
 export default function SitemapPage() {
   const { t } = useLanguage();
   return (
     <Layout breadcrumbs={[{ label: t('sitemap-title') }]}>
-      <section className="page-header">
-        <div className="container">
-          <div className="page-header-content">
-            <span className="page-header-badge">
-              <i className="bi bi-diagram-3-fill" aria-hidden="true" /> <span>{t('sitemap-badge')}</span>
-            </span>
-            <h1>{t('sitemap-title')}</h1>
-            <p className="page-header-desc">{t('sitemap-desc')}</p>
-          </div>
-        </div>
-      </section>
+      <PageMasthead title={t('sitemap-title')} lede={t('sitemap-desc')} />
 
-      <section className="section">
-        <div className="container space-y-10">
-          <div className="sitemap-section-new">
-            <div className="sitemap-section-header">
-              <span className="sitemap-section-icon">
-                <i className="bi bi-house-door" aria-hidden="true" />
-              </span>
-              <h2>Main Navigation</h2>
-            </div>
-            <div className="sitemap-links-grid">
-              <Link to="/" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Home
-              </Link>
-              <Link to="/services" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Services Directory
-              </Link>
-              <Link to="/government" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Government &amp; 21 Barangays
-              </Link>
-              <Link to="/statistics" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Municipal Statistics
-              </Link>
-              <Link to="/legislative" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Legislative Hub
-              </Link>
-              <Link to="/legislative/ordinance-framework" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Ordinance Framework
-              </Link>
-              <Link to="/legislative/resolution-framework" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Resolution Framework
-              </Link>
-              <Link to="/budget" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Budget Overview Summary
-              </Link>
-              <Link to="/tracker" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Barangay Project Tracker
-              </Link>
-              <Link to="/budgetdocs" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Municipal Budget &amp; Docs
-              </Link>
-              <Link to="/contracts" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> DPWH Contracts
-              </Link>
-              <Link to="/transparency" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Transparency Portal
-              </Link>
-              <Link to="/news" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> News &amp; Announcements
-              </Link>
-              <Link to="/weather" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Weather &amp; River Watch
-              </Link>
-              <Link to="/contact" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Contact &amp; Emergency Hotlines
-              </Link>
-              <Link to="/faq" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> FAQ
-              </Link>
-              <Link to="/accessibility" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Accessibility
-              </Link>
-              <Link to="/privacy" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Privacy Policy
-              </Link>
-              <Link to="/terms" className="sitemap-link-item">
-                <i className="bi bi-arrow-right" aria-hidden="true" /> Terms of Use
-              </Link>
+      <section className="py-12 max-md:py-8">
+        <Container className="space-y-12">
+          <div>
+            <SectionHeader label="Main Navigation" meta={`${MAIN_LINKS.length} pages`} />
+            <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-y border-ed-rule py-6 max-lg:grid-cols-2 max-sm:grid-cols-1">
+              {MAIN_LINKS.map((item) => (
+                <div key={item.to}>
+                  <ArrowLink to={item.to}>{item.label}</ArrowLink>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="sitemap-section-new">
-            <div className="sitemap-section-header">
-              <span className="sitemap-section-icon">
-                <i className="bi bi-grid-fill" aria-hidden="true" />
-              </span>
-              <h2>Service Categories</h2>
-            </div>
-            <div className="sitemap-links-grid">
+          <div>
+            <SectionHeader label="Service Categories" meta={`${SERVICE_CATEGORIES.length} categories`} />
+            <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-y border-ed-rule py-6 max-lg:grid-cols-2 max-sm:grid-cols-1">
               {SERVICE_CATEGORIES.map((cat) => (
-                <Link key={cat.id} to={`/services/${cat.id}`} className="sitemap-link-item">
-                  <i className="bi bi-arrow-right" aria-hidden="true" /> {cat.title}
-                </Link>
+                <div key={cat.id}>
+                  <ArrowLink to={`/services/${cat.id}`}>{cat.title}</ArrowLink>
+                </div>
               ))}
             </div>
           </div>
 
-          <div className="sitemap-section-new">
-            <div className="sitemap-section-header">
-              <span className="sitemap-section-icon">
-                <i className="bi bi-file-earmark-text" aria-hidden="true" />
-              </span>
-              <h2>Individual Service Guides</h2>
-            </div>
-            <div className="sitemap-links-grid">
+          <div>
+            <SectionHeader label="Individual Service Guides" meta={`${SERVICES_DATA.length} guides`} />
+            <div className="grid grid-cols-3 gap-x-8 gap-y-3 border-y border-ed-rule py-6 max-lg:grid-cols-2 max-sm:grid-cols-1">
               {SERVICES_DATA.map((srv) => (
-                <Link key={srv.id} to={`/service-details/${srv.id}`} className="sitemap-link-item">
-                  <i className="bi bi-arrow-right" aria-hidden="true" /> {srv.title}
-                </Link>
+                <div key={srv.id}>
+                  <ArrowLink to={`/service-details/${srv.id}`}>{srv.title}</ArrowLink>
+                </div>
               ))}
             </div>
           </div>
-        </div>
+        </Container>
       </section>
     </Layout>
   );

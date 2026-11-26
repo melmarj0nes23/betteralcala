@@ -1,6 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import PageMasthead from '../components/v2/layout/PageMasthead';
+import Container from '../components/v2/ui/Container';
+import SectionHeader from '../components/v2/ui/SectionHeader';
+import Card from '../components/v2/ui/Card';
+import Eyebrow from '../components/v2/ui/Eyebrow';
+import ArrowLink from '../components/v2/ui/ArrowLink';
+import { cn } from '../lib/utils';
 
 const ORDINANCE_STEPS = [
   { num: '01', title: 'File Proposed Ordinance', desc: 'Sangguniang Bayan Member or Committee submits draft ordinance to the SB Secretary.' },
@@ -20,109 +26,106 @@ const RESOLUTION_STEPS = [
 
 export default function LegislativePage() {
   const [activeTab, setActiveTab] = useState<'ordinances' | 'resolutions'>('ordinances');
+  const steps = activeTab === 'ordinances' ? ORDINANCE_STEPS : RESOLUTION_STEPS;
 
   return (
     <Layout breadcrumbs={[{ label: 'Legislative' }]}>
-      <section className="leg-hero">
-        <div className="container">
-          <div className="leg-hero-content">
-            <span className="leg-hero-badge">
-              <i className="bi bi-bank2" aria-hidden="true" />{' '}
-              <span>Sangguniang Bayan ng Alcala</span>
-            </span>
-            <h1>Legislative Documents</h1>
-            <p>
-              Municipal ordinances, budget appropriations, and provincial review resolutions for
-              Alcala, Pangasinan
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageMasthead
+        title="Legislative Documents"
+        lede="Municipal ordinances, budget appropriations, and provincial review resolutions for Alcala, Pangasinan."
+      />
 
-      <section className="leg-categories">
-        <div className="container">
-          <div className="leg-categories-grid">
-            <Link to="/legislative/ordinance-framework" className="leg-category-card">
-              <div className="leg-category-icon">
-                <i className="bi bi-journal-bookmark-fill" aria-hidden="true" />
-              </div>
-              <div className="leg-category-content">
-                <h2>Ordinance Framework</h2>
-                <p>
-                  Municipal ordinances enacted by the Sangguniang Bayan — local laws governing
-                  safety, business compliance, employment priority, and appropriations.
-                </p>
-                <span className="leg-category-link">
-                  <i className="bi bi-arrow-right" aria-hidden="true" />{' '}
-                  <span>Browse Alcala Ordinances</span>
+      <section className="py-12 max-md:py-8">
+        <Container>
+          <SectionHeader label="Document Frameworks" meta="Sangguniang Bayan ng Alcala" />
+          <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
+            <Card to="/legislative/ordinance-framework">
+              <Eyebrow tone="navy">Local Laws</Eyebrow>
+              <h3 className="mt-3 font-serif-ed text-2xl font-bold text-ed-ink">
+                Ordinance Framework
+              </h3>
+              <p className="mt-2 font-sans-ed text-[15px] leading-relaxed text-ed-ink-2">
+                Municipal ordinances enacted by the Sangguniang Bayan — local laws governing safety, business compliance, employment priority, and appropriations.
+              </p>
+              <div className="mt-5">
+                <span className="inline-flex items-center gap-2 border-b border-ed-navy pb-0.5 font-sans-ed text-sm font-medium text-ed-navy">
+                  Browse Alcala Ordinances →
                 </span>
               </div>
-            </Link>
+            </Card>
 
-            <Link to="/legislative/resolution-framework" className="leg-category-card">
-              <div className="leg-category-icon">
-                <i className="bi bi-file-earmark-ruled-fill" aria-hidden="true" />
-              </div>
-              <div className="leg-category-content">
-                <h2>Resolution Framework</h2>
-                <p>
-                  Provincial review resolutions from Sangguniang Panlalawigan of Pangasinan and
-                  Sangguniang Bayan legislative policy records.
-                </p>
-                <span className="leg-category-link">
-                  <span>Browse Resolutions</span>{' '}
-                  <i className="bi bi-arrow-right" aria-hidden="true" />
+            <Card to="/legislative/resolution-framework">
+              <Eyebrow tone="navy">Policy &amp; Review</Eyebrow>
+              <h3 className="mt-3 font-serif-ed text-2xl font-bold text-ed-ink">
+                Resolution Framework
+              </h3>
+              <p className="mt-2 font-sans-ed text-[15px] leading-relaxed text-ed-ink-2">
+                Provincial review resolutions from Sangguniang Panlalawigan of Pangasinan and Sangguniang Bayan legislative policy records.
+              </p>
+              <div className="mt-5">
+                <span className="inline-flex items-center gap-2 border-b border-ed-navy pb-0.5 font-sans-ed text-sm font-medium text-ed-navy">
+                  Browse Resolutions →
                 </span>
               </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Legislative Process Flowchart */}
-      <section className="leg-process">
-        <div className="container">
-          <div className="leg-process-header">
-            <span className="leg-info-tag">
-              <i className="bi bi-diagram-3-fill" aria-hidden="true" /> <span>Process Flow</span>
-            </span>
-            <h2>How Local Legislation Works</h2>
-            <p>Standard Local Government Code legislative workflow for ordinances and resolutions</p>
+            </Card>
           </div>
 
-          <div className="leg-process-tabs">
-            <button
-              type="button"
-              onClick={() => setActiveTab('ordinances')}
-              className={`leg-tab-btn ${activeTab === 'ordinances' ? 'active' : ''}`}
-            >
-              <i className="bi bi-journal-bookmark-fill" aria-hidden="true" />{' '}
-              <span>For Ordinances</span>
-              <small>{ORDINANCE_STEPS.length} Stages</small>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('resolutions')}
-              className={`leg-tab-btn ${activeTab === 'resolutions' ? 'active' : ''}`}
-            >
-              <i className="bi bi-file-earmark-ruled-fill" aria-hidden="true" />{' '}
-              <span>For Resolutions</span>
-              <small>{RESOLUTION_STEPS.length} Stages</small>
-            </button>
-          </div>
+          <div className="mt-16 border-t border-ed-rule pt-12">
+            <SectionHeader
+              label="How Local Legislation Works"
+              meta="Standard Local Government Code workflow"
+            />
 
-          <div className="grid grid-3 mt-6" style={{ gap: 'var(--spacing-md)' }}>
-            {(activeTab === 'ordinances' ? ORDINANCE_STEPS : RESOLUTION_STEPS).map((step) => (
-              <div key={step.num} className="leg-flow-card">
-                <div className="leg-flow-number">{step.num}</div>
-                <div className="leg-flow-card-content">
-                  <h4>{step.title}</h4>
-                  <p>{step.desc}</p>
+            <div className="mb-8 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab('ordinances')}
+                className={cn(
+                  'cursor-pointer border px-4 py-2.5 font-mono-ed text-[11px] uppercase tracking-[0.12em] transition-colors',
+                  activeTab === 'ordinances'
+                    ? 'border-ed-navy bg-ed-navy text-white'
+                    : 'border-ed-rule-strong bg-white text-ed-ink-2 hover:border-ed-navy hover:text-ed-navy'
+                )}
+              >
+                For Ordinances ({ORDINANCE_STEPS.length} stages)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('resolutions')}
+                className={cn(
+                  'cursor-pointer border px-4 py-2.5 font-mono-ed text-[11px] uppercase tracking-[0.12em] transition-colors',
+                  activeTab === 'resolutions'
+                    ? 'border-ed-navy bg-ed-navy text-white'
+                    : 'border-ed-rule-strong bg-white text-ed-ink-2 hover:border-ed-navy hover:text-ed-navy'
+                )}
+              >
+                For Resolutions ({RESOLUTION_STEPS.length} stages)
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-6 max-lg:grid-cols-2 max-sm:grid-cols-1">
+              {steps.map((step) => (
+                <div key={step.num} className="border border-ed-rule bg-white p-6">
+                  <div className="font-mono-ed text-[11px] font-medium uppercase tracking-[0.14em] text-ed-navy">
+                    Stage {step.num}
+                  </div>
+                  <h4 className="mt-2 font-serif-ed text-lg font-semibold text-ed-ink">
+                    {step.title}
+                  </h4>
+                  <p className="mt-2 font-sans-ed text-sm leading-relaxed text-ed-ink-2">
+                    {step.desc}
+                  </p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <div className="mt-8">
+              <ArrowLink to="/legislative/ordinance-framework">
+                View enacted ordinances
+              </ArrowLink>
+            </div>
           </div>
-        </div>
+        </Container>
       </section>
     </Layout>
   );

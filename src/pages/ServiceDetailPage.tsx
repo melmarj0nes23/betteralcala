@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { ClipboardIcon, CheckIcon, PrinterIcon } from 'lucide-react';
 import Layout from '../components/layout/Layout';
+import PageMasthead from '../components/v2/layout/PageMasthead';
+import Container from '../components/v2/ui/Container';
+import SectionHeader from '../components/v2/ui/SectionHeader';
+import Eyebrow from '../components/v2/ui/Eyebrow';
+import Button from '../components/v2/ui/Button';
+import Notice from '../components/v2/ui/Notice';
 import { SourceCitationBox, VerificationBadge } from '../components/VerificationBadge';
 import { useLanguage } from '../contexts/LanguageContext';
 import { SERVICES_DATA } from '../data/servicesData';
@@ -33,9 +40,7 @@ export default function ServiceDetailPage() {
       if (storageKey) {
         try {
           localStorage.setItem(storageKey, JSON.stringify(next));
-        } catch {
-          // ignore
-        }
+        } catch {}
       }
       return next;
     });
@@ -46,26 +51,21 @@ export default function ServiceDetailPage() {
     if (storageKey) {
       try {
         localStorage.removeItem(storageKey);
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
   };
 
   if (!service) {
     return (
       <Layout breadcrumbs={[{ label: t('nav-services'), to: '/services' }, { label: 'Service Not Found' }]}>
-        <section className="section">
-          <div className="container text-center py-12">
-            <h1>Service Guide Not Found</h1>
-            <p className="text-slate-600 mb-6">
-              The requested municipal service guide could not be found in the BetterAlcala directory.
-            </p>
-            <Link to="/services" className="btn btn-primary">
-              Browse All Municipal Services
-            </Link>
-          </div>
-        </section>
+        <PageMasthead
+          title="Service Guide Not Found"
+          lede="The requested municipal service guide could not be found in the BetterAlcala directory."
+        >
+          <Button as={Link} to="/services">
+            Browse All Municipal Services
+          </Button>
+        </PageMasthead>
       </Layout>
     );
   }
@@ -98,9 +98,7 @@ export default function ServiceDetailPage() {
       await navigator.clipboard.writeText(lines);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    } catch {
-      // Clipboard API unavailable
-    }
+    } catch {}
   };
 
   const hasReviewItems =
@@ -116,121 +114,95 @@ export default function ServiceDetailPage() {
         { label: service.title },
       ]}
     >
-      <section className="page-header">
-        <div className="container">
-          <div className="page-header-content">
-            <span className="page-header-badge">
-              <i className={`bi ${service.icon}`} aria-hidden="true" /> <span>{service.category}</span>
-            </span>
-            <h1>{service.title}</h1>
-            <p className="page-header-desc">{service.description}</p>
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 no-print">
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-white text-[#0f2342] border border-black/15 px-3.5 py-2 text-xs font-semibold hover:bg-slate-50 transition cursor-pointer"
-              >
-                <i className="bi bi-printer" aria-hidden="true" />
-                <span>{t('service-print-checklist')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleCopyChecklist}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#0f2342] text-white border border-[#0f2342] px-3.5 py-2 text-xs font-semibold hover:bg-[#26489A] transition cursor-pointer"
-              >
-                <i className={`bi ${copied ? 'bi-check2' : 'bi-clipboard'}`} aria-hidden="true" />
-                <span>{copied ? t('service-copied') : t('service-copy-checklist')}</span>
-              </button>
-            </div>
-          </div>
+      <PageMasthead title={service.title} lede={service.description}>
+        <div className="flex flex-wrap items-center gap-3 no-print">
+          <Button type="button" size="sm" onClick={handleCopyChecklist}>
+            {copied ? <CheckIcon size={14} /> : <ClipboardIcon size={14} />}
+            <span>{copied ? t('service-copied') : t('service-copy-checklist')}</span>
+          </Button>
+          <Button type="button" variant="ghost" size="sm" onClick={() => window.print()}>
+            <PrinterIcon size={14} />
+            <span>{t('service-print-checklist')}</span>
+          </Button>
         </div>
-      </section>
+      </PageMasthead>
 
-      <section className="bc-section">
-        <div className="container">
-          {/* Quick Stats */}
-          <div className="quick-stats">
-            <div className="stat-card">
-              <i className="bi bi-building" aria-hidden="true" />
-              <h4>{t('service-office')}</h4>
-              <p>{service.office}</p>
+      <section className="py-12 max-md:py-8">
+        <Container>
+          {/* Key Facts Strip */}
+          <div className="mb-10 grid grid-cols-4 border border-ed-rule bg-white max-lg:grid-cols-2 max-sm:grid-cols-1">
+            <div className="border-r border-ed-rule p-5 max-lg:border-b max-sm:border-r-0">
+              <Eyebrow>{t('service-office')}</Eyebrow>
+              <p className="mt-2 font-serif-ed text-base font-semibold text-ed-ink">{service.office}</p>
             </div>
-            <div className="stat-card">
-              <i className="bi bi-clock" aria-hidden="true" />
-              <h4>{t('service-processing')}</h4>
-              <p className="mb-1">{service.processingTime}</p>
+            <div className="border-r border-ed-rule p-5 max-lg:border-b max-lg:border-r-0">
+              <Eyebrow>{t('service-processing')}</Eyebrow>
+              <p className="mt-2 mb-2 font-serif-ed text-base font-semibold text-ed-ink">{service.processingTime}</p>
               <VerificationBadge status={service.processingTimeStatus} />
             </div>
-            <div className="stat-card">
-              <i className="bi bi-cash-coin" aria-hidden="true" />
-              <h4>{t('service-fees')}</h4>
-              <p className="mb-1">{service.fees}</p>
+            <div className="border-r border-ed-rule p-5 max-sm:border-b max-sm:border-r-0">
+              <Eyebrow>{t('service-fees')}</Eyebrow>
+              <p className="mt-2 mb-2 font-serif-ed text-base font-semibold text-ed-ink">{service.fees}</p>
               <VerificationBadge status={service.feesStatus} />
             </div>
-            <div className="stat-card">
-              <i className="bi bi-calendar-check" aria-hidden="true" />
-              <h4>{t('service-verified')}</h4>
-              <p className="mb-1 tabular-nums">{service.citation.lastVerified}</p>
+            <div className="p-5">
+              <Eyebrow>{t('service-verified')}</Eyebrow>
+              <p className="mt-2 mb-2 font-mono-ed text-sm font-semibold text-ed-ink tabular-nums">
+                {service.citation.lastVerified}
+              </p>
               <VerificationBadge status={service.citation.verificationStatus} />
             </div>
           </div>
 
-          {/* Eligibility & Interactive Documentary Readiness Checklist */}
-          <div className="grid grid-2 mb-8" style={{ gap: 'var(--spacing-md)' }}>
-            <div className="req-box">
-              <h4>
-                <i className="bi bi-person-check-fill" aria-hidden="true" /> {t('service-eligibility')}
-              </h4>
-              <ul className="req-list">
+          {/* Eligibility & Requirements Checklist */}
+          <div className="mb-12 grid grid-cols-2 gap-8 max-lg:grid-cols-1">
+            <div className="border border-ed-rule bg-white p-6">
+              <Eyebrow tone="navy">Prerequisites</Eyebrow>
+              <h2 className="mt-2 mb-4 font-serif-ed text-xl font-semibold text-ed-ink">
+                {t('service-eligibility')}
+              </h2>
+              <ul className="divide-y divide-ed-rule border-t border-ed-rule">
                 {service.eligibility.map((item) => (
-                  <li key={item}>
-                    <i className="bi bi-check-circle-fill" aria-hidden="true" />
-                    <span>{item}</span>
+                  <li key={item} className="py-3 font-sans-ed text-[15px] text-ed-ink-2">
+                    {item}
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="req-box">
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                <h4 className="mb-0">
-                  <i className="bi bi-folder-check" aria-hidden="true" /> {t('service-requirements')}
-                </h4>
-                <div className="flex items-center gap-2 text-xs no-print">
-                  <span className="font-mono-data font-semibold text-[#0032a0]">
+            <div className="border border-ed-rule bg-white p-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Eyebrow tone="navy">Checklist</Eyebrow>
+                <div className="flex items-center gap-3 font-mono-ed text-xs no-print">
+                  <span className="font-medium text-ed-navy tabular-nums">
                     {readyCount}/{totalReqs} ready
                   </span>
                   {readyCount > 0 && (
                     <button
                       type="button"
                       onClick={resetChecklist}
-                      className="text-slate-500 hover:text-slate-800 underline bg-transparent border-0 cursor-pointer"
+                      className="cursor-pointer border-0 bg-transparent text-ed-ink-3 underline hover:text-ed-red"
                     >
                       Reset
                     </button>
                   )}
                 </div>
               </div>
+              <h2 className="mt-2 mb-3 font-serif-ed text-xl font-semibold text-ed-ink">
+                {t('service-requirements')}
+              </h2>
 
-              <div className="mb-3 no-print">
-                <div className="checklist-progress-track" aria-hidden="true">
-                  <div
-                    className="checklist-progress-fill"
-                    style={{ width: `${readinessPct}%` }}
-                  />
+              <div className="mb-4 no-print">
+                <div className="h-1.5 w-full bg-ed-paper-3" aria-hidden="true">
+                  <div className="h-full bg-ed-navy transition-all" style={{ width: `${readinessPct}%` }} />
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1.5 mb-0">
-                  {readyCount === totalReqs && totalReqs > 0
-                    ? 'All listed documents checked off — ready to visit Municipal Hall.'
-                    : 'Tick off documents you already prepared before heading to Municipal Hall.'}
-                </p>
               </div>
 
-              <ul className="req-list">
+              <ul className="space-y-1.5">
                 {service.requirements.map((req) => {
                   const isChecked = Boolean(checkedItems[req]);
                   return (
-                    <li key={req} className="!p-0 !border-b-0 mb-1">
+                    <li key={req}>
                       <button
                         type="button"
                         role="checkbox"
@@ -240,10 +212,8 @@ export default function ServiceDetailPage() {
                       >
                         <i
                           className={`bi ${
-                            isChecked
-                              ? 'bi-check-square-fill text-emerald-700'
-                              : 'bi-square text-slate-400'
-                          } mt-0.5 flex-shrink-0`}
+                            isChecked ? 'bi-check-square-fill text-success-700' : 'bi-square text-ed-ink-4'
+                          } mt-0.5 shrink-0`}
                           aria-hidden="true"
                         />
                         <span className="checklist-item-text">{req}</span>
@@ -255,114 +225,118 @@ export default function ServiceDetailPage() {
             </div>
           </div>
 
-          {/* Application Procedures */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">
-              <i className="bi bi-list-ol text-[#0032a0]" aria-hidden="true" />
-              <span>{t('service-steps')}</span>
-            </h2>
-            <div className="process-grid">
-              {service.steps.map((s, idx) => (
-                <div
-                  key={s.step}
-                  className={`process-card ${idx === service.steps.length - 1 ? 'final' : ''}`}
-                >
-                  <div className="step-num">0{s.step}</div>
-                  <h4>{s.title}</h4>
-                  <p>{s.description}</p>
+          {/* Step-by-Step Procedure */}
+          <div className="mb-12">
+            <SectionHeader label={t('service-steps')} meta={`${service.steps.length} steps`} />
+            <div className="grid grid-cols-3 gap-6 max-lg:grid-cols-1">
+              {service.steps.map((s) => (
+                <div key={s.step} className="border border-ed-rule bg-white p-6">
+                  <div className="font-mono-ed text-[11px] font-medium uppercase tracking-[0.14em] text-ed-navy">
+                    Step {String(s.step).padStart(2, '0')}
+                  </div>
+                  <h3 className="mt-2 font-serif-ed text-lg font-semibold text-ed-ink">{s.title}</h3>
+                  <p className="mt-2 font-sans-ed text-sm leading-relaxed text-ed-ink-2">{s.description}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Office Contact & Downloadable Forms */}
-          <div className="grid grid-2 mb-6" style={{ gap: 'var(--spacing-md)' }}>
-            <div className="req-box">
-              <h4>
-                <i className="bi bi-telephone-fill" aria-hidden="true" /> {t('service-contact')}
-              </h4>
-              <div className="space-y-2 text-sm text-slate-700">
-                <p className="mb-1">
-                  <strong>Office:</strong> {service.office}
-                </p>
-                <p className="mb-1">
-                  <strong>Address:</strong> {service.officeAddress}
-                </p>
-                <p className="mb-1">
-                  <strong>Hours:</strong> {service.officeHours}
-                </p>
-                <p className="mb-1">
-                  <strong>Telephone:</strong>{' '}
-                  {service.officePhones.map((ph, i) => (
-                    <span key={ph}>
-                      {i > 0 && ' · '}
-                      <a href={`tel:${ph.replace(/[^+\d]/g, '')}`}>{ph}</a>
-                    </span>
-                  ))}
-                </p>
+          {/* Office Contact & Forms */}
+          <div className="mb-8 grid grid-cols-2 gap-8 max-lg:grid-cols-1">
+            <div className="border border-ed-rule bg-ed-paper-2 p-6">
+              <Eyebrow>{t('service-contact')}</Eyebrow>
+              <dl className="mt-4 space-y-2.5 font-sans-ed text-sm text-ed-ink-2">
+                <div>
+                  <dt className="font-mono-ed text-[10px] uppercase tracking-[0.12em] text-ed-ink-3">Office</dt>
+                  <dd className="font-medium text-ed-ink">{service.office}</dd>
+                </div>
+                <div>
+                  <dt className="font-mono-ed text-[10px] uppercase tracking-[0.12em] text-ed-ink-3">Address</dt>
+                  <dd>{service.officeAddress}</dd>
+                </div>
+                <div>
+                  <dt className="font-mono-ed text-[10px] uppercase tracking-[0.12em] text-ed-ink-3">Hours</dt>
+                  <dd>{service.officeHours}</dd>
+                </div>
+                <div>
+                  <dt className="font-mono-ed text-[10px] uppercase tracking-[0.12em] text-ed-ink-3">Telephone</dt>
+                  <dd className="font-mono-ed">
+                    {service.officePhones.map((ph, i) => (
+                      <span key={ph}>
+                        {i > 0 && ' · '}
+                        <a href={`tel:${ph.replace(/[^+\d]/g, '')}`} className="text-ed-navy no-underline hover:underline">
+                          {ph}
+                        </a>
+                      </span>
+                    ))}
+                  </dd>
+                </div>
                 {service.officeEmail && (
-                  <p className="mb-0">
-                    <strong>Email:</strong>{' '}
-                    <a href={`mailto:${service.officeEmail}`}>{service.officeEmail}</a>
+                  <div>
+                    <dt className="font-mono-ed text-[10px] uppercase tracking-[0.12em] text-ed-ink-3">Email</dt>
+                    <dd>
+                      <a href={`mailto:${service.officeEmail}`} className="text-ed-navy underline underline-offset-2">
+                        {service.officeEmail}
+                      </a>
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+
+            <div className="border border-ed-rule bg-white p-6">
+              <Eyebrow>{t('service-forms')}</Eyebrow>
+              <div className="mt-4">
+                {service.downloadableForms.length > 0 ? (
+                  <ul className="divide-y divide-ed-rule">
+                    {service.downloadableForms.map((f) => (
+                      <li key={f.label} className="flex flex-wrap items-center justify-between gap-2 py-3">
+                        <div>
+                          <span className="font-medium text-ed-ink">{f.label}</span>
+                          {f.note && <div className="text-xs text-ed-ink-3">{f.note}</div>}
+                        </div>
+                        <VerificationBadge status={f.status} />
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="font-sans-ed text-sm leading-relaxed text-ed-ink-2">
+                    No digital PDF forms are currently published online for this service. Forms are issued in person at {service.office}.
                   </p>
                 )}
               </div>
-            </div>
-
-            <div className="req-box">
-              <h4>
-                <i className="bi bi-file-earmark-arrow-down" aria-hidden="true" /> {t('service-forms')}
-              </h4>
-              {service.downloadableForms.length > 0 ? (
-                <ul className="req-list">
-                  {service.downloadableForms.map((f) => (
-                    <li key={f.label} className="flex-wrap gap-2 justify-between items-center">
-                      <div>
-                        <span className="font-medium text-slate-900">{f.label}</span>
-                        {f.note && <div className="text-xs text-slate-500">{f.note}</div>}
-                      </div>
-                      <VerificationBadge status={f.status} />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-slate-600 mb-0">
-                  No digital PDF forms are currently published online for this service (Status:{' '}
-                  <strong>Unavailable</strong>). Forms are issued in person at {service.office}.
-                </p>
-              )}
             </div>
           </div>
 
           <SourceCitationBox citation={service.citation} />
 
           {hasReviewItems && (
-            <div className="civic-notice-banner mt-4 no-print">
-              <i className="bi bi-pencil-square" aria-hidden="true" />
-              <div className="flex flex-wrap items-center justify-between gap-3 w-full">
-                <span>
-                  Have an updated LGU Alcala Citizen’s Charter fee schedule or official form for{' '}
-                  <strong>{service.title}</strong>? Help fellow residents confirm these details.
-                </span>
-                <Link
+            <Notice tag="Community Verification" title="Help confirm local fees or forms" className="mt-6 no-print">
+              <p className="mt-2 font-sans-ed text-sm text-ed-ink-2">
+                Have an updated LGU Alcala Citizen’s Charter fee schedule or official form for <strong>{service.title}</strong>?
+              </p>
+              <div className="mt-4">
+                <Button
+                  as={Link}
                   to={`/contact?topic=${encodeURIComponent("Citizen's Charter Inquiry")}&service=${encodeURIComponent(service.title)}#feedback`}
-                  className="btn btn-outline btn-sm sm:whitespace-nowrap"
+                  variant="ghost"
+                  size="sm"
                 >
                   {t('service-help-verify')}
-                </Link>
+                </Button>
               </div>
-            </div>
+            </Notice>
           )}
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 no-print">
-            <Link to="/services" className="btn btn-outline btn-sm">
+          <div className="mt-8 flex flex-wrap items-center gap-3 no-print">
+            <Button as={Link} to="/services" variant="ghost" size="sm">
               ← {t('services-back')}
-            </Link>
-            <Link to="/contact" className="btn btn-primary btn-sm">
+            </Button>
+            <Button as={Link} to="/contact" size="sm">
               {t('services-all-contacts')}
-            </Link>
+            </Button>
           </div>
-        </div>
+        </Container>
       </section>
     </Layout>
   );

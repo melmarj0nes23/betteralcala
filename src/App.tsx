@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -10,7 +10,6 @@ const ServicesPage = lazy(() => import('./pages/ServicesPage'));
 const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'));
 const GovernmentPage = lazy(() => import('./pages/GovernmentPage'));
 const OfficialsPage = lazy(() => import('./pages/OfficialsPage'));
-const BudgetPage = lazy(() => import('./pages/BudgetPage'));
 const StatisticsPage = lazy(() => import('./pages/StatisticsPage'));
 const LegislativePage = lazy(() => import('./pages/LegislativePage'));
 const OrdinanceFrameworkPage = lazy(() => import('./pages/OrdinanceFrameworkPage'));
@@ -72,6 +71,13 @@ function ScrollManager() {
   return null;
 }
 
+function BudgetExternalRedirect() {
+  useEffect(() => {
+    window.location.replace('https://budget.betteralcala.org/');
+  }, []);
+  return null;
+}
+
 function NotFoundPage() {
   return (
     <Layout breadcrumbs={[{ label: 'Page Not Found' }]}>
@@ -121,12 +127,12 @@ export default function App() {
                 <Route path="/legislative" element={<LegislativePage />} />
                 <Route path="/legislative/ordinance-framework" element={<OrdinanceFrameworkPage />} />
                 <Route path="/legislative/resolution-framework" element={<ResolutionFrameworkPage />} />
-                <Route path="/budget" element={<BudgetPage />} />
-                <Route path="/tracker" element={<BudgetPage />} />
-                <Route path="/budgetdocs" element={<BudgetPage />} />
-                <Route path="/contracts" element={<BudgetPage />} />
-                <Route path="/contacts" element={<Navigate to="/contracts" replace />} />
-                <Route path="/transparency" element={<BudgetPage />} />
+                <Route path="/budget" element={<BudgetExternalRedirect />} />
+                <Route path="/tracker" element={<BudgetExternalRedirect />} />
+                <Route path="/budgetdocs" element={<BudgetExternalRedirect />} />
+                <Route path="/contracts" element={<BudgetExternalRedirect />} />
+                <Route path="/contacts" element={<BudgetExternalRedirect />} />
+                <Route path="/transparency" element={<BudgetExternalRedirect />} />
                 <Route path="/news" element={<NewsPage />} />
                 <Route path="/weather" element={<WeatherPage />} />
                 <Route path="/contact" element={<ContactPage />} />

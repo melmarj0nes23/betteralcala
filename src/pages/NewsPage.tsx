@@ -1,12 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { SearchIcon } from 'lucide-react';
 import Layout from '../components/layout/Layout';
+import PageMasthead from '../components/v2/layout/PageMasthead';
+import Container from '../components/v2/ui/Container';
+import Notice from '../components/v2/ui/Notice';
+import Flag from '../components/v2/ui/Flag';
+import Button from '../components/v2/ui/Button';
 import { SourceCitationBox, VerificationBadge } from '../components/VerificationBadge';
 import { useLanguage } from '../contexts/LanguageContext';
 import { MUNICIPAL_PROFILE } from '../data/municipalInfo';
 import { NEWS_ITEMS } from '../data/communityData';
 import { isValidCitation, useCivicDataset } from '../hooks/useCivicDataset';
 import { NewsItem } from '../types/civic';
+import { cn } from '../lib/utils';
 
 function isValidNewsItem(item: unknown): item is NewsItem {
   if (!item || typeof item !== 'object') return false;
@@ -25,9 +32,6 @@ export default function NewsPage() {
   const { t } = useLanguage();
   const newsItems = useCivicDataset('news.json', 'news', NEWS_ITEMS, isValidNewsItem);
   const [query, setQuery] = useState(() => searchParams.get('q') || '');
-  const [originFilter, setOriginFilter] = useState<
-    'all' | 'Official Government Source' | 'Independently Compiled Civic Summary'
-  >('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   useEffect(() => {
@@ -43,7 +47,6 @@ export default function NewsPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return newsItems.filter((item) => {
-      if (originFilter !== 'all' && item.originType !== originFilter) return false;
       if (categoryFilter !== 'all' && item.category !== categoryFilter) return false;
       if (!q) return true;
       return (
@@ -53,106 +56,66 @@ export default function NewsPage() {
         item.category.toLowerCase().includes(q)
       );
     });
-  }, [newsItems, originFilter, categoryFilter, query]);
+  }, [newsItems, categoryFilter, query]);
 
   return (
     <Layout breadcrumbs={[{ label: t('news-title') }]}>
-      <section className="page-header">
-        <div className="container">
-          <div className="page-header-content">
-            <span className="page-header-badge">
-              <i className="bi bi-megaphone-fill" aria-hidden="true" />{' '}
-              <span>{t('news-badge')}</span>
-            </span>
-            <h1>{t('news-title')}</h1>
-            <p className="page-header-desc">{t('news-desc')}</p>
-          </div>
-        </div>
-      </section>
+      <PageMasthead title={t('news-title')} lede={t('news-desc')} />
 
-      <section className="section">
-        <div className="container">
-          <div className="civic-notice-banner mb-6">
-            <i className="bi bi-info-circle-fill" aria-hidden="true" />
-            <div>
-              <strong>Source Transparency:</strong> BetterAlcala clearly separates{' '}
-              <strong>Official Government Source</strong> notices (derived directly from enacted
-              ordinances, provincial resolutions, and agency bulletins) from{' '}
-              <strong>Independently Compiled Civic Summaries</strong>. For real-time LGU posts,
-              visit the{' '}
+      <section className="py-12 max-md:py-8">
+        <Container>
+          <Notice tag="Source Transparency" title="Official notices vs. civic summaries" className="mb-8">
+            <p className="mt-2 font-sans-ed text-sm leading-relaxed text-ed-ink-2">
+              BetterAlcala separates <strong>Official Government Source</strong> notices from{' '}
+              <strong>Independently Compiled Civic Summaries</strong>. For real-time LGU posts, visit the{' '}
               <a
                 href={MUNICIPAL_PROFILE.officialFacebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="text-ed-navy underline underline-offset-2 hover:text-ed-red"
               >
-                Official LGU Alcala Facebook Page{' '}
-                <i className="bi bi-box-arrow-up-right" aria-hidden="true" />
+                Official LGU Alcala Facebook Page ↗
               </a>
               .
-            </div>
-          </div>
+            </p>
+          </Notice>
 
-          <div className="bg-slate-50 border border-black/10 rounded-xl p-4 mb-6 space-y-3">
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search announcements, advisories, deadlines..."
-                aria-label="Search announcements and updates"
-                className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm focus:border-[#0032a0] focus:outline-none"
-              />
+          {/* Search & Filters */}
+          <div className="mb-8 space-y-4 border-b border-ed-rule pb-6">
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="relative flex-1">
+                <SearchIcon
+                  size={16}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ed-ink-3"
+                />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search announcements, advisories, deadlines..."
+                  aria-label="Search announcements and updates"
+                  className="h-11 w-full border border-ed-ink bg-white pl-10 pr-4 font-sans-ed text-[15px] text-ed-ink outline-none placeholder:text-ed-ink-4 focus:border-ed-navy"
+                />
+              </div>
               {query && (
-                <button
-                  type="button"
-                  onClick={() => setQuery('')}
-                  className="btn btn-outline btn-sm whitespace-nowrap"
-                >
+                <Button type="button" variant="ghost" onClick={() => setQuery('')}>
                   Clear
-                </button>
+                </Button>
               )}
             </div>
 
-            <div className="mobile-filter-select-wrap">
-              <label htmlFor="news-category-select" className="mobile-filter-select-label">
-                Category
-              </label>
-              <select
-                id="news-category-select"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="mobile-filter-select"
-                aria-label="Filter updates by category"
-              >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat === 'all' ? 'All Categories' : cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="filter-tab-bar mb-0">
-              {(['all', 'Official Government Source', 'Independently Compiled Civic Summary'] as const).map(
-                (org) => (
-                  <button
-                    key={org}
-                    type="button"
-                    onClick={() => setOriginFilter(org)}
-                    className={`filter-tab-btn ${originFilter === org ? 'active' : ''}`}
-                  >
-                    {org === 'all' ? 'All Sources' : org}
-                  </button>
-                )
-              )}
-            </div>
-            <div className="filter-tab-bar filter-tab-bar--collapsible mb-0">
+            <div className="flex flex-wrap gap-2">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => setCategoryFilter(cat)}
-                  className={`filter-tab-btn ${categoryFilter === cat ? 'active' : ''}`}
+                  className={cn(
+                    'cursor-pointer border px-3 py-1.5 font-mono-ed text-[11px] uppercase tracking-[0.1em] transition-colors',
+                    categoryFilter === cat
+                      ? 'border-ed-navy bg-ed-navy text-white'
+                      : 'border-ed-rule-strong bg-white text-ed-ink-2 hover:border-ed-navy hover:text-ed-navy'
+                  )}
                 >
                   {cat === 'all' ? 'All Categories' : cat}
                 </button>
@@ -160,48 +123,54 @@ export default function NewsPage() {
             </div>
           </div>
 
-          <div className="space-y-5">
+          <div className="divide-y divide-ed-rule border-y border-ed-rule">
             {filtered.map((item) => (
-              <article
-                key={item.id}
-                className="bg-white border border-black/10 rounded-xl p-6"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-2 text-xs text-slate-600">
-                  <div className="flex flex-wrap items-center gap-2 font-semibold">
-                    <span className="text-[#0032a0]">{item.category}</span>
-                    <span aria-hidden="true">·</span>
-                    <span className="tabular-nums">{item.date}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>{item.originType}</span>
+              <article key={item.id} className="py-8">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Flag variant="navy">{item.category}</Flag>
+                    <span className="font-mono-ed text-[11px] tracking-[0.12em] text-ed-ink-3 tabular-nums">
+                      {item.date}
+                    </span>
+                    <span className="font-mono-ed text-[11px] tracking-[0.12em] text-ed-ink-3">
+                      · {item.originType}
+                    </span>
                   </div>
                   <VerificationBadge status={item.citation.verificationStatus} />
                 </div>
 
-                <h2 className="text-xl font-bold text-slate-900 mb-2">{item.title}</h2>
-                <p className="text-sm font-medium text-slate-800 mb-2">{item.summary}</p>
-                <p className="text-sm text-slate-600 mb-0">{item.details}</p>
+                <h2 className="font-serif-ed text-2xl font-bold leading-snug text-ed-ink">
+                  {item.title}
+                </h2>
+                <p className="mt-3 font-sans-ed text-[17px] leading-relaxed text-ed-ink">
+                  {item.summary}
+                </p>
+                <p className="mt-2 font-sans-ed text-[15px] leading-relaxed text-ed-ink-2">
+                  {item.details}
+                </p>
                 <SourceCitationBox citation={item.citation} compact />
               </article>
             ))}
 
             {filtered.length === 0 && (
-              <div className="text-center py-10 bg-slate-50 rounded-xl border border-black/5">
-                <p className="text-slate-600 mb-3">No updates matched your filter.</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setQuery('');
-                    setOriginFilter('all');
-                    setCategoryFilter('all');
-                  }}
-                  className="btn btn-primary btn-sm"
-                >
-                  Reset Filters
-                </button>
+              <div className="py-16 text-center">
+                <p className="font-serif-ed text-xl text-ed-ink-2">No updates matched your filter.</p>
+                <div className="mt-4">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setQuery('');
+                      setCategoryFilter('all');
+                    }}
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
               </div>
             )}
           </div>
-        </div>
+        </Container>
       </section>
     </Layout>
   );
