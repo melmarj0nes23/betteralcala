@@ -46,17 +46,17 @@ function isPrimaryRole(role: string): boolean {
   );
 }
 
-function getRoleBadgeClass(role: string): string {
+function getRoleLabelClass(role: string): string {
   if (isPrimaryRole(role)) {
-    return 'bg-[#0032a0] text-white';
+    return 'text-[#0032a0]';
   }
   if (role === 'SK Chairperson') {
-    return 'bg-[#2E8B57]/12 text-[#2E8B57] border border-[#2E8B57]/25';
+    return 'text-[#2E8B57]';
   }
   if (role === 'Barangay Secretary' || role === 'Ex-Officio Sangguniang Bayan Members') {
-    return 'bg-amber-100 text-amber-900 border border-amber-300/60';
+    return 'text-amber-800';
   }
-  return 'bg-slate-100 text-[#0f2342] border border-black/10';
+  return 'text-slate-500';
 }
 
 export default function OfficialsPage() {
@@ -282,21 +282,18 @@ export default function OfficialsPage() {
                     key={group.barangay}
                     className="bg-white border border-black/10 rounded-2xl overflow-hidden shadow-xs"
                   >
-                    <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-[#FAF7F2] border-b border-black/10">
+                    <div className="flex items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-3.5 bg-[#FAF7F2] border-b border-black/10">
                       <div className="min-w-0">
-                        <h2 className="text-base sm:text-lg font-extrabold text-[#0f2342] m-0 leading-snug">
+                        <h2 className="text-sm sm:text-base font-extrabold text-[#0f2342] m-0 leading-snug">
                           {group.heading}
                         </h2>
-                        <p className="text-xs text-slate-500 m-0 mt-0.5">
+                        <p className="text-[11px] sm:text-xs text-slate-500 m-0 mt-0.5">
                           {group.subtitle}
                         </p>
                       </div>
-                      <span className="font-mono-data text-[11px] font-bold text-[#0032a0] bg-[#0032a0]/10 px-2.5 py-0.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
-                        {group.badge}
-                      </span>
                     </div>
 
-                    <div className="divide-y divide-black/10 md:divide-y-0 md:grid md:grid-cols-2 md:gap-3 md:p-5">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 p-3 sm:p-4">
                       {group.officials.map((off, idx) => {
                         const hasValidEmail =
                           Boolean(off.email) && off.email!.toLowerCase() !== 'none@gmail.com';
@@ -304,39 +301,44 @@ export default function OfficialsPage() {
                         const cleanTel = off.contactNo ? off.contactNo.replace(/[^\d+]/g, '') : '';
                         const isHiddenOnMobile =
                           !isPrimaryRole(off.role) && !isMobileExpanded;
+                        const singleMobileHighlight =
+                          !isMobileExpanded &&
+                          isPrimaryRole(off.role) &&
+                          group.officials.filter((o) => isPrimaryRole(o.role)).length === 1;
 
                         return (
                           <div
                             key={`${group.barangay}-${off.role}-${off.name}-${idx}`}
-                            className={`px-4 py-3.5 md:rounded-xl md:border md:p-4 flex-col justify-between gap-2 ${
+                            className={`rounded-xl border p-2.5 sm:p-3.5 flex-col justify-between gap-1.5 min-w-0 ${
                               isHiddenOnMobile ? 'hidden md:flex' : 'flex'
-                            } ${
+                            } ${singleMobileHighlight ? 'col-span-2 md:col-span-1' : ''} ${
                               isPrimaryRole(off.role)
-                                ? 'bg-[#0032a0]/[0.03] md:border-[#0032a0]/25'
-                                : 'bg-white md:border-black/10'
+                                ? 'bg-[#0032a0]/[0.03] border-[#0032a0]/25'
+                                : 'bg-white border-black/10'
                             }`}
                           >
-                            <div className="flex flex-col items-start gap-1.5">
+                            <div className="flex flex-col items-start gap-0.5 min-w-0">
                               <span
-                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold ${getRoleBadgeClass(
+                                className={`text-[10px] font-bold uppercase tracking-wider leading-tight ${getRoleLabelClass(
                                   off.role
                                 )}`}
                               >
                                 {off.role}
                               </span>
-                              <h3 className="text-[15px] sm:text-base font-bold text-[#0f2342] m-0 leading-snug">
+                              <h3 className="text-xs sm:text-sm font-bold text-[#0f2342] m-0 leading-snug break-words w-full">
                                 {off.name}
                               </h3>
                             </div>
 
                             {hasValidEmail || hasPhone ? (
-                              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-1.5 sm:gap-x-5 text-xs text-slate-600 pt-0.5">
+                              <div className="flex flex-col gap-1 text-[11px] sm:text-xs text-slate-600 pt-0.5 min-w-0">
                                 {hasValidEmail && (
-                                  <div className="flex items-center gap-1.5 min-w-0">
-                                    <i className="bi bi-envelope text-[#0032a0] shrink-0" aria-hidden="true" />
+                                  <div className="flex items-center gap-1 min-w-0">
+                                    <i className="bi bi-envelope text-[#0032a0] shrink-0 text-[10px]" aria-hidden="true" />
                                     <a
                                       href={`mailto:${off.email}`}
                                       className="text-[#0032a0] hover:underline truncate"
+                                      title={off.email || undefined}
                                     >
                                       {off.email}
                                     </a>
@@ -344,11 +346,11 @@ export default function OfficialsPage() {
                                 )}
 
                                 {hasPhone && (
-                                  <div className="flex items-center gap-1.5">
-                                    <i className="bi bi-telephone text-[#0032a0] shrink-0" aria-hidden="true" />
+                                  <div className="flex items-center gap-1 min-w-0">
+                                    <i className="bi bi-telephone text-[#0032a0] shrink-0 text-[10px]" aria-hidden="true" />
                                     <a
                                       href={`tel:${cleanTel}`}
-                                      className="font-mono-data font-semibold text-[#0f2342] hover:text-[#0032a0] hover:underline"
+                                      className="font-mono-data font-semibold text-[#0f2342] hover:text-[#0032a0] hover:underline truncate"
                                     >
                                       {off.contactNo}
                                     </a>
@@ -356,8 +358,8 @@ export default function OfficialsPage() {
                                 )}
                               </div>
                             ) : (
-                              <p className="text-xs text-slate-400 m-0 pt-0.5">
-                                No direct email or phone listed
+                              <p className="text-[11px] text-slate-400 m-0 pt-0.5">
+                                No direct contact
                               </p>
                             )}
                           </div>
