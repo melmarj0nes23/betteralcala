@@ -206,8 +206,23 @@ export default function OfficialsPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by role">
+            <div className="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-between gap-3">
+              <div className="md:hidden">
+                <select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  aria-label="Filter by role"
+                  className="w-full rounded-xl border border-black/15 bg-[#FAF7F2] px-3.5 py-2.5 text-sm font-medium text-[#0f2342] focus:border-[#0032a0] focus:bg-white focus:outline-none"
+                >
+                  {ROLE_FILTERS.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="hidden md:flex flex-wrap gap-1.5" role="group" aria-label="Filter by role">
                 {ROLE_FILTERS.map((role) => (
                   <button
                     key={role}
