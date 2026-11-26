@@ -73,6 +73,12 @@ const ROUTES = [
       'Directory of elected officials, municipal department heads, and local government offices in Alcala, Pangasinan.',
   },
   {
+    path: '/officials',
+    title: 'Barangay Officials Directory | BetterAlcala',
+    description:
+      'Complete directory of Punong Barangays, Sangguniang Barangay Members, SK Chairpersons, and Barangay Secretaries across all 21 barangays of Alcala, Pangasinan.',
+  },
+  {
     path: '/news',
     title: 'News & Announcements | BetterAlcala',
     description:

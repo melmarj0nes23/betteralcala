@@ -9,6 +9,7 @@ import Layout from './components/layout/Layout';
 const ServicesPage = lazy(() => import('./pages/ServicesPage'));
 const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'));
 const GovernmentPage = lazy(() => import('./pages/GovernmentPage'));
+const OfficialsPage = lazy(() => import('./pages/OfficialsPage'));
 const BudgetPage = lazy(() => import('./pages/BudgetPage'));
 const StatisticsPage = lazy(() => import('./pages/StatisticsPage'));
 const LegislativePage = lazy(() => import('./pages/LegislativePage'));
@@ -114,6 +115,7 @@ export default function App() {
                 <Route path="/services/:category" element={<ServicesPage />} />
                 <Route path="/service-details/:id" element={<ServiceDetailPage />} />
                 <Route path="/government" element={<GovernmentPage />} />
+                <Route path="/officials" element={<OfficialsPage />} />
                 <Route path="/statistics" element={<StatisticsPage />} />
                 <Route path="/statistics/:barangay" element={<StatisticsPage />} />
                 <Route path="/legislative" element={<LegislativePage />} />
