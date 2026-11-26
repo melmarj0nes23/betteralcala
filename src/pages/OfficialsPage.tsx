@@ -182,7 +182,7 @@ export default function OfficialsPage() {
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search official name, barangay, email, or contact number..."
+                  placeholder="Search name, barangay, email, or phone..."
                   aria-label="Search barangay officials"
                   className="w-full rounded-xl border border-black/15 bg-[#FAF7F2] pl-10 pr-4 py-2.5 text-sm text-[#0f2342] placeholder:text-slate-400 focus:border-[#0032a0] focus:bg-white focus:outline-none"
                 />
@@ -282,24 +282,25 @@ export default function OfficialsPage() {
                     key={group.barangay}
                     className="bg-white border border-black/10 rounded-2xl overflow-hidden shadow-xs"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 bg-[#FAF7F2] border-b border-black/10">
-                      <div>
-                        <h2 className="text-lg font-bold text-[#0f2342] m-0">
+                    <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-[#FAF7F2] border-b border-black/10">
+                      <div className="min-w-0">
+                        <h2 className="text-base sm:text-lg font-extrabold text-[#0f2342] m-0 leading-snug">
                           {group.heading}
                         </h2>
-                        <p className="text-xs text-slate-500 m-0">
+                        <p className="text-xs text-slate-500 m-0 mt-0.5">
                           {group.subtitle}
                         </p>
                       </div>
-                      <span className="font-mono-data text-xs font-bold text-[#0032a0] bg-[#0032a0]/10 px-3 py-1 rounded-full">
+                      <span className="font-mono-data text-[11px] font-bold text-[#0032a0] bg-[#0032a0]/10 px-2.5 py-0.5 rounded-full whitespace-nowrap shrink-0 mt-0.5">
                         {group.badge}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 sm:p-5">
+                    <div className="divide-y divide-black/10 md:divide-y-0 md:grid md:grid-cols-2 md:gap-3 md:p-5">
                       {group.officials.map((off, idx) => {
                         const hasValidEmail =
                           Boolean(off.email) && off.email!.toLowerCase() !== 'none@gmail.com';
+                        const hasPhone = Boolean(off.contactNo);
                         const cleanTel = off.contactNo ? off.contactNo.replace(/[^\d+]/g, '') : '';
                         const isHiddenOnMobile =
                           !isPrimaryRole(off.role) && !isMobileExpanded;
@@ -307,56 +308,58 @@ export default function OfficialsPage() {
                         return (
                           <div
                             key={`${group.barangay}-${off.role}-${off.name}-${idx}`}
-                            className={`rounded-xl border p-4 flex-col justify-between gap-2.5 ${
+                            className={`px-4 py-3.5 md:rounded-xl md:border md:p-4 flex-col justify-between gap-2 ${
                               isHiddenOnMobile ? 'hidden md:flex' : 'flex'
                             } ${
                               isPrimaryRole(off.role)
-                                ? 'border-[#0032a0]/25 bg-[#0032a0]/[0.03]'
-                                : 'border-black/10 bg-white'
+                                ? 'bg-[#0032a0]/[0.03] md:border-[#0032a0]/25'
+                                : 'bg-white md:border-black/10'
                             }`}
                           >
-                            <div className="flex flex-wrap items-start justify-between gap-2">
-                              <h3 className="text-sm sm:text-base font-bold text-[#0f2342] m-0">
-                                {off.name}
-                              </h3>
+                            <div className="flex flex-col items-start gap-1.5">
                               <span
-                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold shrink-0 ${getRoleBadgeClass(
+                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold ${getRoleBadgeClass(
                                   off.role
                                 )}`}
                               >
                                 {off.role}
                               </span>
+                              <h3 className="text-[15px] sm:text-base font-bold text-[#0f2342] m-0 leading-snug">
+                                {off.name}
+                              </h3>
                             </div>
 
-                            <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-slate-600">
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <i className="bi bi-envelope text-[#0032a0]" aria-hidden="true" />
-                                {hasValidEmail ? (
-                                  <a
-                                    href={`mailto:${off.email}`}
-                                    className="text-[#0032a0] hover:underline truncate"
-                                  >
-                                    {off.email}
-                                  </a>
-                                ) : (
-                                  <span className="text-slate-400">No email listed</span>
+                            {hasValidEmail || hasPhone ? (
+                              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-1.5 sm:gap-x-5 text-xs text-slate-600 pt-0.5">
+                                {hasValidEmail && (
+                                  <div className="flex items-center gap-1.5 min-w-0">
+                                    <i className="bi bi-envelope text-[#0032a0] shrink-0" aria-hidden="true" />
+                                    <a
+                                      href={`mailto:${off.email}`}
+                                      className="text-[#0032a0] hover:underline truncate"
+                                    >
+                                      {off.email}
+                                    </a>
+                                  </div>
                                 )}
-                              </div>
 
-                              <div className="flex items-center gap-1.5">
-                                <i className="bi bi-telephone text-[#0032a0]" aria-hidden="true" />
-                                {off.contactNo ? (
-                                  <a
-                                    href={`tel:${cleanTel}`}
-                                    className="font-mono-data font-semibold text-[#0f2342] hover:text-[#0032a0] hover:underline"
-                                  >
-                                    {off.contactNo}
-                                  </a>
-                                ) : (
-                                  <span className="text-slate-400">No contact listed</span>
+                                {hasPhone && (
+                                  <div className="flex items-center gap-1.5">
+                                    <i className="bi bi-telephone text-[#0032a0] shrink-0" aria-hidden="true" />
+                                    <a
+                                      href={`tel:${cleanTel}`}
+                                      className="font-mono-data font-semibold text-[#0f2342] hover:text-[#0032a0] hover:underline"
+                                    >
+                                      {off.contactNo}
+                                    </a>
+                                  </div>
                                 )}
                               </div>
-                            </div>
+                            ) : (
+                              <p className="text-xs text-slate-400 m-0 pt-0.5">
+                                No direct email or phone listed
+                              </p>
+                            )}
                           </div>
                         );
                       })}
