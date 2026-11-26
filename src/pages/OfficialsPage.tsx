@@ -50,6 +50,11 @@ export default function OfficialsPage() {
   const [selectedBarangay, setSelectedBarangay] = useState<string>('all');
   const [selectedRole, setSelectedRole] = useState<string>('All Roles');
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedBarangays, setExpandedBarangays] = useState<Record<string, boolean>>({});
+
+  const toggleBarangay = (name: string) => {
+    setExpandedBarangays((prev) => ({ ...prev, [name]: !prev[name] }));
+  };
 
   useEffect(() => {
     let active = true;
@@ -209,89 +214,127 @@ export default function OfficialsPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              {filteredGroups.map((group) => (
-                <article
-                  key={group.barangay}
-                  className="bg-white border border-black/10 rounded-2xl overflow-hidden shadow-xs"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 bg-[#FAF7F2] border-b border-black/10">
-                    <div>
-                      <h2 className="text-lg font-bold text-[#0f2342] m-0">
-                        Barangay {group.barangay}
-                      </h2>
-                      <p className="text-xs text-slate-500 m-0">
-                        Alcala, Pangasinan · {group.officials.length} official
-                        {group.officials.length === 1 ? '' : 's'} listed
-                      </p>
+              {filteredGroups.map((group) => {
+                const hasPunong = group.officials.some((o) => o.role === 'Punong Barangay');
+                const otherCount = group.officials.filter(
+                  (o) => o.role !== 'Punong Barangay'
+                ).length;
+                const autoExpandForFilter =
+                  Boolean(searchQuery.trim()) || selectedRole !== 'All Roles' || !hasPunong;
+                const isMobileExpanded =
+                  autoExpandForFilter || Boolean(expandedBarangays[group.barangay]);
+
+                return (
+                  <article
+                    key={group.barangay}
+                    className="bg-white border border-black/10 rounded-2xl overflow-hidden shadow-xs"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 bg-[#FAF7F2] border-b border-black/10">
+                      <div>
+                        <h2 className="text-lg font-bold text-[#0f2342] m-0">
+                          Barangay {group.barangay}
+                        </h2>
+                        <p className="text-xs text-slate-500 m-0">
+                          Alcala, Pangasinan · {group.officials.length} official
+                          {group.officials.length === 1 ? '' : 's'} listed
+                        </p>
+                      </div>
+                      <span className="font-mono-data text-xs font-bold text-[#0032a0] bg-[#0032a0]/10 px-3 py-1 rounded-full">
+                        DILG Directory
+                      </span>
                     </div>
-                    <span className="font-mono-data text-xs font-bold text-[#0032a0] bg-[#0032a0]/10 px-3 py-1 rounded-full">
-                      DILG Directory
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 sm:p-5">
-                    {group.officials.map((off, idx) => {
-                      const hasValidEmail =
-                        Boolean(off.email) && off.email!.toLowerCase() !== 'none@gmail.com';
-                      const cleanTel = off.contactNo ? off.contactNo.replace(/[^\d+]/g, '') : '';
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 sm:p-5">
+                      {group.officials.map((off, idx) => {
+                        const hasValidEmail =
+                          Boolean(off.email) && off.email!.toLowerCase() !== 'none@gmail.com';
+                        const cleanTel = off.contactNo ? off.contactNo.replace(/[^\d+]/g, '') : '';
+                        const isHiddenOnMobile =
+                          off.role !== 'Punong Barangay' && !isMobileExpanded;
 
-                      return (
-                        <div
-                          key={`${group.barangay}-${off.role}-${off.name}-${idx}`}
-                          className={`rounded-xl border p-4 flex flex-col justify-between gap-2.5 ${
-                            off.role === 'Punong Barangay'
-                              ? 'border-[#0032a0]/25 bg-[#0032a0]/[0.03] md:col-span-2'
-                              : 'border-black/10 bg-white'
-                          }`}
+                        return (
+                          <div
+                            key={`${group.barangay}-${off.role}-${off.name}-${idx}`}
+                            className={`rounded-xl border p-4 flex-col justify-between gap-2.5 ${
+                              isHiddenOnMobile ? 'hidden md:flex' : 'flex'
+                            } ${
+                              off.role === 'Punong Barangay'
+                                ? 'border-[#0032a0]/25 bg-[#0032a0]/[0.03]'
+                                : 'border-black/10 bg-white'
+                            }`}
+                          >
+                            <div className="flex flex-wrap items-start justify-between gap-2">
+                              <h3 className="text-sm sm:text-base font-bold text-[#0f2342] m-0">
+                                {off.name}
+                              </h3>
+                              <span
+                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold shrink-0 ${getRoleBadgeClass(
+                                  off.role
+                                )}`}
+                              >
+                                {off.role}
+                              </span>
+                            </div>
+
+                            <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-slate-600">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <i className="bi bi-envelope text-[#0032a0]" aria-hidden="true" />
+                                {hasValidEmail ? (
+                                  <a
+                                    href={`mailto:${off.email}`}
+                                    className="text-[#0032a0] hover:underline truncate"
+                                  >
+                                    {off.email}
+                                  </a>
+                                ) : (
+                                  <span className="text-slate-400">No email listed</span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-1.5">
+                                <i className="bi bi-telephone text-[#0032a0]" aria-hidden="true" />
+                                {off.contactNo ? (
+                                  <a
+                                    href={`tel:${cleanTel}`}
+                                    className="font-mono-data font-semibold text-[#0f2342] hover:text-[#0032a0] hover:underline"
+                                  >
+                                    {off.contactNo}
+                                  </a>
+                                ) : (
+                                  <span className="text-slate-400">No contact listed</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {!autoExpandForFilter && otherCount > 0 && (
+                      <div className="md:hidden px-4 pb-4">
+                        <button
+                          type="button"
+                          onClick={() => toggleBarangay(group.barangay)}
+                          aria-expanded={isMobileExpanded}
+                          className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-[#FAF7F2] px-4 py-2.5 text-xs font-bold text-[#0032a0] hover:border-[#0032a0] transition-colors cursor-pointer"
                         >
-                          <div className="flex flex-wrap items-start justify-between gap-2">
-                            <h3 className="text-sm sm:text-base font-bold text-[#0f2342] m-0">
-                              {off.name}
-                            </h3>
-                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold shrink-0 ${getRoleBadgeClass(
-                                off.role
-                              )}`}
-                            >
-                              {off.role}
-                            </span>
-                          </div>
-
-                          <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-slate-600">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <i className="bi bi-envelope text-[#0032a0]" aria-hidden="true" />
-                              {hasValidEmail ? (
-                                <a
-                                  href={`mailto:${off.email}`}
-                                  className="text-[#0032a0] hover:underline truncate"
-                                >
-                                  {off.email}
-                                </a>
-                              ) : (
-                                <span className="text-slate-400">No email listed</span>
-                              )}
-                            </div>
-
-                            <div className="flex items-center gap-1.5">
-                              <i className="bi bi-telephone text-[#0032a0]" aria-hidden="true" />
-                              {off.contactNo ? (
-                                <a
-                                  href={`tel:${cleanTel}`}
-                                  className="font-mono-data font-semibold text-[#0f2342] hover:text-[#0032a0] hover:underline"
-                                >
-                                  {off.contactNo}
-                                </a>
-                              ) : (
-                                <span className="text-slate-400">No contact listed</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </article>
-              ))}
+                          <span>
+                            {isMobileExpanded
+                              ? 'Hide other officials'
+                              : `Show ${otherCount} more official${otherCount === 1 ? '' : 's'}`}
+                          </span>
+                          <i
+                            className={`bi ${
+                              isMobileExpanded ? 'bi-chevron-up' : 'bi-chevron-down'
+                            }`}
+                            aria-hidden="true"
+                          />
+                        </button>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
             </div>
           )}
 
