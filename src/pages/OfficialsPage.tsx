@@ -92,7 +92,7 @@ export default function OfficialsPage() {
   const allGroups = useMemo<OfficialsGroup[]>(() => {
     const municipalGroup: OfficialsGroup = {
       barangay: 'Municipal Officials',
-      heading: 'Municipality of Alcala (Municipal Officials)',
+      heading: 'Municipal Officials',
       subtitle: `Alcala, Pangasinan · 2025–2028 Term · ${OFFICIALS_DATA.length} officials listed`,
       badge: 'COMELEC / LGU',
       officials: OFFICIALS_DATA.map((o) => ({
@@ -196,7 +196,7 @@ export default function OfficialsPage() {
                   className="w-full rounded-xl border border-black/15 bg-[#FAF7F2] px-3.5 py-2.5 text-sm font-medium text-[#0f2342] focus:border-[#0032a0] focus:bg-white focus:outline-none"
                 >
                   <option value="all">All (Municipal &amp; 21 Barangays)</option>
-                  <option value="Municipal Officials">Municipality of Alcala (Municipal Officials)</option>
+                  <option value="Municipal Officials">Municipal Officials</option>
                   {barangayNames.map((name) => (
                     <option key={name} value={name}>
                       Barangay {name}
@@ -283,8 +283,8 @@ export default function OfficialsPage() {
                     aria-label={group.heading}
                     className="border-b border-black/15 pb-5 last:border-b-0"
                   >
-                    <div className="flex items-baseline justify-between gap-2 pb-2.5 border-b-2 border-[#0032a0]/20">
-                      <h2 className="text-base sm:text-lg font-extrabold text-[#0f2342] m-0">
+                    <div className="flex items-baseline justify-between gap-2 pb-2 border-b border-black/15">
+                      <h2 className="!text-sm sm:!text-base !font-bold text-[#0f2342] m-0 leading-snug">
                         {group.heading}
                       </h2>
                       <span className="font-mono-data text-[11px] font-semibold text-slate-500 shrink-0">
