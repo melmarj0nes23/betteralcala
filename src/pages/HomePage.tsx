@@ -5,7 +5,6 @@ import {
   ArrowRightIcon,
   ArrowUpRightIcon,
   BriefcaseIcon,
-  ClockIcon,
   FileTextIcon,
   LandmarkIcon,
   MailIcon,
@@ -104,14 +103,6 @@ const SERVICE_CATEGORIES = [
     sub: 'MENRO Clearances, Collection Schedule, Tree Planting',
     to: '/services/environment',
   },
-];
-
-const ALSO_TRENDING = [
-  { agency: 'Treasury', title: 'Real Property Tax Assessment & Payment', to: '/services/tax-payments' },
-  { agency: 'MSWDO', title: 'Assistance to Individuals in Crisis (AICS)', to: '/services/social-services' },
-  { agency: 'Alcala RHU', title: 'Sanitary Permit & Health Certificate', to: '/services/health' },
-  { agency: 'Engineering', title: 'Building & Zoning Clearance', to: '/services/infrastructure' },
-  { agency: 'Sangguniang Bayan', title: 'Municipal Ordinances & Resolutions', to: '/legislative' },
 ];
 
 const HOME_HOTLINES = [
@@ -376,96 +367,69 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Band 4: Most Requested (3-Column Broadsheet Grid) */}
-      <section className="mt-20 max-md:mt-8">
+      {/* Band 4: Municipal Budget (5-Year Growth) */}
+      <section className="mt-20 border-y border-ed-navy bg-ed-paper-2 py-[60px] max-md:mt-8 max-md:py-6">
         <Container>
-          <SectionHeader
-            label="Most requested services"
-            meta="Verified municipal procedures · Alcala, Pangasinan"
-          />
-          <div className="grid grid-cols-[1.4fr_1fr_1fr] border border-ed-rule bg-white max-lg:grid-cols-1">
-            <Link
-              to="/services/certificates"
-              className="block border-r border-ed-rule p-10 text-ed-ink no-underline max-lg:border-b max-lg:border-r-0 max-md:p-4"
-            >
-              <Flag variant="red">Most Searched</Flag>
-              <div className="mt-6 font-mono-ed text-[10px] uppercase tracking-[0.16em] text-ed-ink-3 max-md:mt-3">
-                Local Civil Registrar · Municipal Hall
-              </div>
-              <h2 className="mt-3.5 font-serif-ed text-[clamp(30px,3.4vw,42px)] font-bold leading-[1.05] tracking-[-0.01em] text-ed-ink max-md:mt-2 max-md:text-[22px]">
-                Certificates &amp; Civil Registry
-              </h2>
-              <p className="mt-4 max-w-[520px] font-sans-ed text-[17px] leading-relaxed text-ed-ink-2 max-md:mt-2 max-md:text-[14px] max-md:leading-snug">
-                Requirements, fees, and step-by-step filing for birth, marriage, and death certificates at Alcala Municipal Hall.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-6 font-mono-ed text-[11px] uppercase tracking-[0.12em] text-ed-ink-3 max-md:mt-4 max-md:gap-4">
-                <span className="inline-flex items-center gap-1.5">
-                  <ClockIcon size={14} /> Same-day release
-                </span>
-                <span>Walk-in · Mon–Fri</span>
-                <span>8:00 AM – 5:00 PM</span>
-              </div>
-            </Link>
+          <div className="mb-8 max-md:mb-4">
+            <SectionHeader
+              label="Municipal Budget (5-Year Growth)"
+              meta={
+                <a
+                  href="https://budget.betteralcala.org/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-ed-navy no-underline hover:text-ed-red"
+                >
+                  budget.betteralcala.org ↗
+                </a>
+              }
+            />
+          </div>
 
-            <div className="flex flex-col border-r border-ed-rule max-lg:border-b max-lg:border-r-0">
-              <Link
-                to="/services/business"
-                className="flex flex-1 flex-col border-b border-ed-rule p-8 text-ed-ink no-underline max-md:p-4"
-              >
-                <Eyebrow>BPLO · BOSS</Eyebrow>
-                <h3 className="mt-3 font-serif-ed text-[28px] font-bold leading-[1.1] tracking-[-0.01em] text-ed-ink max-md:mt-1.5 max-md:text-[19px]">
-                  Business Permits &amp; Licensing
-                </h3>
-                <p className="mt-2.5 flex-1 text-[13px] leading-normal text-ed-ink-2 max-md:mt-1.5 max-md:text-xs">
-                  New business applications, annual renewals, barangay clearances, and sanitary/fire endorsements.
-                </p>
-                <div className="mt-4 flex gap-4 border-t border-ed-rule pt-3.5 font-mono-ed text-[11px] uppercase tracking-[0.1em] text-ed-ink-3 max-md:mt-3 max-md:pt-2.5 max-md:text-[10px]">
-                  <span>1–3 days</span>
-                  <span>·</span>
-                  <span>Municipal Hall</span>
-                </div>
-              </Link>
-              <Link
-                to="/services/social-services"
-                className="flex flex-1 flex-col p-8 text-ed-ink no-underline max-md:p-4"
-              >
-                <Eyebrow>MSWDO</Eyebrow>
-                <h3 className="mt-3 font-serif-ed text-[28px] font-bold leading-[1.1] tracking-[-0.01em] text-ed-ink max-md:mt-1.5 max-md:text-[19px]">
-                  Social Welfare &amp; AICS
-                </h3>
-                <p className="mt-2.5 flex-1 text-[13px] leading-normal text-ed-ink-2 max-md:mt-1.5 max-md:text-xs">
-                  Medical, burial, and educational assistance, plus Senior Citizen, PWD, and Solo Parent IDs.
-                </p>
-                <div className="mt-4 flex gap-4 border-t border-ed-rule pt-3.5 font-mono-ed text-[11px] uppercase tracking-[0.1em] text-ed-ink-3 max-md:mt-3 max-md:pt-2.5 max-md:text-[10px]">
-                  <span>Free</span>
-                  <span>·</span>
-                  <span>Priority Desk</span>
-                </div>
-              </Link>
+          <div className="grid grid-cols-[1fr_1.4fr] items-start gap-16 max-lg:grid-cols-1 max-lg:gap-10 max-md:gap-5">
+            <div>
+              <Eyebrow>FY 2022–2026 · Municipal Budget</Eyebrow>
+              <h2 className="mt-2 font-serif-ed text-[clamp(36px,4vw,48px)] font-bold leading-none tracking-[-0.02em] text-ed-navy tabular-nums max-md:text-[30px]">
+                +25.6%
+                <span className="text-2xl font-semibold text-ed-ink-3"> approved municipal budget growth</span>
+              </h2>
+              <p className="mt-4 max-w-[460px] font-sans-ed text-[15px] leading-relaxed text-ed-ink-2 max-md:mt-2.5 max-md:text-[14px] max-md:leading-snug">
+                BLGF Actuals (2022–2025): ₱1.16B receipts · ₱877.37M spent (₱195.71M Capital Outlay); +₱243.52M supplemental; COA Qualified Opinion (₱0 disallowances).
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3 max-md:mt-4">
+                <Button as="a" href="https://budget.betteralcala.org/" target="_blank" rel="noreferrer">
+                  <span>Explore Municipal Budget &amp; Docs</span>
+                  <ArrowUpRightIcon size={14} />
+                </Button>
+              </div>
             </div>
 
-            <div className="bg-ed-paper-2 p-8 max-md:p-4">
-              <Eyebrow className="text-ed-ink-2">Also Trending</Eyebrow>
-              <div className="mt-4 max-md:mt-2">
-                {ALSO_TRENDING.map((s, i) => (
-                  <Link
-                    key={s.title}
-                    to={s.to}
-                    className={`block py-3.5 text-ed-ink no-underline max-md:py-2 ${
-                      i < ALSO_TRENDING.length - 1 ? 'border-b border-ed-rule' : ''
-                    }`}
+            <div>
+              <div className="border-y border-ed-navy">
+                {MUNICIPAL_BUDGET_YEARS.map((row) => (
+                  <div
+                    key={row.year}
+                    className="grid grid-cols-[84px_1fr_165px] items-center gap-4 border-b border-ed-rule py-3.5 last:border-b-0 max-md:grid-cols-[72px_1fr_135px] max-md:gap-2.5 max-md:py-2.5"
                   >
-                    <div className="font-mono-ed text-[10px] uppercase tracking-[0.14em] text-ed-ink-3">
-                      {s.agency}
+                    <div className="font-mono-ed text-[13px] font-medium text-ed-ink-2 tabular-nums">
+                      {row.year}
                     </div>
-                    <div className="mt-0.5 font-serif-ed text-base leading-tight max-md:text-[14px]">
-                      {s.title}
+                    <div className="relative h-2 bg-ed-paper-3">
+                      <div
+                        className="absolute inset-y-0 left-0 bg-ed-navy"
+                        style={{ width: `${Math.round((row.value / maxBudgetValue) * 100)}%` }}
+                      />
                     </div>
-                  </Link>
+                    <div className="text-right font-mono-ed text-[13px] font-medium text-ed-ink tabular-nums whitespace-nowrap">
+                      <span>{row.amount}</span>
+                      {row.delta && (
+                        <span className={row.positive ? 'ml-1.5 text-success-700' : 'ml-1.5 text-ed-red'}>
+                          {row.delta}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 ))}
-              </div>
-              <div className="mt-6 max-md:mt-4">
-                <ArrowLink to="/services">Browse all services</ArrowLink>
               </div>
             </div>
           </div>
@@ -596,70 +560,55 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Band 6: Transparency Strip (border-y border-ed-navy bg-ed-paper-2) */}
-      <section className="mt-20 border-y border-ed-navy bg-ed-paper-2 py-[60px] max-md:mt-8 max-md:py-6">
+      {/* Band 6: Brief History of Alcala */}
+      <section className="mt-20 border-y border-ed-rule bg-ed-paper-2 py-[60px] max-md:mt-8 max-md:py-6">
         <Container>
           <div className="mb-8 max-md:mb-4">
             <SectionHeader
-              label="Municipal Budget (5-Year Growth)"
-              meta={
-                <a
-                  href="https://budget.betteralcala.org/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-ed-navy no-underline hover:text-ed-red"
-                >
-                  budget.betteralcala.org ↗
-                </a>
-              }
+              label="Brief History of Alcala"
+              meta={`Founded ${MUNICIPAL_PROFILE.foundingDate} · ${MUNICIPAL_PROFILE.foundingDecree}`}
             />
           </div>
 
           <div className="grid grid-cols-[1fr_1.4fr] items-start gap-16 max-lg:grid-cols-1 max-lg:gap-10 max-md:gap-5">
             <div>
-              <Eyebrow>FY 2022–2026 · Municipal Budget</Eyebrow>
-              <h2 className="mt-2 font-serif-ed text-[clamp(36px,4vw,48px)] font-bold leading-none tracking-[-0.02em] text-ed-navy tabular-nums max-md:text-[30px]">
-                +25.6%
-                <span className="text-2xl font-semibold text-ed-ink-3"> approved municipal budget growth</span>
+              <Eyebrow>Heritage &amp; Founding · {MUNICIPAL_PROFILE.formerName}</Eyebrow>
+              <h2 className="mt-2 font-serif-ed text-[clamp(28px,3.2vw,40px)] font-bold leading-[1.08] tracking-[-0.01em] text-ed-ink max-md:text-[24px]">
+                From Barrio Dangla to an independent town
               </h2>
-              <p className="mt-4 max-w-[460px] font-sans-ed text-[15px] leading-relaxed text-ed-ink-2 max-md:mt-2.5 max-md:text-[14px] max-md:leading-snug">
-                BLGF Actuals (2022–2025): ₱1.16B receipts · ₱877.37M spent (₱195.71M Capital Outlay); +₱243.52M supplemental; COA Qualified Opinion (₱0 disallowances).
-              </p>
+              <Dropcap className="mt-4 max-w-[480px] font-sans-ed text-[15px] leading-relaxed text-ed-ink-2 max-md:mt-2.5 max-md:text-[14px] max-md:leading-snug">
+                Originally a thriving settlement of Bayambang named after the medicinal dangla shrub, Alcala gained its independence on September 20, 1875 through Royal Decree No. 682 and celebrates its founding each year during the Turak Festival.
+              </Dropcap>
               <div className="mt-6 flex flex-wrap gap-3 max-md:mt-4">
-                <Button as="a" href="https://budget.betteralcala.org/" target="_blank" rel="noreferrer">
-                  <span>Explore Municipal Budget &amp; Docs</span>
-                  <ArrowUpRightIcon size={14} />
+                <Button type="button" onClick={() => setQuizOpen(true)}>
+                  <span>Take Alcala Heritage Quiz</span>
+                  <ArrowRightIcon size={14} />
                 </Button>
+                <ArrowLink to="/statistics?view=overview">Full municipal profile</ArrowLink>
               </div>
             </div>
 
-            <div>
-              <div className="border-y border-ed-navy">
-                {MUNICIPAL_BUDGET_YEARS.map((row) => (
-                  <div
-                    key={row.year}
-                    className="grid grid-cols-[84px_1fr_165px] items-center gap-4 border-b border-ed-rule py-3.5 last:border-b-0 max-md:grid-cols-[72px_1fr_135px] max-md:gap-2.5 max-md:py-2.5"
-                  >
-                    <div className="font-mono-ed text-[13px] font-medium text-ed-ink-2 tabular-nums">
-                      {row.year}
-                    </div>
-                    <div className="relative h-2 bg-ed-paper-3">
-                      <div
-                        className="absolute inset-y-0 left-0 bg-ed-navy"
-                        style={{ width: `${Math.round((row.value / maxBudgetValue) * 100)}%` }}
-                      />
-                    </div>
-                    <div className="text-right font-mono-ed text-[13px] font-medium text-ed-ink tabular-nums whitespace-nowrap">
-                      <span>{row.amount}</span>
-                      {row.delta && (
-                        <span className={row.positive ? 'ml-1.5 text-success-700' : 'ml-1.5 text-ed-red'}>
-                          {row.delta}
-                        </span>
-                      )}
-                    </div>
+            <div className="border-y border-ed-ink bg-white px-6 py-2 max-md:px-4">
+              {MUNICIPAL_PROFILE.historyTimeline.map((item, idx) => (
+                <div
+                  key={item.year}
+                  className={`grid grid-cols-[100px_1fr] gap-4 py-4 max-sm:grid-cols-1 max-sm:gap-1 ${
+                    idx < MUNICIPAL_PROFILE.historyTimeline.length - 1 ? 'border-b border-ed-rule' : ''
+                  }`}
+                >
+                  <div className="font-mono-ed text-xs font-semibold uppercase tracking-[0.12em] text-ed-navy pt-0.5">
+                    {item.year}
                   </div>
-                ))}
-              </div>
+                  <div>
+                    <h3 className="m-0 font-serif-ed text-base font-bold text-ed-ink">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1 mb-0 text-[13px] leading-relaxed text-ed-ink-2">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </Container>
