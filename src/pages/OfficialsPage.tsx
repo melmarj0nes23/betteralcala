@@ -284,7 +284,7 @@ export default function OfficialsPage() {
                     className="border-b border-black/15 pb-5 last:border-b-0"
                   >
                     <div className="flex items-baseline justify-between gap-2 pb-2 border-b border-black/15">
-                      <h2 className="!text-sm sm:!text-base !font-bold text-[#0f2342] m-0 leading-snug">
+                      <h2 className="!text-base sm:!text-lg !font-bold text-[#0f2342] m-0 leading-snug">
                         {group.heading}
                       </h2>
                       <span className="font-mono-data text-[11px] font-semibold text-slate-500 shrink-0">
